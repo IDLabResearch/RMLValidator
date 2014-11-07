@@ -1004,29 +1004,9 @@ public abstract class RMLMappingFactory {
             blankLogicalSource = (Resource) statements.get(0).getObject();
             //TODO:Check if I need to add another control here
 
-        //if (referenceFormulation == null) 
-            //try {
-            referenceFormulation = getReferenceFormulation(rmlMappingGraph, blankLogicalSource);
-            log.info(
-                    Thread.currentThread().getStackTrace()[1].getMethodName() + ": "
-                    + triplesMapSubject.stringValue()
-                    + "reference formulation: "
-                    + referenceFormulation);
-        /*} catch (Exception ex) {
-            log.error( 
-                    Thread.currentThread().getStackTrace()[1].getMethodName() + ": "
-                    + triplesMapSubject.stringValue()
-                    + " has no reference formulation defined.");
-            //Logger.getLogger(RMLMappingFactory.class.getName()).log(Level.SEVERE, null, ex);
-        }*/
+        referenceFormulation = getReferenceFormulation(rmlMappingGraph, blankLogicalSource);
 
-        if (referenceFormulation == null) {
-            log.error(
-                    Thread.currentThread().getStackTrace()[1].getMethodName() + ": "
-                    + triplesMapSubject.stringValue()
-                    + "RML Syntax error: "
-                    + " has an unknown reference formulation.");
-        }
+        checkReferenceFormulation(triplesMapSubject, referenceFormulation);
 
         // Check SQL base table or view
         URI pName = rmlMappingGraph.URIref(RMLVocabulary.RML_NAMESPACE
@@ -1162,18 +1142,44 @@ public abstract class RMLMappingFactory {
                 + RMLVocabulary.RMLTerm.REFERENCE_FORMULATION);
         List<Statement> statements = rmlMappingGraph.tuplePattern(
                 subject, pReferenceFormulation, null);
+        
+        //each logical source must have exactly 1 reference formulation
         if (statements.size() > 1) {
             log.error( 
                     Thread.currentThread().getStackTrace()[1].getMethodName() + ": "
                     + subject
                     + " has too many reference formulations defined.");
         }
-        if (statements.isEmpty()) {
-            return RMLVocabulary.QLTerm.SQL_CLASS;
-        }
+        
+        if (statements.isEmpty()) 
+            //a reference formulation is always need to be defined
+            //only if it is a logicalTable a reference formulation is not needed
+            return null;
+        
         Resource object = (Resource) statements.get(0).getObject();
 
         return RMLVocabulary.getQLTerms(object.stringValue());
+    }
+    
+    private static void checkReferenceFormulation(
+            Resource triplesMapSubject, RMLVocabulary.QLTerm referenceFormulation){
+        if (referenceFormulation == null) {
+            log.error(
+                    Thread.currentThread().getStackTrace()[1].getMethodName() + ": "
+                    + triplesMapSubject.stringValue()
+                    + "RML Syntax error: "
+                    + " has no reference formulation.");
+        }
+        else if(referenceFormulation != RMLVocabulary.QLTerm.CSV_CLASS &&
+           referenceFormulation != RMLVocabulary.QLTerm.JSONPATH_CLASS &&
+           referenceFormulation != RMLVocabulary.QLTerm.SQL_CLASS &&
+           referenceFormulation != RMLVocabulary.QLTerm.XPATH_CLASS )
+            log.error(
+                    Thread.currentThread().getStackTrace()[1].getMethodName() + ": "
+                    + triplesMapSubject.stringValue()
+                    + "RML Syntax error: "
+                    + " has unknown reference formulation.");
+        //TODO: better handling of unknown reference formulation
     }
     
     public static boolean isLocalFile(String source) {
