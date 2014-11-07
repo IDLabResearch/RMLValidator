@@ -38,9 +38,11 @@ import be.ugent.mmlab.rml.model.reference.ReferenceIdentifier;
 import be.ugent.mmlab.rml.model.reference.ReferenceIdentifierImpl;
 import be.ugent.mmlab.rml.rmlvalidator.RMLVocabulary.R2RMLTerm;
 import be.ugent.mmlab.rml.rmlvalidator.RMLVocabulary.RMLTerm;
+import java.io.File;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
+import java.net.ProtocolException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -114,16 +116,6 @@ public abstract class RMLMappingFactory {
         //RML document is a a local file
         else {
             r2rmlMappingGraph.loadDataFromFile(fileToRMLFile, RDFFormat.TURTLE);
-            /*log.debug("[RMLMappingFactory] size " + r2rmlMappingGraph.getSize());
-            log.debug("[RMLMappingFactory] print RDF " + r2rmlMappingGraph.printRDF(RDFFormat.RDFXML));
-            log.debug("[RMLMappingFactory] r2rmlMappingGraph " + r2rmlMappingGraph.toString());
-            log.debug("[RMLMappingFactory:extractRMLMapping] file "
-                    + fileToRMLFile + " loaded from local file.");
-            r2rmlMappingGraph.addFile(fileToRMLFile, RDFFormat.TURTLE);
-            log.debug("[RMLMappingFactory] size " + r2rmlMappingGraph.getSize());
-            log.debug("[RMLMappingFactory] print RDF " + r2rmlMappingGraph.printRDF(RDFFormat.RDFXML));
-            log.debug("[RMLMappingFactory:extractRMLMapping] file "
-                    + fileToRMLFile + " loaded from local file.");*/
         }
         
         log.debug("[RMLMappingFactory:extractRMLMapping] Number of R2RML triples in file "
@@ -963,49 +955,26 @@ public abstract class RMLMappingFactory {
         URI pTable = rmlMappingGraph.URIref(RMLVocabulary.R2RML_NAMESPACE
                 + RMLVocabulary.R2RMLTerm.LOGICAL_TABLE);
 
-        URI pSource = rmlMappingGraph.URIref(RMLVocabulary.RML_NAMESPACE
-                + RMLVocabulary.RMLTerm.LOGICAL_SOURCE);
-
         List<Statement> sTable = rmlMappingGraph.tuplePattern(
                 triplesMapSubject, pTable, null);
-
-        List<Statement> sSource = rmlMappingGraph.tuplePattern(
-                triplesMapSubject, pSource, null);
-
-        if (!sTable.isEmpty() && !sSource.isEmpty()) {
-            log.error(
-                    Thread.currentThread().getStackTrace()[1].getMethodName() + ": "
-                    + triplesMapSubject
-                    + " has both a source and table defined.");
-            //TODO: That shouldn't be an error
-        }
+        
+        List<Statement> source = getLogicalSource(rmlMappingGraph, triplesMapSubject);
 
         if (!sTable.isEmpty()) {
             extractLogicalTable();
         }
 
         //TODO: decide between source and table
-        List<Statement> statements = sSource;
+        List<Statement> statements = source;
         Resource blankLogicalSource = null;
-
-        if (statements.isEmpty()) {
-            log.error( 
-                    Thread.currentThread().getStackTrace()[1].getMethodName() + ": "
-                    + triplesMapSubject.stringValue()
-                    + " has no logical source defined.");
-        }
-        else if (statements.size() > 1) {
-            log.error(
-                    Thread.currentThread().getStackTrace()[1].getMethodName() + ": "
-                    + triplesMapSubject.stringValue()
-                    + " has too many logical source defined.");
-        }
-        else
+        
+        checkLogicalSource(triplesMapSubject, statements);
+        
+        if (!statements.isEmpty())
             blankLogicalSource = (Resource) statements.get(0).getObject();
             //TODO:Check if I need to add another control here
 
         referenceFormulation = getReferenceFormulation(rmlMappingGraph, blankLogicalSource);
-
         checkReferenceFormulation(triplesMapSubject, referenceFormulation);
 
         // Check SQL base table or view
@@ -1134,6 +1103,74 @@ public abstract class RMLMappingFactory {
                 + logicalSource);
         return logicalSource;
     }
+    
+    private static List<Statement> getLogicalSource(RMLSesameDataSet rmlMappingGraph, Resource triplesMapSubject){
+        URI logicalSource = rmlMappingGraph.URIref(RMLVocabulary.RML_NAMESPACE
+                + RMLVocabulary.RMLTerm.LOGICAL_SOURCE);
+
+        List<Statement> source = rmlMappingGraph.tuplePattern(
+                triplesMapSubject, logicalSource, null);
+        
+        //check if the source exists
+        
+        return source;
+        
+    }
+    
+    private void checkInputExists(RMLSesameDataSet rmlMappingGraph, String RMLFile){
+        if(!isLocalFile(RMLFile)){
+            log.info("[RMLMappingFactory:extractRMLMapping] file "
+                    + RMLFile + " loaded from URI.");
+            HttpURLConnection con = null;
+            try {
+                con = (HttpURLConnection) new URL(RMLFile).openConnection();
+                con.setRequestMethod("HEAD");
+                if (con.getResponseCode() != HttpURLConnection.HTTP_OK) {
+                    log.error(
+                        Thread.currentThread().getStackTrace()[1].getMethodName() + ": "
+                        + "INPUT error: "
+                        + RMLFile.toString()
+                        + " was not found.");
+                }
+            } catch (MalformedURLException ex) {
+                Logger.getLogger(RMLMappingFactory.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (IOException ex) {
+                Logger.getLogger(RMLMappingFactory.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+        //RML document is a a local file
+        else {
+            File f = new File(RMLFile);
+            if (!f.exists()) {
+                log.error(
+                        Thread.currentThread().getStackTrace()[1].getMethodName() + ": "
+                        + "INPUT error: "
+                        + RMLFile.toString()
+                        + " does not exist.");
+            } else if (f.isDirectory()) {
+                log.error(
+                        Thread.currentThread().getStackTrace()[1].getMethodName() + ": "
+                        + "INPUT error: "
+                        + RMLFile.toString()
+                        + " is a Directory.");
+            }
+        }        
+    }
+    
+    private static void checkLogicalSource(Resource triplesMapSubject, List<Statement> statements){
+        if (statements.isEmpty()) {
+            log.error( 
+                    Thread.currentThread().getStackTrace()[1].getMethodName() + ": "
+                    + triplesMapSubject.stringValue()
+                    + " has no logical source defined.");
+        }
+        else if (statements.size() > 1) {
+            log.error(
+                    Thread.currentThread().getStackTrace()[1].getMethodName() + ": "
+                    + triplesMapSubject.stringValue()
+                    + " has too many logical source defined.");
+        }
+    }
 
     private static RMLVocabulary.QLTerm getReferenceFormulation(
             RMLSesameDataSet rmlMappingGraph, Resource subject) 
@@ -1144,12 +1181,11 @@ public abstract class RMLMappingFactory {
                 subject, pReferenceFormulation, null);
         
         //each logical source must have exactly 1 reference formulation
-        if (statements.size() > 1) {
+        if (statements.size() > 1) 
             log.error( 
                     Thread.currentThread().getStackTrace()[1].getMethodName() + ": "
                     + subject
                     + " has too many reference formulations defined.");
-        }
         
         if (statements.isEmpty()) 
             //a reference formulation is always need to be defined
@@ -1162,23 +1198,23 @@ public abstract class RMLMappingFactory {
     }
     
     private static void checkReferenceFormulation(
-            Resource triplesMapSubject, RMLVocabulary.QLTerm referenceFormulation){
+            Resource triplesMapSubject, RMLVocabulary.QLTerm referenceFormulation) {
         if (referenceFormulation == null) {
             log.error(
                     Thread.currentThread().getStackTrace()[1].getMethodName() + ": "
                     + triplesMapSubject.stringValue()
                     + "RML Syntax error: "
                     + " has no reference formulation.");
-        }
-        else if(referenceFormulation != RMLVocabulary.QLTerm.CSV_CLASS &&
-           referenceFormulation != RMLVocabulary.QLTerm.JSONPATH_CLASS &&
-           referenceFormulation != RMLVocabulary.QLTerm.SQL_CLASS &&
-           referenceFormulation != RMLVocabulary.QLTerm.XPATH_CLASS )
+        } else if (referenceFormulation != RMLVocabulary.QLTerm.CSV_CLASS
+                && referenceFormulation != RMLVocabulary.QLTerm.JSONPATH_CLASS
+                && referenceFormulation != RMLVocabulary.QLTerm.SQL_CLASS
+                && referenceFormulation != RMLVocabulary.QLTerm.XPATH_CLASS) {
             log.error(
                     Thread.currentThread().getStackTrace()[1].getMethodName() + ": "
                     + triplesMapSubject.stringValue()
                     + "RML Syntax error: "
                     + " has unknown reference formulation.");
+        }
         //TODO: better handling of unknown reference formulation
     }
     
