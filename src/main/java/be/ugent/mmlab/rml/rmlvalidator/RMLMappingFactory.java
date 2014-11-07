@@ -947,34 +947,26 @@ public abstract class RMLMappingFactory {
      */
     private static LogicalSource extractLogicalSource(
             RMLSesameDataSet rmlMappingGraph, Resource triplesMapSubject) {
-
-        RMLVocabulary.QLTerm referenceFormulation = null;
-
         // Extract logical table blank node
         // favor logical table over source
-        URI pTable = rmlMappingGraph.URIref(RMLVocabulary.R2RML_NAMESPACE
-                + RMLVocabulary.R2RMLTerm.LOGICAL_TABLE);
-
-        List<Statement> sTable = rmlMappingGraph.tuplePattern(
-                triplesMapSubject, pTable, null);
+        List<Statement> table = getLogicalTable(rmlMappingGraph, triplesMapSubject);
         
-        List<Statement> source = getLogicalSource(rmlMappingGraph, triplesMapSubject);
-
-        if (!sTable.isEmpty()) {
+        if (!table.isEmpty()) {
             extractLogicalTable();
         }
+        
+        List<Statement> sourceStatements = getLogicalSource(rmlMappingGraph, triplesMapSubject);
 
-        //TODO: decide between source and table
-        List<Statement> statements = source;
         Resource blankLogicalSource = null;
         
-        checkLogicalSource(triplesMapSubject, statements);
+        checkLogicalSource(triplesMapSubject, sourceStatements);
         
-        if (!statements.isEmpty())
-            blankLogicalSource = (Resource) statements.get(0).getObject();
+        if (!sourceStatements.isEmpty())
+            blankLogicalSource = (Resource) sourceStatements.get(0).getObject();
             //TODO:Check if I need to add another control here
 
-        referenceFormulation = getReferenceFormulation(rmlMappingGraph, blankLogicalSource);
+        RMLVocabulary.QLTerm referenceFormulation = 
+                getReferenceFormulation(rmlMappingGraph, blankLogicalSource);
         checkReferenceFormulation(triplesMapSubject, referenceFormulation);
 
         // Check SQL base table or view
@@ -983,13 +975,9 @@ public abstract class RMLMappingFactory {
 
         List<Statement> statementsName = rmlMappingGraph.tuplePattern(
                 blankLogicalSource, pName, null);
-        if(statementsName.isEmpty()){
-            log.error(
-                    Thread.currentThread().getStackTrace()[1].getMethodName() + ": "
-                    + "RML Syntax error: "
-                    + triplesMapSubject.stringValue()
-                    + " has no source for the Logicla Source.");
-        }
+        
+        checkSource(triplesMapSubject, statementsName);
+        
 
         //check for view
         /*URI pView = rmlMappingGraph.URIref(RMLVocabulary.RML_NAMESPACE
@@ -1104,7 +1092,8 @@ public abstract class RMLMappingFactory {
         return logicalSource;
     }
     
-    private static List<Statement> getLogicalSource(RMLSesameDataSet rmlMappingGraph, Resource triplesMapSubject){
+    private static List<Statement> getLogicalSource(
+            RMLSesameDataSet rmlMappingGraph, Resource triplesMapSubject){
         URI logicalSource = rmlMappingGraph.URIref(RMLVocabulary.RML_NAMESPACE
                 + RMLVocabulary.RMLTerm.LOGICAL_SOURCE);
 
@@ -1112,6 +1101,21 @@ public abstract class RMLMappingFactory {
                 triplesMapSubject, logicalSource, null);
         
         //check if the source exists
+        log.info("[RMLMappingFactory] source " + source);
+        
+        return source;
+        
+    }
+    
+    private static List<Statement> getLogicalTable(
+            RMLSesameDataSet rmlMappingGraph, Resource triplesMapSubject){
+        URI logicalTable = rmlMappingGraph.URIref(RMLVocabulary.R2RML_NAMESPACE
+                + RMLVocabulary.R2RMLTerm.LOGICAL_TABLE);
+
+        List<Statement> source = rmlMappingGraph.tuplePattern(
+                triplesMapSubject, logicalTable, null);
+        
+        //check if the table exists
         
         return source;
         
@@ -1216,6 +1220,17 @@ public abstract class RMLMappingFactory {
                     + " has unknown reference formulation.");
         }
         //TODO: better handling of unknown reference formulation
+    }
+    
+    private static void checkSource(
+            Resource triplesMapSubject, List<Statement> statements) {
+        if(statements.isEmpty()){
+            log.error(
+                    Thread.currentThread().getStackTrace()[1].getMethodName() + ": "
+                    + "RML Syntax error: "
+                    + triplesMapSubject.stringValue()
+                    + " has no source for the Logicla Source.");
+        }
     }
     
     public static boolean isLocalFile(String source) {
