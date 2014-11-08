@@ -32,7 +32,10 @@ public class RMLVocabulary {
         return null;
     }
 
-    public enum RMLTerm {
+    public interface Term {
+    }
+
+    public enum RMLTerm implements Term{
 
         // RML CLASSES
         LOGICAL_SOURCE_CLASS("LogicalSource"),
@@ -76,7 +79,7 @@ public class RMLVocabulary {
         }
     }
 
-    public enum R2RMLTerm {
+    public enum R2RMLTerm implements Term{
         // CLASSES
 
         GRAPH_MAP_CLASS("GraphMap"),
