@@ -484,8 +484,8 @@ public class SesameDataSet {
 			try {
 				RepositoryResult<Statement> repres = con.getStatements(s, p, o,
 						true, contexts);
-                                log.info("[SesameDataSet:tuplePattern] repres " + repres.toString());
-                                log.info("[SesameDataSet:tuplePattern] s " + s + " p " + p + " o ");
+                                //log.info("[SesameDataSet:tuplePattern] repres " + repres.toString());
+                                //log.info("[SesameDataSet:tuplePattern] s " + s + " p " + p + " o ");
 				ArrayList<Statement> reslist = new ArrayList<Statement>();
 				while (repres.hasNext()) {
 					reslist.add(repres.next());

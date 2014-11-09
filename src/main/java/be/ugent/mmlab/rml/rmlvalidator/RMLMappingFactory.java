@@ -48,13 +48,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import net.antidot.semantic.rdf.rdb2rdf.r2rml.exception.InvalidR2RMLStructureException;
 import net.antidot.semantic.rdf.rdb2rdf.r2rml.exception.InvalidR2RMLSyntaxException;
 import net.antidot.semantic.rdf.rdb2rdf.r2rml.exception.R2RMLDataError;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.openrdf.model.BNode;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
@@ -65,11 +61,14 @@ import org.openrdf.model.impl.ValueFactoryImpl;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.rio.RDFFormat;
 import org.openrdf.rio.RDFParseException;
+import org.apache.log4j.Logger;
+import org.apache.log4j.Level;
+import org.apache.log4j.LogManager;
 
 public abstract class RMLMappingFactory {
 
     // Log
-    private static Log log = LogFactory.getLog(RMLMappingFactory.class);
+    private static final Logger log = LogManager.getLogger(RMLMappingFactory.class);
     // Value factory
     private static ValueFactory vf = new ValueFactoryImpl();
 
@@ -216,28 +215,15 @@ public abstract class RMLMappingFactory {
                 + RMLVocabulary.R2RMLTerm.SUBJECT_MAP);
         List<Statement> statements = r2rmlMappingGraph.tuplePattern(null, p,
                 null);
-        if (statements.isEmpty()) {
-            log.warn("[RMLMappingFactory:extractRMLMapping] No subject statement found. Exit...");
-        } /*
-         * throw new InvalidR2RMLStructureException(
-         * "[RMLMappingFactory:extractRMLMapping]" +
-         * " One subject statement is required.");
-         */ else // No subject map, Many shortcuts subjects
-        {
-            for (Statement s : statements) {
-                List<Statement> otherStatements = r2rmlMappingGraph
-                        .tuplePattern(s.getSubject(), p, null);
-                if (otherStatements.size() > 1) {
-                    throw new InvalidR2RMLStructureException(
-                            "[RMLMappingFactory:extractRMLMapping] "
-                            + s.getSubject() + " has many subjectMap "
-                            + "(or subject) but only one is required.");
-                } else // First initialization of triples map : stored to link them
-                // with referencing objects
-                {
-                    triplesMapResources.put(s.getSubject(), new StdTriplesMap(
-                            null, null, null, s.getSubject().stringValue()));
-                }
+
+        checkTripleMapResources(statements);
+
+        for (Statement s : statements) {
+            List<Statement> otherStatements = r2rmlMappingGraph
+                    .tuplePattern(s.getSubject(), p, null);
+            if (otherStatements.size() == 1) {
+                triplesMapResources.put(s.getSubject(), new StdTriplesMap(
+                        null, null, null, s.getSubject().stringValue()));
             }
         }
         return triplesMapResources;
@@ -376,10 +362,10 @@ public abstract class RMLMappingFactory {
         
         List<Statement> statements = r2rmlMappingGraph.tuplePattern(
                 predicateObject, p, null);
-        
+
         if (statements.size() < 1) {
-            throw new InvalidR2RMLStructureException(
-                    "[RMLMappingFactory:extractSubjectMap] "
+            log.error(
+                    Thread.currentThread().getStackTrace()[1].getMethodName() + ": "
                     + predicateObject.stringValue()
                     + " has no predicate map defined : one or more is required.");
         }
@@ -393,8 +379,8 @@ public abstract class RMLMappingFactory {
                 predicateMaps.add(predicateMap);
             }
         } catch (ClassCastException e) {
-            throw new InvalidR2RMLStructureException(
-                    "[RMLMappingFactory:extractPredicateObjectMaps] "
+            log.error(
+                    Thread.currentThread().getStackTrace()[1].getMethodName() + ": "
                     + "A resource was expected in object of predicateMap of "
                     + predicateObject.stringValue());
         }
@@ -403,8 +389,8 @@ public abstract class RMLMappingFactory {
                 + R2RMLTerm.OBJECT_MAP);
         statements = r2rmlMappingGraph.tuplePattern(predicateObject, o, null);
         if (statements.size() < 1) {
-            throw new InvalidR2RMLStructureException(
-                    "[RMLMappingFactory:extractPredicateObjectMap] "
+            log.error(
+                    Thread.currentThread().getStackTrace()[1].getMethodName() + ": "
                     + predicateObject.stringValue()
                     + " has no object map defined : one or more is required.");
         }
@@ -761,9 +747,9 @@ public abstract class RMLMappingFactory {
                     try {
                         newGraphMap = extractGraphMap(r2rmlMappingGraph, (Resource) graphMap);
                     } catch (R2RMLDataError ex) {
-                        Logger.getLogger(RMLMappingFactory.class.getName()).log(Level.SEVERE, null, ex);
+                        Logger.getLogger(RMLMappingFactory.class.getName()).log(Level.ERROR, null, ex);
                     } catch (InvalidR2RMLSyntaxException ex) {
-                        Logger.getLogger(RMLMappingFactory.class.getName()).log(Level.SEVERE, null, ex);
+                        Logger.getLogger(RMLMappingFactory.class.getName()).log(Level.ERROR, null, ex);
                     }
 
                     savedGraphMaps.add(newGraphMap);
@@ -967,8 +953,15 @@ public abstract class RMLMappingFactory {
             blankLogicalSource = (Resource) logicalSourceStatements.get(0).getObject();
             //TODO:Check if I need to add another control here
 
-        RMLVocabulary.QLTerm referenceFormulation = 
-                getReferenceFormulation(rmlMappingGraph, blankLogicalSource);
+        RMLVocabulary.QLTerm referenceFormulation =
+                getReferenceFormulation(rmlMappingGraph, triplesMapSubject, blankLogicalSource);
+
+        //Extract the iterator to create the iterator. Some formats have null, like CSV or SQL
+        List<Statement> iterators = getStatements(
+                rmlMappingGraph, blankLogicalSource,
+                RMLVocabulary.RML_NAMESPACE, RMLVocabulary.RMLTerm.ITERATOR);
+
+        checkIterator(triplesMapSubject, iterators, referenceFormulation);
 
         List<Statement> sourceStatements = getStatements(
                 rmlMappingGraph,blankLogicalSource,
@@ -981,19 +974,12 @@ public abstract class RMLMappingFactory {
         if (!sourceStatements.isEmpty()) {
             //Extract the file identifier
             String file = sourceStatements.get(0).getObject().stringValue();
-
-            //Extract the iterator to create the iterator. Some formats have null, like CSV or SQL
-            List<Statement> iterators = getStatements(
-                    rmlMappingGraph,blankLogicalSource,
-                RMLVocabulary.RML_NAMESPACE, RMLVocabulary.RMLTerm.ITERATOR);
             
-            checkIterator(triplesMapSubject, iterators, referenceFormulation);
-
             if(!iterators.isEmpty())
                 logicalSource = new StdLogicalSource(
                         iterators.get(0).getObject().stringValue(), 
                         file, referenceFormulation);
-        } 
+        }
         log.debug("[RMLMappingFactory:extractLogicalSource] Logical source extracted : "
                 + logicalSource);
         return logicalSource;
@@ -1021,7 +1007,8 @@ public abstract class RMLMappingFactory {
         return source;
     }
        
-    private void checkInputExists(RMLSesameDataSet rmlMappingGraph, String RMLFile){
+    private void checkInputExists(
+            RMLSesameDataSet rmlMappingGraph, String RMLFile){
         if(!isLocalFile(RMLFile)){
             log.info("[RMLMappingFactory:extractRMLMapping] file "
                     + RMLFile + " loaded from URI.");
@@ -1037,9 +1024,9 @@ public abstract class RMLMappingFactory {
                         + " was not found.");
                 }
             } catch (MalformedURLException ex) {
-                Logger.getLogger(RMLMappingFactory.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(RMLMappingFactory.class.getName()).log(Level.ERROR, null, ex);
             } catch (IOException ex) {
-                Logger.getLogger(RMLMappingFactory.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(RMLMappingFactory.class.getName()).log(Level.ERROR, null, ex);
             }
         }
         //RML document is a a local file
@@ -1061,7 +1048,8 @@ public abstract class RMLMappingFactory {
         }        
     }
     
-    private static void checkLogicalSource(Resource triplesMapSubject, List<Statement> statements){
+    private static void checkLogicalSource(
+            Resource triplesMapSubject, List<Statement> statements){
         if (statements.isEmpty()) {
             log.error( 
                     Thread.currentThread().getStackTrace()[1].getMethodName() + ": "
@@ -1077,47 +1065,39 @@ public abstract class RMLMappingFactory {
     }
 
     private static RMLVocabulary.QLTerm getReferenceFormulation(
-            RMLSesameDataSet rmlMappingGraph, Resource subject) 
+            RMLSesameDataSet rmlMappingGraph, Resource triplesMapSubject, Resource subject) 
     {       
         List<Statement> statements = getStatements(
                 rmlMappingGraph, subject, 
                 RMLVocabulary.RML_NAMESPACE, RMLVocabulary.RMLTerm.REFERENCE_FORMULATION);
         
-        log.info("reference formulation statements are " + statements.toString());
+        checkReferenceFormulation(triplesMapSubject, statements);
         
         if (statements.isEmpty()) 
             return null;
-        
-        checkReferenceFormulation(subject, statements);
-        Resource object = (Resource) statements.get(0).getObject();
-        return RMLVocabulary.getQLTerms(object.stringValue());
+        else
+            return RMLVocabulary.getQLTerms(statements.get(0).getObject().stringValue());
     }
     
     private static void checkReferenceFormulation(
             Resource triplesMapSubject, List<Statement> statements) { // RMLVocabulary.QLTerm referenceFormulation) {
-        log.info("statements are " + statements.toString());
-        Resource object = (Resource) statements.get(0).getObject();
-        log.info("object is " + object);
-        RMLVocabulary.QLTerm referenceFormulation = RMLVocabulary.getQLTerms(object.stringValue());
-        log.info("reference formulation is " + referenceFormulation);
-        
-        //each logical source must have exactly 1 reference formulation
         if (statements.size() > 1) {
             log.error(
                     Thread.currentThread().getStackTrace()[1].getMethodName() + ": "
-                    + triplesMapSubject
+                    + "RML Syntax error: "
+                    + triplesMapSubject.stringValue()
                     + " has too many reference formulations defined.");
         } else if (statements.isEmpty()) {
             log.error(
                     Thread.currentThread().getStackTrace()[1].getMethodName() + ": "
-                    + triplesMapSubject.stringValue()
                     + "RML Syntax error: "
+                    + triplesMapSubject.stringValue()
                     + " has no reference formulation.");
-        } else if (referenceFormulation == null) {
+        } else if (RMLVocabulary.getQLTerms(statements.get(0).getObject().stringValue()) == null) {
             log.error(
                     Thread.currentThread().getStackTrace()[1].getMethodName() + ": "
-                    + triplesMapSubject.stringValue()
                     + "RML Syntax error: "
+                    + triplesMapSubject.stringValue()
                     + " has unknown reference formulation.");
         }
     }
@@ -1148,6 +1128,22 @@ public abstract class RMLMappingFactory {
                     + "RML Syntax error: "
                     + triplesMapSubject.stringValue()
                     + " no iterator is required.");
+        }
+    }
+    
+    private static void checkTripleMapResources(List<Statement> statements){
+        if (statements.isEmpty()) {
+            log.error(
+                    Thread.currentThread().getStackTrace()[1].getMethodName() + ": "
+                    + "RML error: "
+                    +"No subject statement found. ");
+        } else if (statements.size() > 1) {
+            log.error(
+                    Thread.currentThread().getStackTrace()[1].getMethodName() + ": "
+                    + "RML error: "
+                    + statements.get(0).getSubject()
+                    + " has many subjectMap "
+                    + "(or subject) but only one is required.");
         }
     }
     
