@@ -221,10 +221,10 @@ public abstract class RMLMappingFactory {
         for (Statement s : statements) {
             List<Statement> otherStatements = r2rmlMappingGraph
                     .tuplePattern(s.getSubject(), p, null);
-            if (otherStatements.size() == 1) {
+            //if (otherStatements.size() == 1) {
                 triplesMapResources.put(s.getSubject(), new StdTriplesMap(
                         null, null, null, s.getSubject().stringValue()));
-            }
+            //}
         }
         return triplesMapResources;
     }
@@ -654,19 +654,8 @@ public abstract class RMLMappingFactory {
                 + R2RMLTerm.SUBJECT_MAP);
         List<Statement> statements = r2rmlMappingGraph.tuplePattern(
                 triplesMapSubject, p, null);
-
-        if (statements.isEmpty()) {
-            throw new InvalidR2RMLStructureException(
-                    "[RMLMappingFactory:extractSubjectMap] "
-                    + triplesMapSubject
-                    + " has no subject map defined.");
-        }
-        if (statements.size() > 1) {
-            throw new InvalidR2RMLStructureException(
-                    "[RMLMappingFactory:extractSubjectMap] "
-                    + triplesMapSubject
-                    + " has too many subject map defined.");
-        }
+        
+        checkStatements(statements, p);
 
         Resource subjectMap = (Resource) statements.get(0).getObject();
         log.debug("[RMLMappingFactory:extractTriplesMap] Found subject map : "
@@ -1135,15 +1124,30 @@ public abstract class RMLMappingFactory {
         if (statements.isEmpty()) {
             log.error(
                     Thread.currentThread().getStackTrace()[1].getMethodName() + ": "
-                    + "RML error: "
+                    + "RML syntax error: "
                     +"No subject statement found. ");
         } else if (statements.size() > 1) {
             log.error(
                     Thread.currentThread().getStackTrace()[1].getMethodName() + ": "
-                    + "RML error: "
+                    + "RML syntax error: "
                     + statements.get(0).getSubject()
                     + " has many subjectMap "
                     + "(or subject) but only one is required.");
+        }
+    }
+    
+    private static void checkStatements(List<Statement> statements, URI term){
+        if (statements.isEmpty()) {
+            log.error(
+                    Thread.currentThread().getStackTrace()[1].getMethodName() + ": "
+                    + "No " + term.getClass().toString()
+                    +" statement found. ");
+        } else if (statements.size() > 1) {
+            log.error(
+                    Thread.currentThread().getStackTrace()[1].getMethodName() + ": "
+                    + statements.get(0).getSubject()
+                    + " has many " + term.getClass().toString()
+                    + " but only one is required.");
         }
     }
     
