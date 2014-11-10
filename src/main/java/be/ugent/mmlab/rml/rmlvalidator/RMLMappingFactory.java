@@ -121,7 +121,7 @@ public abstract class RMLMappingFactory {
         // Transform RDF with replacement shortcuts
         replaceShortcuts(r2rmlMappingGraph);
         // Run few tests to help user in its RDF syntax
-        launchPreChecks(r2rmlMappingGraph);
+        //launchPreChecks(r2rmlMappingGraph);
         // Construct R2RML Mapping object
         Map<Resource, TriplesMap> triplesMapResources = extractTripleMapResources(r2rmlMappingGraph);
 
@@ -245,8 +245,7 @@ public abstract class RMLMappingFactory {
             if (otherStatements.isEmpty()) {
                 log.error( 
                     Thread.currentThread().getStackTrace()[1].getMethodName() + ": "
-                    + "RML Syntax error: " 
-                    + "You have a triples map without subject map : "
+                    + "Triples map without subject map : "
                         + s.getSubject().stringValue() + ".");
             }
         }
@@ -305,9 +304,6 @@ public abstract class RMLMappingFactory {
                 + triplesMapSubject.stringValue() + " done.");
     }
 
-    /*
-     * Still needs changing!!!!
-     */
     private static Set<PredicateObjectMap> extractPredicateObjectMaps(
             RMLSesameDataSet r2rmlMappingGraph, Resource triplesMapSubject,
             Set<GraphMap> graphMaps, TriplesMap result,
@@ -362,13 +358,15 @@ public abstract class RMLMappingFactory {
         
         List<Statement> statements = r2rmlMappingGraph.tuplePattern(
                 predicateObject, p, null);
+        
+        checkStatements(statements, p);
 
-        if (statements.size() < 1) {
+        /*if (statements.size() < 1) {
             log.error(
                     Thread.currentThread().getStackTrace()[1].getMethodName() + ": "
                     + predicateObject.stringValue()
                     + " has no predicate map defined : one or more is required.");
-        }
+        }*/
         Set<PredicateMap> predicateMaps = new HashSet<PredicateMap>();
         try {
             for (Statement statement : statements) {
@@ -406,16 +404,17 @@ public abstract class RMLMappingFactory {
                     refObjectMaps.add(refObjectMap);
                     // Not a simple object map, skip to next.
                     continue;
-                }
+                } 
                 ObjectMap objectMap = extractObjectMap(r2rmlMappingGraph,
                         (Resource) statement.getObject(), savedGraphMaps, 
-                        triplesMapResources);
+                        triplesMapResources, triplesMapSubject );
+                
                 objectMap.setOwnTriplesMap(triplesMapResources.get(triplesMapSubject));
                 log.debug("[RMLMappingFactory:extractPredicateObjectMap] ownTriplesMap attempted " 
                         + triplesMapResources.get(statement.getContext()) +
                         " for object " + statement.getObject().stringValue());
                 objectMaps.add(objectMap);
-            }
+            } 
         } catch (ClassCastException e) {
             throw new InvalidR2RMLStructureException(
                     "[RMLMappingFactory:extractPredicateObjectMaps] "
@@ -560,7 +559,7 @@ public abstract class RMLMappingFactory {
 
     private static ObjectMap extractObjectMap(RMLSesameDataSet r2rmlMappingGraph,
             Resource object, Set<GraphMap> graphMaps, 
-            Map<Resource, TriplesMap> triplesMapResources)
+            Map<Resource, TriplesMap> triplesMapResources, Resource o)
             throws InvalidR2RMLStructureException, R2RMLDataError,
             InvalidR2RMLSyntaxException {
         log.debug("[RMLMappingFactory:extractObjectMap] Extract object map..");
@@ -580,6 +579,8 @@ public abstract class RMLMappingFactory {
 
         //MVS: Decide on ReferenceIdentifier
         ReferenceIdentifier referenceValue = extractReferenceIdentifier(r2rmlMappingGraph, object);
+        
+        checkTermMap(constantValue, stringTemplate, referenceValue, o.stringValue());
 
         StdObjectMap result = new StdObjectMap(null, constantValue, dataType,
                 languageTag, stringTemplate, termType, inverseExpression,
@@ -669,8 +670,11 @@ public abstract class RMLMappingFactory {
                 subjectMap, R2RMLTerm.TERM_TYPE);
         String inverseExpression = extractLiteralFromTermMap(r2rmlMappingGraph,
                 subjectMap, R2RMLTerm.INVERSE_EXPRESSION);
+        
+        checkTermMap(constantValue, stringTemplate, null, subjectMap.toString());
 
         //MVS: Decide on ReferenceIdentifier
+        //TODO:Add check if the referenceValue is a valid reference according to the reference formulation
         ReferenceIdentifier referenceValue = extractReferenceIdentifier(r2rmlMappingGraph, subjectMap);
         //AD: The values of the rr:class property must be IRIs. 
         //AD: Would that mean that it can not be a reference to an extract of the input or a template?
@@ -1073,19 +1077,16 @@ public abstract class RMLMappingFactory {
         if (statements.size() > 1) {
             log.error(
                     Thread.currentThread().getStackTrace()[1].getMethodName() + ": "
-                    + "RML Syntax error: "
                     + triplesMapSubject.stringValue()
                     + " has too many reference formulations defined.");
         } else if (statements.isEmpty()) {
             log.error(
                     Thread.currentThread().getStackTrace()[1].getMethodName() + ": "
-                    + "RML Syntax error: "
                     + triplesMapSubject.stringValue()
                     + " has no reference formulation.");
         } else if (RMLVocabulary.getQLTerms(statements.get(0).getObject().stringValue()) == null) {
             log.error(
                     Thread.currentThread().getStackTrace()[1].getMethodName() + ": "
-                    + "RML Syntax error: "
                     + triplesMapSubject.stringValue()
                     + " has unknown reference formulation.");
         }
@@ -1096,7 +1097,6 @@ public abstract class RMLMappingFactory {
         if (statements.isEmpty()) {
             log.error(
                     Thread.currentThread().getStackTrace()[1].getMethodName() + ": "
-                    + "RML Syntax error: "
                     + triplesMapSubject.stringValue()
                     + " has no source for the Logicla Source.");
         }
@@ -1108,13 +1108,11 @@ public abstract class RMLMappingFactory {
         if (statements.isEmpty() && referenceFormulation != RMLVocabulary.QLTerm.CSV_CLASS) {
             log.error(
                     Thread.currentThread().getStackTrace()[1].getMethodName() + ": "
-                    + "RML Syntax error: "
                     + triplesMapSubject.stringValue()
                     + " has no iterator.");
         } else if (!statements.isEmpty() && referenceFormulation == RMLVocabulary.QLTerm.CSV_CLASS) {
             log.error(
                     Thread.currentThread().getStackTrace()[1].getMethodName() + ": "
-                    + "RML Syntax error: "
                     + triplesMapSubject.stringValue()
                     + " no iterator is required.");
         }
@@ -1124,12 +1122,10 @@ public abstract class RMLMappingFactory {
         if (statements.isEmpty()) {
             log.error(
                     Thread.currentThread().getStackTrace()[1].getMethodName() + ": "
-                    + "RML syntax error: "
                     +"No subject statement found. ");
         } else if (statements.size() > 1) {
             log.error(
                     Thread.currentThread().getStackTrace()[1].getMethodName() + ": "
-                    + "RML syntax error: "
                     + statements.get(0).getSubject()
                     + " has many subjectMap "
                     + "(or subject) but only one is required.");
@@ -1149,6 +1145,36 @@ public abstract class RMLMappingFactory {
                     + " has many " + term.getClass().toString()
                     + " but only one is required.");
         }
+    }
+    
+    private static void checkTermMap(
+            Value constantValue, String stringTemplate, 
+            ReferenceIdentifier referenceValue, String resource){
+        if(constantValue != null && stringTemplate != null)
+            log.error(
+                    Thread.currentThread().getStackTrace()[1].getMethodName() + ": "
+                    + resource
+                    + "contains a Term Map that should have "
+                    + " both constant and template.");
+        else if(constantValue != null && referenceValue != null)
+            log.error(
+                    Thread.currentThread().getStackTrace()[1].getMethodName() + ": "
+                    + resource
+                    + " contains a Term Map that should have "
+                    + "both constant and reference.");
+        else if(stringTemplate != null && referenceValue != null)
+            log.error(
+                    Thread.currentThread().getStackTrace()[1].getMethodName() + ": "
+                    + resource
+                    + " contains a Term Map that should have "
+                    + "both constant and reference.");
+        else if(stringTemplate == null && referenceValue == null && constantValue == null)
+            log.error(
+                    Thread.currentThread().getStackTrace()[1].getMethodName() + ": "
+                    + resource.toString()
+                    + " contains a Term Map that should have "
+                    + "a constant, a string template or a reference.");
+                
     }
     
     public static boolean isLocalFile(String source) {
