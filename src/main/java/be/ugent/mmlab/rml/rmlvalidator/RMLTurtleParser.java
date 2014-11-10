@@ -85,7 +85,7 @@ public class RMLTurtleParser extends TurtleParser {
 	 *-----------*/
     
         // Log
-        private static Log log = LogFactory.getLog(RMLMappingFactory.class);
+        private static Log log = LogFactory.getLog(RMLMappingExtractor.class);
 
 	private LineNumberReader lineReader;
 

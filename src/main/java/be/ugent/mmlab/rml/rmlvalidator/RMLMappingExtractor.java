@@ -64,10 +64,10 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.Level;
 import org.apache.log4j.LogManager;
 
-public abstract class RMLMappingFactory {
+public abstract class RMLMappingExtractor {
 
     // Log
-    private static final Logger log = LogManager.getLogger(RMLMappingFactory.class);
+    private static final Logger log = LogManager.getLogger(RMLMappingExtractor.class);
     // Value factory
     private static ValueFactory vf = new ValueFactoryImpl();
     
@@ -750,9 +750,9 @@ public abstract class RMLMappingFactory {
                     try {
                         newGraphMap = extractGraphMap(r2rmlMappingGraph, (Resource) graphMap, triplesMap);
                     } catch (R2RMLDataError ex) {
-                        Logger.getLogger(RMLMappingFactory.class.getName()).log(Level.ERROR, null, ex);
+                        Logger.getLogger(RMLMappingExtractor.class.getName()).log(Level.ERROR, null, ex);
                     } catch (InvalidR2RMLSyntaxException ex) {
-                        Logger.getLogger(RMLMappingFactory.class.getName()).log(Level.ERROR, null, ex);
+                        Logger.getLogger(RMLMappingExtractor.class.getName()).log(Level.ERROR, null, ex);
                     }
 
                     savedGraphMaps.add(newGraphMap);

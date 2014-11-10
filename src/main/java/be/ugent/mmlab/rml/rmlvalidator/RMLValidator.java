@@ -6,7 +6,7 @@ package be.ugent.mmlab.rml.rmlvalidator;
 
 import be.ugent.mmlab.rml.model.TriplesMap;
 import be.ugent.mmlab.rml.model.reference.ReferenceIdentifier;
-import static be.ugent.mmlab.rml.rmlvalidator.RMLMappingFactory.isLocalFile;
+import static be.ugent.mmlab.rml.rmlvalidator.RMLMappingExtractor.isLocalFile;
 import java.io.File;
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -28,7 +28,7 @@ import org.openrdf.model.Value;
 public class RMLValidator {
     
     // Log
-    private static final Logger log = LogManager.getLogger(RMLMappingFactory.class);
+    private static final Logger log = LogManager.getLogger(RMLMappingExtractor.class);
     
     RMLValidator(){}
     
@@ -49,9 +49,9 @@ public class RMLValidator {
                         + " was not found.");
                 }
             } catch (MalformedURLException ex) {
-                Logger.getLogger(RMLMappingFactory.class.getName()).log(Level.ERROR, null, ex);
+                Logger.getLogger(RMLMappingExtractor.class.getName()).log(Level.ERROR, null, ex);
             } catch (IOException ex) {
-                Logger.getLogger(RMLMappingFactory.class.getName()).log(Level.ERROR, null, ex);
+                Logger.getLogger(RMLMappingExtractor.class.getName()).log(Level.ERROR, null, ex);
             }
         }
         //RML document is a a local file
