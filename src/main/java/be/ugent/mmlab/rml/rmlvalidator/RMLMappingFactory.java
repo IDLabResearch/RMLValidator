@@ -38,7 +38,6 @@ import be.ugent.mmlab.rml.model.reference.ReferenceIdentifier;
 import be.ugent.mmlab.rml.model.reference.ReferenceIdentifierImpl;
 import be.ugent.mmlab.rml.rmlvalidator.RMLVocabulary.R2RMLTerm;
 import be.ugent.mmlab.rml.rmlvalidator.RMLVocabulary.RMLTerm;
-import java.io.File;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
@@ -71,6 +70,8 @@ public abstract class RMLMappingFactory {
     private static final Logger log = LogManager.getLogger(RMLMappingFactory.class);
     // Value factory
     private static ValueFactory vf = new ValueFactoryImpl();
+    
+    private static RMLValidator validator = new RMLValidator();
 
     /**
      * Extract RML Mapping object from a RML file written with Turtle syntax.
@@ -216,7 +217,7 @@ public abstract class RMLMappingFactory {
         List<Statement> statements = r2rmlMappingGraph.tuplePattern(null, p,
                 null);
 
-        checkTripleMapResources(statements);
+        validator.checkTripleMapResources(statements);
 
         for (Statement s : statements) {
             List<Statement> otherStatements = r2rmlMappingGraph
@@ -277,7 +278,7 @@ public abstract class RMLMappingFactory {
         TriplesMap result = triplesMapResources.get(triplesMapSubject);
 
         // Extract TriplesMap properties
-        LogicalSource logicalSource = extractLogicalSource(r2rmlMappingGraph, triplesMapSubject);
+        LogicalSource logicalSource = extractLogicalSource(r2rmlMappingGraph, triplesMapSubject, result);
 
         // Extract subject
         // Create a graph maps storage to save all met graph uri during parsing.
@@ -361,8 +362,8 @@ public abstract class RMLMappingFactory {
                 predicateObject, p, null);
         
         String termType = new Object(){}.getClass().getEnclosingMethod().getReturnType().getSimpleName();
-        checkEmptyStatements(triplesMap, statements, p, termType);
-        checkMultipleStatements(triplesMap, statements, p, termType);
+        validator.checkEmptyStatements(triplesMap, statements, p, termType);
+        validator.checkMultipleStatements(triplesMap, statements, p, termType);
         
         Set<PredicateMap> predicateMaps = new HashSet<PredicateMap>();
         try {
@@ -579,7 +580,7 @@ public abstract class RMLMappingFactory {
         ReferenceIdentifier referenceValue = 
                 extractReferenceIdentifier(r2rmlMappingGraph, object, triplesMap);
         
-        checkTermMap(constantValue, stringTemplate, referenceValue, o.stringValue());
+        validator.checkTermMap(constantValue, stringTemplate, referenceValue, o.stringValue());
 
         StdObjectMap result = new StdObjectMap(null, constantValue, dataType,
                 languageTag, stringTemplate, termType, inverseExpression,
@@ -661,7 +662,7 @@ public abstract class RMLMappingFactory {
         List<Statement> statements = r2rmlMappingGraph.tuplePattern(
                 triplesMapSubject, p, null);
         
-        checkStatements(statements, p);
+        validator.checkStatements(statements, p);
 
         Resource subjectMap = (Resource) statements.get(0).getObject();
         log.debug("[RMLMappingFactory:extractTriplesMap] Found subject map : "
@@ -676,7 +677,7 @@ public abstract class RMLMappingFactory {
         String inverseExpression = extractLiteralFromTermMap(r2rmlMappingGraph,
                 subjectMap, R2RMLTerm.INVERSE_EXPRESSION, triplesMap);
         
-        checkTermMap(constantValue, stringTemplate, null, subjectMap.toString());
+        validator.checkTermMap(constantValue, stringTemplate, null, subjectMap.toString());
 
         //MVS: Decide on ReferenceIdentifier
         //TODO:Add check if the referenceValue is a valid reference according to the reference formulation
@@ -816,7 +817,7 @@ public abstract class RMLMappingFactory {
         
         String type = new Object(){}.getClass().getEnclosingMethod().getReturnType().getSimpleName();
         //checkEmptyStatements(triplesMap, statements, p, type);
-        checkMultipleStatements(triplesMap, statements, p, type);
+        validator.checkMultipleStatements(triplesMap, statements, p, type);
         
         String result = statements.get(0).getObject().stringValue();
         if (log.isDebugEnabled()) {
@@ -842,7 +843,7 @@ public abstract class RMLMappingFactory {
         List<Statement> statements = r2rmlMappingGraph.tuplePattern(termType,
                 p, null);
         String type = new Object(){}.getClass().getEnclosingMethod().getReturnType().getSimpleName();
-        checkMultipleStatements(triplesMap, statements, p, type);
+        validator.checkMultipleStatements(triplesMap, statements, p, type);
         
         if (statements.isEmpty()) 
             return null;
@@ -933,12 +934,12 @@ public abstract class RMLMappingFactory {
      * @throws R2RMLDataError
      */
     private static LogicalSource extractLogicalSource(
-            RMLSesameDataSet rmlMappingGraph, Resource triplesMapSubject) {
+            RMLSesameDataSet rmlMappingGraph, Resource triplesMapSubject, TriplesMap triplesMap) {
         // Extract logical table blank node
         // favor logical table over source
         List<Statement> table = getStatements(
                 rmlMappingGraph, triplesMapSubject, 
-                RMLVocabulary.R2RML_NAMESPACE, RMLVocabulary.R2RMLTerm.LOGICAL_TABLE);
+                RMLVocabulary.R2RML_NAMESPACE, RMLVocabulary.R2RMLTerm.LOGICAL_TABLE, triplesMap);
         
         if (!table.isEmpty()) {
             extractLogicalTable();
@@ -946,31 +947,31 @@ public abstract class RMLMappingFactory {
         
         List<Statement> logicalSourceStatements = getStatements(
                 rmlMappingGraph, triplesMapSubject,
-                RMLVocabulary.RML_NAMESPACE, RMLVocabulary.RMLTerm.LOGICAL_SOURCE);
+                RMLVocabulary.RML_NAMESPACE, RMLVocabulary.RMLTerm.LOGICAL_SOURCE, triplesMap);
 
         Resource blankLogicalSource = null;
         
-        checkLogicalSource(triplesMapSubject, logicalSourceStatements);
+        validator.checkLogicalSource(triplesMapSubject, logicalSourceStatements, triplesMap);
         
         if (!logicalSourceStatements.isEmpty())
             blankLogicalSource = (Resource) logicalSourceStatements.get(0).getObject();
             //TODO:Check if I need to add another control here
 
         RMLVocabulary.QLTerm referenceFormulation =
-                getReferenceFormulation(rmlMappingGraph, triplesMapSubject, blankLogicalSource);
+                getReferenceFormulation(rmlMappingGraph, triplesMapSubject, blankLogicalSource, triplesMap);
 
         //Extract the iterator to create the iterator. Some formats have null, like CSV or SQL
         List<Statement> iterators = getStatements(
                 rmlMappingGraph, blankLogicalSource,
-                RMLVocabulary.RML_NAMESPACE, RMLVocabulary.RMLTerm.ITERATOR);
+                RMLVocabulary.RML_NAMESPACE, RMLVocabulary.RMLTerm.ITERATOR, triplesMap);
 
-        checkIterator(triplesMapSubject, iterators, referenceFormulation);
+        validator.checkIterator(triplesMapSubject, iterators, referenceFormulation);
 
         List<Statement> sourceStatements = getStatements(
                 rmlMappingGraph,blankLogicalSource,
-                RMLVocabulary.RML_NAMESPACE, RMLVocabulary.RMLTerm.SOURCE);
+                RMLVocabulary.RML_NAMESPACE, RMLVocabulary.RMLTerm.SOURCE, triplesMap);
         
-        checkSource(triplesMapSubject, sourceStatements);
+        validator.checkSource(triplesMapSubject, sourceStatements);
 
         LogicalSource logicalSource = null;
 
@@ -990,227 +991,32 @@ public abstract class RMLMappingFactory {
     
     private static List<Statement> getStatements(
             RMLSesameDataSet rmlMappingGraph, Resource triplesMapSubject, 
-            String namespace, RMLVocabulary.Term term){
+            String namespace, RMLVocabulary.Term term, TriplesMap triplesMap){
         URI logicalSource = rmlMappingGraph.URIref(namespace
                 + term);
 
         List<Statement> source = rmlMappingGraph.tuplePattern(
                 triplesMapSubject, logicalSource, null);
         
-        //TODO: normally that shouldn't be error
-        if (source.size() > 1) {
-                log.error(
-                        Thread.currentThread().getStackTrace()[1].getMethodName() + ": "
-                        + triplesMapSubject.stringValue()
-                        + " has too many logical source name defined.");
-            }
-        
-        //check if the source exists
+        validator.checkMultipleStatements(triplesMap, source, logicalSource, namespace);
         
         return source;
     }
        
-    private void checkInputExists(
-            RMLSesameDataSet rmlMappingGraph, String RMLFile){
-        if(!isLocalFile(RMLFile)){
-            log.info("[RMLMappingFactory:extractRMLMapping] file "
-                    + RMLFile + " loaded from URI.");
-            HttpURLConnection con = null;
-            try {
-                con = (HttpURLConnection) new URL(RMLFile).openConnection();
-                con.setRequestMethod("HEAD");
-                if (con.getResponseCode() != HttpURLConnection.HTTP_OK) {
-                    log.error(
-                        Thread.currentThread().getStackTrace()[1].getMethodName() + ": "
-                        + "INPUT error: "
-                        + RMLFile.toString()
-                        + " was not found.");
-                }
-            } catch (MalformedURLException ex) {
-                Logger.getLogger(RMLMappingFactory.class.getName()).log(Level.ERROR, null, ex);
-            } catch (IOException ex) {
-                Logger.getLogger(RMLMappingFactory.class.getName()).log(Level.ERROR, null, ex);
-            }
-        }
-        //RML document is a a local file
-        else {
-            File f = new File(RMLFile);
-            if (!f.exists()) {
-                log.error(
-                        Thread.currentThread().getStackTrace()[1].getMethodName() + ": "
-                        + "INPUT error: "
-                        + RMLFile.toString()
-                        + " does not exist.");
-            } else if (f.isDirectory()) {
-                log.error(
-                        Thread.currentThread().getStackTrace()[1].getMethodName() + ": "
-                        + "INPUT error: "
-                        + RMLFile.toString()
-                        + " is a Directory.");
-            }
-        }        
-    }
-    
-    private static void checkLogicalSource(
-            Resource triplesMapSubject, List<Statement> statements){
-        if (statements.isEmpty()) {
-            log.error( 
-                    Thread.currentThread().getStackTrace()[1].getMethodName() + ": "
-                    + triplesMapSubject.stringValue()
-                    + " has no logical source defined.");
-        }
-        else if (statements.size() > 1) {
-            log.error(
-                    Thread.currentThread().getStackTrace()[1].getMethodName() + ": "
-                    + triplesMapSubject.stringValue()
-                    + " has too many logical source defined.");
-        }        
-    }
-
     private static RMLVocabulary.QLTerm getReferenceFormulation(
-            RMLSesameDataSet rmlMappingGraph, Resource triplesMapSubject, Resource subject) 
+            RMLSesameDataSet rmlMappingGraph, Resource triplesMapSubject, 
+            Resource subject, TriplesMap triplesMap) 
     {       
         List<Statement> statements = getStatements(
                 rmlMappingGraph, subject, 
-                RMLVocabulary.RML_NAMESPACE, RMLVocabulary.RMLTerm.REFERENCE_FORMULATION);
+                RMLVocabulary.RML_NAMESPACE, RMLVocabulary.RMLTerm.REFERENCE_FORMULATION, triplesMap);
         
-        checkReferenceFormulation(triplesMapSubject, statements);
+        validator.checkReferenceFormulation(triplesMapSubject, statements);
         
         if (statements.isEmpty()) 
             return null;
         else
             return RMLVocabulary.getQLTerms(statements.get(0).getObject().stringValue());
-    }
-    
-    private static void checkReferenceFormulation(
-            Resource triplesMapSubject, List<Statement> statements) { // RMLVocabulary.QLTerm referenceFormulation) {
-        if (statements.size() > 1) {
-            log.error(
-                    Thread.currentThread().getStackTrace()[1].getMethodName() + ": "
-                    + triplesMapSubject.stringValue()
-                    + " has too many reference formulations defined.");
-        } else if (statements.isEmpty()) {
-            log.error(
-                    Thread.currentThread().getStackTrace()[1].getMethodName() + ": "
-                    + triplesMapSubject.stringValue()
-                    + " has no reference formulation.");
-        } else if (RMLVocabulary.getQLTerms(statements.get(0).getObject().stringValue()) == null) {
-            log.error(
-                    Thread.currentThread().getStackTrace()[1].getMethodName() + ": "
-                    + triplesMapSubject.stringValue()
-                    + " has unknown reference formulation.");
-        }
-    }
-    
-    private static void checkSource(
-            Resource triplesMapSubject, List<Statement> statements) {
-        if (statements.isEmpty()) {
-            log.error(
-                    Thread.currentThread().getStackTrace()[1].getMethodName() + ": "
-                    + triplesMapSubject.stringValue()
-                    + " has no source for the Logicla Source.");
-        }
-    }
-    
-    private static void checkIterator(
-            Resource triplesMapSubject, List<Statement> statements,
-            RMLVocabulary.QLTerm referenceFormulation) {
-        if (statements.isEmpty() && referenceFormulation != RMLVocabulary.QLTerm.CSV_CLASS) {
-            log.error(
-                    Thread.currentThread().getStackTrace()[1].getMethodName() + ": "
-                    + triplesMapSubject.stringValue()
-                    + " has no iterator.");
-        } else if (!statements.isEmpty() && referenceFormulation == RMLVocabulary.QLTerm.CSV_CLASS) {
-            log.error(
-                    Thread.currentThread().getStackTrace()[1].getMethodName() + ": "
-                    + triplesMapSubject.stringValue()
-                    + " no iterator is required.");
-        }
-    }
-    
-    private static void checkTripleMapResources(List<Statement> statements){
-        if (statements.isEmpty()) {
-            log.error(
-                    Thread.currentThread().getStackTrace()[1].getMethodName() + ": "
-                    +"No subject statement found. ");
-        } else if (statements.size() > 1) {
-            log.error(
-                    Thread.currentThread().getStackTrace()[1].getMethodName() + ": "
-                    + statements.get(0).getSubject()
-                    + " has many subjectMap "
-                    + "(or subject) but only one is required.");
-        }
-    }
-    
-    private static void checkStatements(List<Statement> statements, URI term){
-        if (statements.isEmpty()) {
-            log.error(
-                    Thread.currentThread().getStackTrace()[1].getMethodName() + ": "
-                    + "No " + term.getClass().toString()
-                    +" statement found. ");
-        } else if (statements.size() > 1) {
-            log.error(
-                    Thread.currentThread().getStackTrace()[1].getMethodName() + ": "
-                    + statements.get(0).getSubject()
-                    + " has many " + term.getClass().toString()
-                    + " but only one is required.");
-        }
-    }
-    
-    private static void checkEmptyStatements(
-            TriplesMap triplesMap, List<Statement> statements, URI term, String type){
-        if (statements.isEmpty()) {
-            log.error(
-                    Thread.currentThread().getStackTrace()[1].getMethodName() + ": "
-                    + triplesMap.getName() + " "
-                    + term.getLocalName()
-                    + " has " + term.getClass().toString()
-                    + " at " + type
-                    +" with no statement found. ");
-        }
-    }
-    
-    private static void checkMultipleStatements(
-            TriplesMap triplesMap, List<Statement> statements, URI term, String type){
-        
-        if (statements.size() > 1) {
-            log.error(
-                    Thread.currentThread().getStackTrace()[1].getMethodName() + ": "
-                    + triplesMap.getName()
-                    + " has many " + term.getLocalName()
-                    + " at " + type
-                    + " but only one is required.");
-        }
-    }
-    
-    private static void checkTermMap(
-            Value constantValue, String stringTemplate, 
-            ReferenceIdentifier referenceValue, String resource){
-        if(constantValue != null && stringTemplate != null)
-            log.error(
-                    Thread.currentThread().getStackTrace()[1].getMethodName() + ": "
-                    + resource
-                    + " contains a Term Map that has"
-                    + " both constant and template.");
-        else if(constantValue != null && referenceValue != null)
-            log.error(
-                    Thread.currentThread().getStackTrace()[1].getMethodName() + ": "
-                    + resource
-                    + " contains a Term Map that has"
-                    + " both constant and reference.");
-        else if(stringTemplate != null && referenceValue != null)
-            log.error(
-                    Thread.currentThread().getStackTrace()[1].getMethodName() + ": "
-                    + resource
-                    + " contains a Term Map that has"
-                    + " both template and reference.");
-        else if(stringTemplate == null && referenceValue == null && constantValue == null)
-            log.error(
-                    Thread.currentThread().getStackTrace()[1].getMethodName() + ": "
-                    + resource.toString()
-                    + " contains a Term Map that should have"
-                    + " a constant, a string template or a reference.");
-                
     }
     
     public static boolean isLocalFile(String source) {
