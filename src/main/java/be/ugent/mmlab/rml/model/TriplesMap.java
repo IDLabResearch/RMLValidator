@@ -22,13 +22,12 @@
  * A triples map specifies a rule for translating each
  * iteration of a logical source to zero or more RDF triples.
  * 
- * Modified by mielvandersande
+ * Modified by mielvandersande, andimou
  *
  ****************************************************************************/
 package be.ugent.mmlab.rml.model;
 
 import java.util.Set;
-import net.antidot.semantic.rdf.rdb2rdf.r2rml.exception.InvalidR2RMLStructureException;
 
 
 public interface TriplesMap {
@@ -47,7 +46,7 @@ public interface TriplesMap {
 	 * the subjects for each row of the logical table.
 	 */
 	public SubjectMap getSubjectMap();
-	public void setSubjectMap(SubjectMap stdSubjectMap) throws InvalidR2RMLStructureException;
+	public void setSubjectMap(SubjectMap stdSubjectMap); 
 
 	/**
 	 * It may have zero or more rr:predicateObjectMap properties, whose values 

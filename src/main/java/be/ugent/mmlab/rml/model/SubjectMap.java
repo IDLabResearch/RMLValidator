@@ -29,7 +29,6 @@
 package be.ugent.mmlab.rml.model;
 
 import java.util.Set;
-import net.antidot.semantic.rdf.rdb2rdf.r2rml.exception.InvalidR2RMLStructureException;
 import org.openrdf.model.URI;
 
 public interface SubjectMap extends TermMap {
@@ -52,6 +51,6 @@ public interface SubjectMap extends TermMap {
         @Override
 	public TriplesMap getOwnTriplesMap();
         
-	public void setOwnTriplesMap(TriplesMap ownTriplesMap) throws InvalidR2RMLStructureException;
+	public void setOwnTriplesMap(TriplesMap ownTriplesMap);// throws InvalidR2RMLStructureException;
 
 }

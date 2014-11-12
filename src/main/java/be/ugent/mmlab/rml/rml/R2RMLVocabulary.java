@@ -24,7 +24,7 @@
  * the rr: namespace IRI: http://www.w3.org/ns/r2rml#
  * 
  ****************************************************************************/
-package be.ugent.mmlab.rml.rmlvalidator;
+package be.ugent.mmlab.rml.rml;
 
 import java.util.ArrayList;
 import java.util.List;

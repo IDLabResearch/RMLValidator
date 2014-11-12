@@ -22,11 +22,13 @@
  * The term type of a column-valued term map or 
  * template-valued term map determines the kind 
  * of generated RDF term (IRIs, blank nodes or literals).
+ * 
+ * modified by andimou
  *
  ****************************************************************************/
 package be.ugent.mmlab.rml.model;
 
-import be.ugent.mmlab.rml.rmlvalidator.R2RMLVocabulary;
+import be.ugent.mmlab.rml.rml.R2RMLVocabulary;
 
 public enum TermType {
 
@@ -41,6 +43,7 @@ public enum TermType {
 		this.displayName = R2RMLVocabulary.R2RML_NAMESPACE + displayName;
 	}
 
+        @Override
 	public String toString() {
 		return displayName;
 	}

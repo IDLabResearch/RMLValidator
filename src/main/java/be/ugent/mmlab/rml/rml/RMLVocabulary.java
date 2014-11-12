@@ -9,7 +9,7 @@
  *
  ***************************************************************************
  */
-package be.ugent.mmlab.rml.rmlvalidator;
+package be.ugent.mmlab.rml.rml;
 
 public class RMLVocabulary {
 

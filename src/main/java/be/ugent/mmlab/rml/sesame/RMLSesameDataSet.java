@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package be.ugent.mmlab.rml.rmlvalidator;
+package be.ugent.mmlab.rml.sesame;
 
 import java.io.File;
 import java.io.IOException;

@@ -26,11 +26,14 @@
  * modified by mielvandersande, andimou
  * 
  ****************************************************************************/
-package be.ugent.mmlab.rml.model;
+package be.ugent.mmlab.rml.model.std;
 
+import be.ugent.mmlab.rml.model.JoinCondition;
+import be.ugent.mmlab.rml.model.PredicateObjectMap;
+import be.ugent.mmlab.rml.model.ReferencingObjectMap;
+import be.ugent.mmlab.rml.model.TriplesMap;
 import java.util.HashSet;
 import java.util.Set;
-import net.antidot.semantic.rdf.rdb2rdf.r2rml.exception.InvalidR2RMLStructureException;
 
 public class StdReferencingObjectMap implements ReferencingObjectMap {
 
@@ -40,8 +43,8 @@ public class StdReferencingObjectMap implements ReferencingObjectMap {
         protected TriplesMap ownTriplesMap;
 
 	public StdReferencingObjectMap(PredicateObjectMap predicateObjectMap,
-			TriplesMap parentTriplesMap, Set<JoinCondition> joinConditions) 
-                throws InvalidR2RMLStructureException {
+			TriplesMap parentTriplesMap, Set<JoinCondition> joinConditions) {
+                //throws InvalidR2RMLStructureException {
 		setPredicateObjectMap(predicateObjectMap);
 		this.parentTriplesMap = parentTriplesMap;
 		setJoinConditions(joinConditions);
@@ -116,8 +119,8 @@ public class StdReferencingObjectMap implements ReferencingObjectMap {
 	}
 
         @Override
-        public void setOwnTriplesMap(TriplesMap ownTriplesMap)
-			throws InvalidR2RMLStructureException {
+        public void setOwnTriplesMap(TriplesMap ownTriplesMap){
+			//throws InvalidR2RMLStructureException {
 		this.ownTriplesMap = ownTriplesMap;
 	}
 

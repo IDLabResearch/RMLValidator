@@ -1,31 +1,18 @@
 package be.ugent.mmlab.rml.rmlvalidator.main;
 
-import be.ugent.mmlab.rml.model.RMLMapping;
-import be.ugent.mmlab.rml.rmlvalidator.RMLConfiguration;
-import be.ugent.mmlab.rml.rmlvalidator.RMLMappingExtractor;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
+import be.ugent.mmlab.rml.rml.RMLConfiguration;
+import be.ugent.mmlab.rml.rmlvalidator.RMLMappingFactory;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import net.antidot.semantic.rdf.rdb2rdf.r2rml.exception.InvalidR2RMLStructureException;
-import net.antidot.semantic.rdf.rdb2rdf.r2rml.exception.InvalidR2RMLSyntaxException;
-import net.antidot.semantic.rdf.rdb2rdf.r2rml.exception.R2RMLDataError;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.ParseException;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.log4j.BasicConfigurator;
-import org.openrdf.repository.RepositoryException;
-import org.openrdf.rio.RDFParseException;
 
 /**
  *
  * @author andimou
  */
 public class Main {
-    
-    // Log
-	private static Log log = LogFactory.getLog(Main.class);
 
     /**
      * @param args the command line arguments
@@ -54,35 +41,19 @@ public class Main {
             System.out.println("add -wv not to validate the mapping document");
             System.out.println("");
             System.out.println("--------------------------------------------------------------------------------");
-
             System.out.println("[RMLValidator:main] mapping document " + map_doc);
-            
-            //if()
-            RMLMapping rmlMapping = RMLMappingExtractor.extractRMLMapping(map_doc);
-            if (rmlMapping == null) {
-                log.error("[RMLEngine:runRMLMapping] " + args[0] + "not found");
-                throw new IllegalArgumentException(
-                        "[RMLEngine:runRMLMapping] No RML Mapping object found.");
+
+            RMLMappingFactory mappingFactory ;
+            if (commandLine.hasOption("wv")) {
+                mappingFactory = new RMLMappingFactory(false);
+                mappingFactory.extractRMLMapping(map_doc);
+            } else {
+                mappingFactory = new RMLMappingFactory(true);
+                mappingFactory.extractRMLMapping(map_doc);
             }
-            
-            
-        } catch (R2RMLDataError ex) {
-            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (UnsupportedEncodingException ex) {
-            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (IOException ex) {
-            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (InvalidR2RMLStructureException ex) {
-            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (InvalidR2RMLSyntaxException ex) {
-            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (RepositoryException ex) {
-            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (RDFParseException ex) {
-            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
         } catch (ParseException ex) {
             Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        } 
 
     }
 }

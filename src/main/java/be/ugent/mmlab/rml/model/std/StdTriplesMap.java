@@ -22,13 +22,17 @@
  * A triples map specifies a rule for translating each
  * row of a logical table to zero or more RDF triples.
  * 
+ * modified by andimou
+ * 
  ****************************************************************************/
-package be.ugent.mmlab.rml.model;
+package be.ugent.mmlab.rml.model.std;
 
+import be.ugent.mmlab.rml.model.LogicalSource;
+import be.ugent.mmlab.rml.model.PredicateObjectMap;
+import be.ugent.mmlab.rml.model.SubjectMap;
+import be.ugent.mmlab.rml.model.TriplesMap;
 import java.util.HashSet;
 import java.util.Set;
-
-import net.antidot.semantic.rdf.rdb2rdf.r2rml.exception.InvalidR2RMLStructureException;
 
 public class StdTriplesMap implements TriplesMap {
 
@@ -39,11 +43,11 @@ public class StdTriplesMap implements TriplesMap {
 
 	public StdTriplesMap(LogicalSource logicalSource,
 			Set<StdPredicateObjectMap> predicateObjectMaps,
-			StdSubjectMap subjectMap, String name) throws InvalidR2RMLStructureException {
-		setSubjectMap(subjectMap);
-		setLogicalSource(logicalSource);
-		setPredicateObjectMap(predicateObjectMaps);
-		setName(name);
+			StdSubjectMap subjectMap, String name) {
+                setSubjectMap(subjectMap);
+                setLogicalSource(logicalSource);
+                setPredicateObjectMap(predicateObjectMaps);
+                setName(name);
 	}
 
         @Override
@@ -69,32 +73,39 @@ public class StdTriplesMap implements TriplesMap {
 		}
 	}
 
+        @Override
 	public LogicalSource getLogicalSource() {
 		return logicalSource;
 	}
 
+        @Override
 	public Set<PredicateObjectMap> getPredicateObjectMaps() {
 		return predicateObjectMaps;
 	}
 
+        @Override
 	public SubjectMap getSubjectMap() {
 		return subjectMap;
 	}
 
-	public void setSubjectMap(SubjectMap subjectMap) throws InvalidR2RMLStructureException {
+        @Override
+	public void setSubjectMap(SubjectMap subjectMap){ // throws InvalidR2RMLStructureException {
 		this.subjectMap = subjectMap;
 
 	}
 
+        @Override
 	public void addPredicateObjectMap(PredicateObjectMap predicateObjectMap) {
 		if (predicateObjectMap != null)
 			predicateObjectMaps.add(predicateObjectMap);
 	}
 
+        @Override
 	public String getName() {
 		return this.name;
 	}
 
+        @Override
 	public void setName(String name) {
 		if (name != null)
 			this.name = name;

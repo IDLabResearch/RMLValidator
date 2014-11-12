@@ -29,8 +29,6 @@
 package be.ugent.mmlab.rml.model;
 
 import java.util.Set;
-import net.antidot.semantic.rdf.rdb2rdf.r2rml.exception.InvalidR2RMLStructureException;
-
 
 public interface ReferencingObjectMap {
 	
@@ -69,6 +67,6 @@ public interface ReferencingObjectMap {
         
 	public void setPredicateObjectMap(PredicateObjectMap predicateObjectMap);
         
-        public void setOwnTriplesMap(TriplesMap ownTriplesMap) throws InvalidR2RMLStructureException;
+        public void setOwnTriplesMap(TriplesMap ownTriplesMap); // throws InvalidR2RMLStructureException;
 	
 }

@@ -4,9 +4,12 @@
  */
 package be.ugent.mmlab.rml.rmlvalidator;
 
+import be.ugent.mmlab.rml.sesame.RMLSesameDataSet;
+import be.ugent.mmlab.rml.extractor.RMLValidatedMappingExtractor;
 import be.ugent.mmlab.rml.model.TriplesMap;
 import be.ugent.mmlab.rml.model.reference.ReferenceIdentifier;
-import static be.ugent.mmlab.rml.rmlvalidator.RMLMappingExtractor.isLocalFile;
+import be.ugent.mmlab.rml.rml.RMLVocabulary;
+import static be.ugent.mmlab.rml.extractor.RMLValidatedMappingExtractor.isLocalFile;
 import java.io.File;
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -25,19 +28,38 @@ import org.openrdf.model.Value;
  *
  * @author andimou
  */
-public class RMLValidator {
+public class RMLValidator implements RMLMappingValidator {
     
     // Log
-    private static final Logger log = LogManager.getLogger(RMLMappingExtractor.class);
+    private static final Logger log = LogManager.getLogger(RMLValidatedMappingExtractor.class);
     
-    RMLValidator(){}
+    private static void launchPreChecks(RMLSesameDataSet r2rmlMappingGraph){
+        // Pre-check 1 : test if a triplesMap with predicateObject map exists
+        // without subject map
+        URI p = r2rmlMappingGraph.URIref(RMLVocabulary.R2RML_NAMESPACE
+                + RMLVocabulary.R2RMLTerm.PREDICATE_OBJECT_MAP);
+        List<Statement> statements = r2rmlMappingGraph.tuplePattern(null, p,
+                null);
+        for (Statement s : statements) {
+            p = r2rmlMappingGraph.URIref(RMLVocabulary.R2RML_NAMESPACE
+                    + RMLVocabulary.R2RMLTerm.SUBJECT_MAP);
+            List<Statement> otherStatements = r2rmlMappingGraph.tuplePattern(
+                    s.getSubject(), p, null);
+            if (otherStatements.isEmpty()) {
+                log.error( 
+                    Thread.currentThread().getStackTrace()[1].getMethodName() + ": "
+                    + "Triples map without subject map : "
+                        + s.getSubject().stringValue() + ".");
+            }
+        }
+    }
     
     private void checkInputExists(
             RMLSesameDataSet rmlMappingGraph, String RMLFile){
         if(!isLocalFile(RMLFile)){
             log.info("[RMLMappingFactory:extractRMLMapping] file "
                     + RMLFile + " loaded from URI.");
-            HttpURLConnection con = null;
+            HttpURLConnection con ;
             try {
                 con = (HttpURLConnection) new URL(RMLFile).openConnection();
                 con.setRequestMethod("HEAD");
@@ -49,9 +71,11 @@ public class RMLValidator {
                         + " was not found.");
                 }
             } catch (MalformedURLException ex) {
-                Logger.getLogger(RMLMappingExtractor.class.getName()).log(Level.ERROR, null, ex);
+                log.error(ex);
+                Logger.getLogger(RMLValidatedMappingExtractor.class.getName()).log(Level.ERROR, null, ex);
             } catch (IOException ex) {
-                Logger.getLogger(RMLMappingExtractor.class.getName()).log(Level.ERROR, null, ex);
+                log.error(ex);
+                Logger.getLogger(RMLValidatedMappingExtractor.class.getName()).log(Level.ERROR, null, ex);
             }
         }
         //RML document is a a local file
@@ -73,6 +97,13 @@ public class RMLValidator {
         }        
     }
     
+    /**
+     *
+     * @param triplesMapSubject
+     * @param statements
+     * @param triplesMap
+     */
+    @Override
     public void checkLogicalSource(
             Resource triplesMapSubject, List<Statement> statements, TriplesMap triplesMap){
         if (statements.isEmpty()) {
@@ -89,6 +120,12 @@ public class RMLValidator {
         }        
     }
     
+    /**
+     *
+     * @param triplesMapSubject
+     * @param statements
+     */
+    @Override
     public void checkReferenceFormulation(
             Resource triplesMapSubject, List<Statement> statements) { // RMLVocabulary.QLTerm referenceFormulation) {
         if (statements.size() > 1) {
@@ -109,6 +146,12 @@ public class RMLValidator {
         }
     }
     
+    /**
+     *
+     * @param triplesMapSubject
+     * @param statements
+     */
+    @Override
     public void checkSource(
             Resource triplesMapSubject, List<Statement> statements) {
         if (statements.isEmpty()) {
@@ -119,6 +162,13 @@ public class RMLValidator {
         }
     }
     
+    /**
+     *
+     * @param triplesMapSubject
+     * @param statements
+     * @param referenceFormulation
+     */
+    @Override
     public void checkIterator(
             Resource triplesMapSubject, List<Statement> statements,
             RMLVocabulary.QLTerm referenceFormulation) {
@@ -135,6 +185,7 @@ public class RMLValidator {
         }
     }
     
+    @Override
     public void checkTripleMapResources(List<Statement> statements){
         if (statements.isEmpty()) {
             log.error(
@@ -149,6 +200,12 @@ public class RMLValidator {
         }
     }
     
+    /**
+     *
+     * @param statements
+     * @param term
+     */
+    @Override
     public void checkStatements(List<Statement> statements, URI term){
         if (statements.isEmpty()) {
             log.error(
@@ -164,6 +221,14 @@ public class RMLValidator {
         }
     }
     
+    /**
+     *
+     * @param triplesMap
+     * @param statements
+     * @param term
+     * @param type
+     */
+    @Override
     public void checkEmptyStatements(
             TriplesMap triplesMap, List<Statement> statements, URI term, String type){
         if (statements.isEmpty()) {
@@ -177,6 +242,14 @@ public class RMLValidator {
         }
     }
     
+    /**
+     *
+     * @param triplesMap
+     * @param statements
+     * @param term
+     * @param type
+     */
+    @Override
     public void checkMultipleStatements(
             TriplesMap triplesMap, List<Statement> statements, URI term, String type){
         
@@ -190,6 +263,7 @@ public class RMLValidator {
         }
     }
     
+    @Override
     public void checkTermMap(
             Value constantValue, String stringTemplate, 
             ReferenceIdentifier referenceValue, String resource){
@@ -216,8 +290,6 @@ public class RMLValidator {
                     Thread.currentThread().getStackTrace()[1].getMethodName() + ": "
                     + resource.toString()
                     + " contains a Term Map that should have"
-                    + " a constant, a string template or a reference.");
-                
+                    + " a constant, a string template or a reference.");           
     }
-    
 }

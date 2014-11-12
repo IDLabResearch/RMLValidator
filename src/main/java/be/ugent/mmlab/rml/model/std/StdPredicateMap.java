@@ -25,15 +25,20 @@
  * modified by mielvandersande, andimou
  * 
  ****************************************************************************/
-package be.ugent.mmlab.rml.model;
+package be.ugent.mmlab.rml.model.std;
 
+import be.ugent.mmlab.rml.exceptions.InvalidRMLStructureException;
+import be.ugent.mmlab.rml.exceptions.RMLDataError;
+import be.ugent.mmlab.rml.model.AbstractTermMap;
+import be.ugent.mmlab.rml.model.PredicateMap;
+import be.ugent.mmlab.rml.model.PredicateObjectMap;
+import be.ugent.mmlab.rml.model.TermMap;
+import be.ugent.mmlab.rml.model.TermType;
+import be.ugent.mmlab.rml.model.TriplesMap;
 import be.ugent.mmlab.rml.model.reference.ReferenceIdentifier;
 import java.util.HashSet;
 
 import net.antidot.semantic.rdf.model.tools.RDFDataValidator;
-import net.antidot.semantic.rdf.rdb2rdf.r2rml.exception.InvalidR2RMLStructureException;
-import net.antidot.semantic.rdf.rdb2rdf.r2rml.exception.InvalidR2RMLSyntaxException;
-import net.antidot.semantic.rdf.rdb2rdf.r2rml.exception.R2RMLDataError;
 
 import org.openrdf.model.URI;
 import org.openrdf.model.Value;
@@ -45,9 +50,7 @@ public class StdPredicateMap extends AbstractTermMap implements TermMap,
 
 	public StdPredicateMap(PredicateObjectMap predicateObjectMap,
 			Value constantValue, String stringTemplate,
-			String inverseExpression, ReferenceIdentifier referenceValue, URI termType)
-			throws R2RMLDataError, InvalidR2RMLStructureException,
-			InvalidR2RMLSyntaxException {
+			String inverseExpression, ReferenceIdentifier referenceValue, URI termType){
 		// No Literal term type
 		// ==> No datatype
 		// ==> No specified language tag
@@ -60,10 +63,10 @@ public class StdPredicateMap extends AbstractTermMap implements TermMap,
 
         @Override
 	protected void checkSpecificTermType(TermType tt)
-			throws InvalidR2RMLStructureException {
+			throws InvalidRMLStructureException {
 		// If the term map is a predicate map: rr:IRI
 		if (tt != TermType.IRI) {
-			throw new InvalidR2RMLStructureException(
+			throw new InvalidRMLStructureException(
 					"[StdPredicateMap:checkSpecificTermType] If the term map is a "
 							+ "predicate map: only rr:IRI  is required");
 		}
@@ -71,11 +74,11 @@ public class StdPredicateMap extends AbstractTermMap implements TermMap,
 
         @Override
 	protected void checkConstantValue(Value constantValue)
-			throws R2RMLDataError {
+			throws RMLDataError {
 		// If the constant-valued term map is a predicate map then its constant
 		// value must be an IRI.
 		if (!RDFDataValidator.isValidURI(constantValue.stringValue()))
-			throw new R2RMLDataError(
+			throw new RMLDataError(
 					"[StdPredicateMap:checkConstantValue] Not a valid URI : "
 							+ constantValue);
 	}
@@ -109,8 +112,7 @@ public class StdPredicateMap extends AbstractTermMap implements TermMap,
 	}
         
         @Override
-	public void setOwnTriplesMap(TriplesMap ownTriplesMap)
-			throws InvalidR2RMLStructureException {
+	public void setOwnTriplesMap(TriplesMap ownTriplesMap){
 		this.ownTriplesMap = ownTriplesMap;
 	}
 }

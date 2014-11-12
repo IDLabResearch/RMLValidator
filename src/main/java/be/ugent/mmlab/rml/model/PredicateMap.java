@@ -27,8 +27,6 @@
  ****************************************************************************/
 package be.ugent.mmlab.rml.model;
 
-import net.antidot.semantic.rdf.rdb2rdf.r2rml.exception.InvalidR2RMLStructureException;
-
 public interface PredicateMap extends TermMap {
 	
 	/**
@@ -38,5 +36,5 @@ public interface PredicateMap extends TermMap {
         
 	public void setPredicateObjectMap(PredicateObjectMap predicateObjectMap);
                
-	public void setOwnTriplesMap(TriplesMap ownTriplesMap) throws InvalidR2RMLStructureException;
+	public void setOwnTriplesMap(TriplesMap ownTriplesMap); // throws InvalidR2RMLStructureException;
 }

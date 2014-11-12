@@ -26,27 +26,34 @@
  * 	- rr:parent, whose value is known as the
  * 	  join condition's parent column 
  * 
+ * modified by andimou
+ * 
  ****************************************************************************/
-package be.ugent.mmlab.rml.model;
+package be.ugent.mmlab.rml.model.std;
 
-import net.antidot.semantic.rdf.rdb2rdf.r2rml.exception.InvalidR2RMLStructureException;
-import net.antidot.semantic.rdf.rdb2rdf.r2rml.exception.InvalidR2RMLSyntaxException;
+import be.ugent.mmlab.rml.model.JoinCondition;
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
 
 public class StdJoinCondition implements JoinCondition {
+    
+    // Log
+    private static final Logger log = LogManager.getLogger(StdJoinCondition.class);  
 
 	private String child;
 	private String parent;
 
-	public StdJoinCondition(String child, String parent)
-			throws InvalidR2RMLStructureException, InvalidR2RMLSyntaxException {
+	public StdJoinCondition(String child, String parent){
+			//throws InvalidR2RMLStructureException, InvalidR2RMLSyntaxException {
 		setChild(child);
 		setParent(parent);
 	}
 
-	private void setParent(String parent)
-			throws InvalidR2RMLStructureException, InvalidR2RMLSyntaxException {
+	private void setParent(String parent){
+			//throws InvalidR2RMLStructureException, InvalidR2RMLSyntaxException {
 		if (parent == null)
-			throw new InvalidR2RMLStructureException(
+                    log.error(
+			//throw new InvalidR2RMLStructureException(
 					"[StdJoinCondition:setParent] A join condition must "
 							+ "have a parent column name.");
 		// old code
@@ -60,10 +67,11 @@ public class StdJoinCondition implements JoinCondition {
 		this.parent = parent;
 	}
 
-	private void setChild(String child) throws InvalidR2RMLStructureException,
-			InvalidR2RMLSyntaxException {
+	private void setChild(String child){ //throws InvalidR2RMLStructureException,
+			//InvalidR2RMLSyntaxException {
 		if (child == null)
-			throw new InvalidR2RMLStructureException(
+                    log.error(
+			//throw new InvalidR2RMLStructureException(
 					"[StdJoinCondition:construct] A join condition must "
 							+ "have a child column name.");
 		// old code
@@ -78,10 +86,12 @@ public class StdJoinCondition implements JoinCondition {
 
 	}
 
+        @Override
 	public String getChild() {
 		return child;
 	}
 
+        @Override
 	public String getParent() {
 		return parent;
 	}

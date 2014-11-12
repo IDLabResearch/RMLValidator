@@ -25,15 +25,20 @@
  * modified by mielvandersande, andimou
  * 
  ****************************************************************************/
-package be.ugent.mmlab.rml.model;
+package be.ugent.mmlab.rml.model.std;
 
+import be.ugent.mmlab.rml.exceptions.InvalidRMLStructureException;
+import be.ugent.mmlab.rml.exceptions.RMLDataError;
+import be.ugent.mmlab.rml.model.AbstractTermMap;
+import be.ugent.mmlab.rml.model.ObjectMap;
+import be.ugent.mmlab.rml.model.PredicateObjectMap;
+import be.ugent.mmlab.rml.model.TermMap;
+import be.ugent.mmlab.rml.model.TermType;
+import be.ugent.mmlab.rml.model.TriplesMap;
 import be.ugent.mmlab.rml.model.reference.ReferenceIdentifier;
 import java.util.HashSet;
 
 import net.antidot.semantic.rdf.model.tools.RDFDataValidator;
-import net.antidot.semantic.rdf.rdb2rdf.r2rml.exception.InvalidR2RMLStructureException;
-import net.antidot.semantic.rdf.rdb2rdf.r2rml.exception.InvalidR2RMLSyntaxException;
-import net.antidot.semantic.rdf.rdb2rdf.r2rml.exception.R2RMLDataError;
 
 import org.openrdf.model.URI;
 import org.openrdf.model.Value;
@@ -45,8 +50,8 @@ public final class StdObjectMap extends AbstractTermMap implements TermMap, Obje
 	public StdObjectMap(PredicateObjectMap predicateObjectMap,
 			Value constantValue, URI dataType, String languageTag,
 			String stringTemplate, URI termType, String inverseExpression,
-			ReferenceIdentifier referenceValue) throws R2RMLDataError,
-			InvalidR2RMLStructureException, InvalidR2RMLSyntaxException {
+			ReferenceIdentifier referenceValue){ //throws R2RMLDataError,
+			//InvalidRMLStructureException, InvalidRMLSyntaxException {
 		super(constantValue, dataType, languageTag, stringTemplate, termType,
 				inverseExpression, referenceValue);
 		setPredicateObjectMap(predicateObjectMap);
@@ -54,12 +59,12 @@ public final class StdObjectMap extends AbstractTermMap implements TermMap, Obje
 
         @Override
 	protected void checkSpecificTermType(TermType tt)
-			throws InvalidR2RMLStructureException {
+			throws InvalidRMLStructureException {
 		// If the term map is a subject map: rr:IRI or rr:BlankNode or
 		// rr:Literal
 		if ((tt != TermType.IRI) && (tt != TermType.BLANK_NODE)
 				&& (tt != TermType.LITERAL)) {
-			throw new InvalidR2RMLStructureException(
+			throw new InvalidRMLStructureException(
 					"[StdObjectMap:checkSpecificTermType] If the term map is a "
 							+ "object map: only rr:IRI or rr:BlankNode is required");
 		}
@@ -67,11 +72,11 @@ public final class StdObjectMap extends AbstractTermMap implements TermMap, Obje
 
         @Override
 	protected void checkConstantValue(Value constantValue)
-			throws R2RMLDataError {
+			throws RMLDataError {
 		if (!RDFDataValidator.isValidURI(constantValue.stringValue())
 				&& !RDFDataValidator
 						.isValidLiteral(constantValue.stringValue()))
-			throw new R2RMLDataError(
+			throw new RMLDataError(
 					"[StdObjectMap:checkConstantValue] Not a valid URI or literal : "
 							+ constantValue);
 	}
@@ -101,8 +106,8 @@ public final class StdObjectMap extends AbstractTermMap implements TermMap, Obje
 	}
         
         @Override
-	public void setOwnTriplesMap(TriplesMap ownTriplesMap)
-			throws InvalidR2RMLStructureException {   
+	public void setOwnTriplesMap(TriplesMap ownTriplesMap){
+			//throws InvalidR2RMLStructureException {   
             this.ownTriplesMap = ownTriplesMap;
 	}
 }
