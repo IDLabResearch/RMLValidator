@@ -30,6 +30,7 @@ public class ReferenceIdentifierImpl implements ReferenceIdentifier {
                 return new ReferenceIdentifierImpl(reference);
         }
 
+        @Override
         public String replaceAll(String input, String replaceValue) {
                 // Try simple replace...
                 String localResult = input.replaceAll("\\{" + reference + "\\}",

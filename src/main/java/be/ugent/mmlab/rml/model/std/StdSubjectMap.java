@@ -38,8 +38,8 @@ import be.ugent.mmlab.rml.model.TriplesMap;
 import be.ugent.mmlab.rml.model.reference.ReferenceIdentifier;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 
 import net.antidot.semantic.rdf.model.tools.RDFDataValidator;
 import net.antidot.semantic.rdf.rdb2rdf.r2rml.exception.R2RMLDataError;
@@ -65,7 +65,7 @@ public class StdSubjectMap extends AbstractTermMap implements SubjectMap {
                 setGraphMaps(graphMaps);
                 setOwnTriplesMap(ownTriplesMap);
             } catch (R2RMLDataError ex) {
-                Logger.getLogger(StdSubjectMap.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(StdSubjectMap.class.getName()).log(Level.FATAL, null, ex);
             } 
 	}
 

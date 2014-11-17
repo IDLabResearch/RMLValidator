@@ -4,14 +4,20 @@
  */
 package be.ugent.mmlab.rml.exceptions;
 
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
+
 /**
  *
  * @author andimou
  */
 public class InvalidRMLStructureException extends Exception {
+    
+    // Log
+    private static final Logger log = LogManager.getLogger(InvalidRMLStructureException.class);  
 
     public InvalidRMLStructureException(String string) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        log.error(string);
     }
     
 }

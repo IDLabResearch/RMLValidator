@@ -7,8 +7,8 @@ package be.ugent.mmlab.rml.sesame;
 import java.io.File;
 import java.io.IOException;
 import net.antidot.semantic.rdf.model.impl.sesame.SesameDataSet;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
 import org.openrdf.model.Resource;
 import org.openrdf.model.vocabulary.RDF;
 import org.openrdf.repository.RepositoryConnection;
@@ -37,7 +37,7 @@ public class RMLSesameDataSet extends SesameDataSet {
     static String RDFTYPE = RDF.TYPE.toString();
 
     // Log
-    private static Log log = LogFactory.getLog(RMLSesameDataSet.class);
+    private static final Logger log = LogManager.getLogger(RMLSesameDataSet.class);
     //private Repository currentRepository = null;
     
     //static RDFFormat TURTLE = RDFFormat.TURTLE;

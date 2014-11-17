@@ -186,7 +186,7 @@ public class RMLValidator implements RMLMappingValidator {
     }
     
     @Override
-    public void checkTripleMapResources(List<Statement> statements){
+    public void checkTriplesMapResources(List<Statement> statements){
         if (statements.isEmpty()) {
             log.error(
                     Thread.currentThread().getStackTrace()[1].getMethodName() + ": "

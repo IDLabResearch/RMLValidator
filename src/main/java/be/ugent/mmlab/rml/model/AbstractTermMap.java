@@ -33,19 +33,19 @@ import be.ugent.mmlab.rml.model.reference.ReferenceIdentifier;
 import be.ugent.mmlab.rml.model.reference.ReferenceIdentifierImpl;
 import be.ugent.mmlab.rml.tools.CustomRDFDataValidator;
 import be.ugent.mmlab.rml.exceptions.*;
+
 import java.util.HashSet;
 import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import net.antidot.semantic.rdf.model.tools.RDFDataValidator;
-
 import net.antidot.semantic.rdf.rdb2rdf.r2rml.tools.R2RMLToolkit;
 import net.antidot.semantic.xmls.xsd.XSDLexicalTransformation;
 import net.antidot.semantic.xmls.xsd.XSDType;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Level;
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
+
 import org.openrdf.model.Literal;
 import org.openrdf.model.URI;
 import org.openrdf.model.Value;
@@ -53,7 +53,8 @@ import org.openrdf.model.Value;
 public abstract class AbstractTermMap implements TermMap {
 
         // Log
-        private static Log log = LogFactory.getLog(AbstractTermMap.class);
+        private static Logger log = LogManager.getLogger(AbstractTermMap.class);
+        
         private Value constantValue;
         private URI dataType; //MVS: Changed to resource, since XSD is to limited
         private TermType termType;
@@ -79,11 +80,11 @@ public abstract class AbstractTermMap implements TermMap {
                 checkGlobalConsistency();
                 setOwnTriplesMap(ownTriplesMap);
             } catch (RMLDataError ex) {
-                Logger.getLogger(AbstractTermMap.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(AbstractTermMap.class.getName()).log(Level.FATAL, null, ex);
             } catch (InvalidRMLStructureException ex) {
-                Logger.getLogger(AbstractTermMap.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(AbstractTermMap.class.getName()).log(Level.FATAL, null, ex);
             } catch (InvalidRMLSyntaxException ex) {
-                Logger.getLogger(AbstractTermMap.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(AbstractTermMap.class.getName()).log(Level.FATAL, null, ex);
             } 
         }
 

@@ -99,7 +99,7 @@ public class RMLValidatedMappingExtractor extends RMLUnValidatedMappingExtractor
         
         List<Statement> statements = getTriplesMapResources(rmlMappingGraph);
 
-        validator.checkTripleMapResources(statements);
+        //validator.checkTriplesMapResources(statements);
         
         triplesMapResources = putTriplesMapResources(statements, triplesMapResources);
 

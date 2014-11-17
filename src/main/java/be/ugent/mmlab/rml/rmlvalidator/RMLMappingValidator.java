@@ -19,7 +19,7 @@ import org.openrdf.model.Value;
  */
 public interface RMLMappingValidator {
 
-    public void checkTripleMapResources(List<Statement> statements);
+    public void checkTriplesMapResources(List<Statement> statements);
 
     /**
      *
