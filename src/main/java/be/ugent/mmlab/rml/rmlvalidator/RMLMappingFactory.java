@@ -57,7 +57,7 @@ public final class RMLMappingFactory {
         // Construct R2RML Mapping object
         Map<Resource, TriplesMap> triplesMapResources = 
                 extractor.extractTriplesMapResources(r2rmlMappingGraph);
-
+        
         log.debug(Thread.currentThread().getStackTrace()[1].getMethodName() + ": "
                 + "Number of RML triples with "
                 + " type "

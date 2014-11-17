@@ -162,7 +162,6 @@ public class RMLUnValidatedMappingExtractor implements RMLMappingExtractor{
             Map<Resource, TriplesMap> triplesMapResources) {
             if (log.isDebugEnabled()) {
                 log.debug(Thread.currentThread().getStackTrace()[1].getMethodName() + ": "
-                        //"[RMLMappingFactory:extractTriplesMap] 
                         +"Extract TriplesMap subject : "
                         + triplesMapSubject.stringValue());
             }

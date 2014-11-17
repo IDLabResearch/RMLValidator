@@ -4,12 +4,17 @@
  */
 package be.ugent.mmlab.rml.sesame;
 
+import be.ugent.mmlab.rml.skolemization.skolemizationFactory;
 import java.io.File;
 import java.io.IOException;
 import net.antidot.semantic.rdf.model.impl.sesame.SesameDataSet;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.openrdf.model.Resource;
+import org.openrdf.model.Statement;
+import org.openrdf.model.URI;
+import org.openrdf.model.Value;
+import org.openrdf.model.ValueFactory;
 import org.openrdf.model.vocabulary.RDF;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
@@ -47,34 +52,34 @@ public class RMLSesameDataSet extends SesameDataSet {
 	}
     
     public RMLSesameDataSet(boolean inferencing) {
-		try {
-			if (inferencing) {
-				currentRepository = new SailRepository(
-						new ForwardChainingRDFSInferencer(new MemoryStore()));
-			} else {
-				currentRepository = new SailRepository(new MemoryStore());
-			}
-			currentRepository.initialize();
-		} catch (RepositoryException e) {
-			e.printStackTrace();
-		}
-	}
+        try {
+            if (inferencing) {
+                currentRepository = new SailRepository(
+                        new ForwardChainingRDFSInferencer(new MemoryStore()));
+            } else {
+                currentRepository = new SailRepository(new MemoryStore());
+            }
+            currentRepository.initialize();
+        } catch (RepositoryException e) {
+            e.printStackTrace();
+        }
+    }
 
-	public RMLSesameDataSet(String pathToDir, boolean inferencing) {
-		File f = new File(pathToDir);
-		try {
-			if (inferencing) {
-				currentRepository = new SailRepository(
-						new ForwardChainingRDFSInferencer(new NativeStore(f)));
-			} else {
-				currentRepository = new SailRepository(new NativeStore(f));
-			}
-			currentRepository.initialize();
-		} catch (RepositoryException e) {
-			e.printStackTrace();
-		}
+    public RMLSesameDataSet(String pathToDir, boolean inferencing) {
+        File f = new File(pathToDir);
+        try {
+            if (inferencing) {
+                currentRepository = new SailRepository(
+                        new ForwardChainingRDFSInferencer(new NativeStore(f)));
+            } else {
+                currentRepository = new SailRepository(new NativeStore(f));
+            }
+            currentRepository.initialize();
+        } catch (RepositoryException e) {
+            e.printStackTrace();
+        }
 
-	}
+    }
 
 	public RMLSesameDataSet(String sesameServer, String repositoryID) {
 		currentRepository = new HTTPRepository(sesameServer, repositoryID);
@@ -120,6 +125,36 @@ public class RMLSesameDataSet extends SesameDataSet {
             } catch (RepositoryException e) {
                 e.printStackTrace();
             }
+        }
+    }
+    
+    @Override
+    public void add(Resource s, URI p, Value o, Resource... contexts) {
+
+        if (isBNode(s)) 
+            s = skolemizationFactory.skolemizeBlankNode(s);
+        if (isBNode(o)) 
+            o = skolemizationFactory.skolemizeBlankNode(o);
+
+        try {
+            RepositoryConnection con = currentRepository.getConnection();
+            try {
+                ValueFactory myFactory = con.getValueFactory();
+                Statement st = myFactory.createStatement((Resource) s, p,
+                        (Value) o);
+                log.debug(
+                        Thread.currentThread().getStackTrace()[1].getMethodName() + ": "
+                        + "Added triple (" + s.stringValue()
+                        + ", " + p.stringValue() + ", " + o.stringValue() + ").");
+                con.add(st, contexts);
+                con.commit();
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                con.close();
+            }
+        } catch (Exception e) {
+            // handle exception
         }
     }
 }
