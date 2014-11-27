@@ -29,7 +29,7 @@ public class RMLInputExtractor {
     public RMLInputExtractor(){}
     
     public RMLSesameDataSet getMappingDoc(String fileToRMLFile, RDFFormat format) {
-        RMLSesameDataSet r2rmlMappingGraph = new RMLSesameDataSet();
+        RMLSesameDataSet rmlMappingGraph = new RMLSesameDataSet();
 
         //RML document is a URI
         if (!isLocalFile(fileToRMLFile)) {
@@ -41,7 +41,7 @@ public class RMLInputExtractor {
                 con.setRequestMethod("HEAD");
                 if (con.getResponseCode() == HttpURLConnection.HTTP_OK) {
                     try {
-                        r2rmlMappingGraph.addURI(fileToRMLFile, RDFFormat.TURTLE);
+                        rmlMappingGraph.addURI(fileToRMLFile, RDFFormat.TURTLE);
                     } catch (Exception e) {
                         log.error(Thread.currentThread().getStackTrace()[1].getMethodName() + ": "
                                 + "[RMLMapping Factory:extractRMLMapping] " + e);
@@ -55,7 +55,7 @@ public class RMLInputExtractor {
         } 
         else {
             try {
-                r2rmlMappingGraph.loadDataFromFile(fileToRMLFile, RDFFormat.TURTLE);
+                rmlMappingGraph.loadDataFromFile(fileToRMLFile, RDFFormat.TURTLE);
             } catch (RepositoryException ex) {
                 java.util.logging.Logger.getLogger(RMLInputExtractor.class.getName()).log(Level.SEVERE, null, ex);
             } catch (IOException ex) {
@@ -66,9 +66,9 @@ public class RMLInputExtractor {
         }
         log.debug(Thread.currentThread().getStackTrace()[1].getMethodName() + ": "
                 + "Number of R2RML triples in file "
-                + fileToRMLFile + " : " + r2rmlMappingGraph.getSize() + " from local file");
+                + fileToRMLFile + " : " + rmlMappingGraph.getSize() + " from local file");
 
-        return r2rmlMappingGraph;
+        return rmlMappingGraph;
     }
     
 }

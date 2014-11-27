@@ -23,10 +23,10 @@ public class StdLogicalSource implements LogicalSource {
         this.reference = reference;
     }
 
-    public StdLogicalSource(String reference, String identifier, QLTerm queryLanguage) {
+    public StdLogicalSource(String reference, String identifier, QLTerm referenceFormulation) {
         this.reference = reference;
         this.identifier = identifier;
-        this.referenceFormulation = queryLanguage;
+        this.referenceFormulation = referenceFormulation;
     }
     
     @Override

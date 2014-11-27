@@ -18,13 +18,9 @@ package be.ugent.mmlab.rml.extractor;
 import be.ugent.mmlab.rml.model.GraphMap;
 import be.ugent.mmlab.rml.model.LogicalSource;
 import be.ugent.mmlab.rml.model.ObjectMap;
-import be.ugent.mmlab.rml.model.PredicateMap;
-import be.ugent.mmlab.rml.model.PredicateObjectMap;
 import be.ugent.mmlab.rml.model.RMLMapping;
-import be.ugent.mmlab.rml.model.ReferencingObjectMap;
 import be.ugent.mmlab.rml.model.std.StdLogicalSource;
 import be.ugent.mmlab.rml.model.std.StdObjectMap;
-import be.ugent.mmlab.rml.model.std.StdPredicateObjectMap;
 import be.ugent.mmlab.rml.model.std.StdSubjectMap;
 import be.ugent.mmlab.rml.model.SubjectMap;
 import be.ugent.mmlab.rml.model.TriplesMap;
@@ -79,11 +75,6 @@ public class RMLValidatedMappingExtractor extends RMLUnValidatedMappingExtractor
         this.validator = validator;
     }
     
-    //@Override
-    //public void extract(String mappingDoc){
-        //extractRMLMapping(mappingDoc);
-    //}
-    
     /**
      * Construct TriplesMap objects rule. A triples map is represented by a
      * resource that references the following other resources : - It must have
@@ -106,136 +97,32 @@ public class RMLValidatedMappingExtractor extends RMLUnValidatedMappingExtractor
         return triplesMapResources;
     }
 
-    private PredicateObjectMap extractPredicateObjectMap(
-            RMLSesameDataSet r2rmlMappingGraph,
-            Resource triplesMapSubject,
-            Resource predicateObject,
-            Set<GraphMap> savedGraphMaps,
-            Map<Resource, TriplesMap> triplesMapResources,
-            TriplesMap triplesMap){
-            //throws InvalidR2RMLStructureException, R2RMLDataError,
-            //InvalidR2RMLSyntaxException {
-        log.debug(Thread.currentThread().getStackTrace()[1].getMethodName() + ": "
-                + "Extract predicate-object map..");
-        // Extract predicate maps
-        URI p = r2rmlMappingGraph.URIref(RMLVocabulary.R2RML_NAMESPACE
-                + R2RMLTerm.PREDICATE_MAP);
-        
-        List<Statement> statements = r2rmlMappingGraph.tuplePattern(
-                predicateObject, p, null);
-        
-        String termType = new Object(){}.getClass().getEnclosingMethod().getReturnType().getSimpleName();
-        validator.checkEmptyStatements(triplesMap, statements, p, termType);
-        //validator.checkMultipleStatements(triplesMap, statements, p, termType);
-        
-        Set<PredicateMap> predicateMaps = new HashSet<PredicateMap>();
-        try {
-            for (Statement statement : statements) {
-                log.info("[RMLMappingFactory] saved Graphs " + savedGraphMaps);
-                PredicateMap predicateMap = extractPredicateMap(
-                        r2rmlMappingGraph, (Resource) statement.getObject(),
-                        savedGraphMaps, triplesMap);
-                predicateMaps.add(predicateMap);
-            }
-        } catch (ClassCastException e) {
-            log.error(
-                    Thread.currentThread().getStackTrace()[1].getMethodName() + ": "
-                    + "A resource was expected in object of predicateMap of "
-                    + predicateObject.stringValue());
-        }
-        // Extract object maps
-        URI o = r2rmlMappingGraph.URIref(RMLVocabulary.R2RML_NAMESPACE
-                + R2RMLTerm.OBJECT_MAP);
-        statements = r2rmlMappingGraph.tuplePattern(predicateObject, o, null);
-        if (statements.size() < 1) {
-            log.error(
-                    Thread.currentThread().getStackTrace()[1].getMethodName() + ": "
-                    + predicateObject.stringValue()
-                    + " has no object map defined : one or more is required.");
-        }
-        Set<ObjectMap> objectMaps = new HashSet<ObjectMap>();
-        Set<ReferencingObjectMap> refObjectMaps = new HashSet<ReferencingObjectMap>();
-        try {
-            for (Statement statement : statements) {
-                log.debug(
-                        Thread.currentThread().getStackTrace()[1].getMethodName() + ": "
-                        //"[RMLMappingFactory:extractPredicateObjectMap] 
-                        + "Try to extract object map..");
-                ReferencingObjectMap refObjectMap = extractReferencingObjectMap(
-                        r2rmlMappingGraph, (Resource) statement.getObject(),
-                        savedGraphMaps, triplesMapResources, triplesMap);
-                if (refObjectMap != null) {
-                    refObjectMaps.add(refObjectMap);
-                    // Not a simple object map, skip to next.
-                    continue;
-                } 
-                ObjectMap objectMap = extractObjectMap(r2rmlMappingGraph,
-                        (Resource) statement.getObject(), savedGraphMaps, 
-                        triplesMapResources, triplesMapSubject, triplesMap );
-                
-                objectMap.setOwnTriplesMap(triplesMapResources.get(triplesMapSubject));
-                log.debug(
-                        Thread.currentThread().getStackTrace()[1].getMethodName() + ": "
-                        + "ownTriplesMap attempted " 
-                        + triplesMapResources.get(statement.getContext()) +
-                        " for object " + statement.getObject().stringValue());
-                objectMaps.add(objectMap);
-            } 
-        } catch (ClassCastException e) {
-            log.error(
-                    "[RMLMappingFactory:extractPredicateObjectMaps] "
-                    + "A resource was expected in object of objectMap of "
-                    + predicateObject.stringValue());
-        }
-        PredicateObjectMap predicateObjectMap = new StdPredicateObjectMap(
-                predicateMaps, objectMaps, refObjectMaps);       
-        
-        // Add graphMaps
-        Set<GraphMap> graphMaps = new HashSet<GraphMap>();
-        Set<Value> graphMapValues = extractValuesFromResource(
-                r2rmlMappingGraph, predicateObject, R2RMLTerm.GRAPH_MAP);
-        
-        if (graphMapValues != null) {
-            graphMaps = extractGraphMapValues(
-                    r2rmlMappingGraph, graphMapValues, savedGraphMaps, triplesMap);
-            log.info(
-                    Thread.currentThread().getStackTrace()[1].getMethodName() + ": "
-                    + "graph Maps returned " + graphMaps);
-        }
-        predicateObjectMap.setGraphMaps(graphMaps);
-        log.debug(
-                Thread.currentThread().getStackTrace()[1].getMethodName() + ": "
-                + "Extract predicate-object map done.");
-        return predicateObjectMap;
-    }
-
     //AD:change it to re-use the one from RMLUnValidatedMappingExtractor
-    private ObjectMap extractObjectMap(RMLSesameDataSet r2rmlMappingGraph,
+    private ObjectMap extractObjectMap(RMLSesameDataSet rmlMappingGraph,
             Resource object, Set<GraphMap> graphMaps, 
             Map<Resource, TriplesMap> triplesMapResources, Resource o, TriplesMap triplesMap){
-            //throws InvalidR2RMLStructureException, R2RMLDataError,
-            //InvalidR2RMLSyntaxException {
+
         log.debug(
                 Thread.currentThread().getStackTrace()[1].getMethodName() + ": " 
                 + "Extract object map..");
         
         // Extract object maps properties
-        Value constantValue = extractValueFromTermMap(r2rmlMappingGraph,
+        Value constantValue = extractValueFromTermMap(rmlMappingGraph,
                 object, R2RMLTerm.CONSTANT, triplesMap);
-        String stringTemplate = extractLiteralFromTermMap(r2rmlMappingGraph,
+        String stringTemplate = extractLiteralFromTermMap(rmlMappingGraph,
                 object, R2RMLTerm.TEMPLATE, triplesMap);
-        String languageTag = extractLiteralFromTermMap(r2rmlMappingGraph,
+        String languageTag = extractLiteralFromTermMap(rmlMappingGraph,
                 object, R2RMLTerm.LANGUAGE, triplesMap);
-        URI termType = (URI) extractValueFromTermMap(r2rmlMappingGraph, object,
+        URI termType = (URI) extractValueFromTermMap(rmlMappingGraph, object,
                 R2RMLTerm.TERM_TYPE, triplesMap);
-        URI dataType = (URI) extractValueFromTermMap(r2rmlMappingGraph, object,
+        URI dataType = (URI) extractValueFromTermMap(rmlMappingGraph, object,
                 R2RMLTerm.DATATYPE, triplesMap);
-        String inverseExpression = extractLiteralFromTermMap(r2rmlMappingGraph,
+        String inverseExpression = extractLiteralFromTermMap(rmlMappingGraph,
                 object, R2RMLTerm.INVERSE_EXPRESSION, triplesMap);
 
         //MVS: Decide on ReferenceIdentifier
         ReferenceIdentifier referenceValue = 
-                extractReferenceIdentifier(r2rmlMappingGraph, object, triplesMap);
+                extractReferenceIdentifier(rmlMappingGraph, object, triplesMap);
         
         validator.checkTermMap(constantValue, stringTemplate, referenceValue, o.stringValue());
 
@@ -252,26 +139,26 @@ public class RMLValidatedMappingExtractor extends RMLUnValidatedMappingExtractor
     /**
      * Extract subjectMap contents
      *
-     * @param r2rmlMappingGraph
+     * @param rmlMappingGraph
      * @param triplesMapSubject
      * @return
      */
     //AD:change it to reuse the one from RMLUnValidatedMappingExtractor
     @Override
     protected SubjectMap extractSubjectMap(
-            RMLSesameDataSet r2rmlMappingGraph, Resource triplesMapSubject,
+            RMLSesameDataSet rmlMappingGraph, Resource triplesMapSubject,
             Set<GraphMap> savedGraphMaps, TriplesMap triplesMap) {
         log.debug(
                 Thread.currentThread().getStackTrace()[1].getMethodName() + ": "
                 + "Extract subject map...");
 
         // Extract subject map
-        URI p = r2rmlMappingGraph.URIref(RMLVocabulary.R2RML_NAMESPACE
+        URI p = rmlMappingGraph.URIref(RMLVocabulary.R2RML_NAMESPACE
                 + R2RMLTerm.SUBJECT_MAP);
-        List<Statement> statements = r2rmlMappingGraph.tuplePattern(
+        List<Statement> statements = rmlMappingGraph.tuplePattern(
                 triplesMapSubject, p, null);
 
-        validator.checkStatements(statements, p);
+        validator.checkStatements(triplesMap, statements, p);
 
         Resource subjectMap = (Resource) statements.get(0).getObject();
         log.debug(
@@ -279,13 +166,13 @@ public class RMLValidatedMappingExtractor extends RMLUnValidatedMappingExtractor
                 + "Found subject map : "
                 + subjectMap.stringValue());
 
-        Value constantValue = extractValueFromTermMap(r2rmlMappingGraph,
+        Value constantValue = extractValueFromTermMap(rmlMappingGraph,
                 subjectMap, R2RMLTerm.CONSTANT, triplesMap);
-        String stringTemplate = extractLiteralFromTermMap(r2rmlMappingGraph,
+        String stringTemplate = extractLiteralFromTermMap(rmlMappingGraph,
                 subjectMap, R2RMLTerm.TEMPLATE, triplesMap);
-        URI termType = (URI) extractValueFromTermMap(r2rmlMappingGraph,
+        URI termType = (URI) extractValueFromTermMap(rmlMappingGraph,
                 subjectMap, R2RMLTerm.TERM_TYPE, triplesMap);
-        String inverseExpression = extractLiteralFromTermMap(r2rmlMappingGraph,
+        String inverseExpression = extractLiteralFromTermMap(rmlMappingGraph,
                 subjectMap, R2RMLTerm.INVERSE_EXPRESSION, triplesMap);
 
         validator.checkTermMap(constantValue, stringTemplate, null, subjectMap.toString());
@@ -293,18 +180,19 @@ public class RMLValidatedMappingExtractor extends RMLUnValidatedMappingExtractor
         //MVS: Decide on ReferenceIdentifier
         //TODO:Add check if the referenceValue is a valid reference according to the reference formulation
         ReferenceIdentifier referenceValue =
-                extractReferenceIdentifier(r2rmlMappingGraph, subjectMap, triplesMap);
+                extractReferenceIdentifier(rmlMappingGraph, subjectMap, triplesMap);
         //AD: The values of the rr:class property must be IRIs. 
         //AD: Would that mean that it can not be a reference to an extract of the input or a template?
-        Set<URI> classIRIs = extractURIsFromTermMap(r2rmlMappingGraph,
+        Set<URI> classIRIs = extractURIsFromTermMap(rmlMappingGraph,
                 subjectMap, R2RMLTerm.CLASS);
 
         Set<GraphMap> graphMaps = new HashSet<GraphMap>();
         Set<Value> graphMapValues = extractValuesFromResource(
-                r2rmlMappingGraph, subjectMap, R2RMLTerm.GRAPH_MAP);
+                rmlMappingGraph, subjectMap, R2RMLTerm.GRAPH_MAP);
 
         if (graphMapValues != null) {
-            graphMaps = extractGraphMapValues(r2rmlMappingGraph, graphMapValues, savedGraphMaps, triplesMap);
+            graphMaps = extractGraphMapValues(
+                    rmlMappingGraph, graphMapValues, savedGraphMaps, triplesMap);
             log.info(
                     Thread.currentThread().getStackTrace()[1].getMethodName() + ": "
                     + "graph Maps returned " + graphMaps);
@@ -321,7 +209,7 @@ public class RMLValidatedMappingExtractor extends RMLUnValidatedMappingExtractor
    
     
     private Set<GraphMap> extractGraphMapValues(
-            RMLSesameDataSet r2rmlMappingGraph, Set<Value> graphMapValues,
+            RMLSesameDataSet rmlMappingGraph, Set<Value> graphMapValues,
             Set<GraphMap> savedGraphMaps, TriplesMap triplesMap){
             //throws InvalidR2RMLStructureException {
 
@@ -336,7 +224,7 @@ public class RMLValidatedMappingExtractor extends RMLUnValidatedMappingExtractor
                 graphMaps.add(graphMapFound);
             } else {
                 GraphMap newGraphMap = null;
-                newGraphMap = extractGraphMap(r2rmlMappingGraph, (Resource) graphMap, triplesMap);
+                newGraphMap = extractGraphMap(rmlMappingGraph, (Resource) graphMap, triplesMap);
 
                 savedGraphMaps.add(newGraphMap);
                 graphMaps.add(newGraphMap);
@@ -348,7 +236,7 @@ public class RMLValidatedMappingExtractor extends RMLUnValidatedMappingExtractor
     
     /**
      *
-     * @param r2rmlMappingGraph
+     * @param rmlMappingGraph
      * @param termType
      * @param term
      * @param triplesMap
@@ -356,10 +244,10 @@ public class RMLValidatedMappingExtractor extends RMLUnValidatedMappingExtractor
      */
     @Override
     protected Value extractValueFromTermMap(
-            RMLSesameDataSet r2rmlMappingGraph, Resource termType,
+            RMLSesameDataSet rmlMappingGraph, Resource termType,
             Enum term, TriplesMap triplesMap) {
         Value value = subextractor.extractValueFromTermMap(
-            r2rmlMappingGraph, termType, term, triplesMap) ;
+            rmlMappingGraph, termType, term, triplesMap) ;
         //AD:fix this
         //validator.checkMultipleStatements(triplesMap, statements, p, type);
         return value;
@@ -402,7 +290,6 @@ public class RMLValidatedMappingExtractor extends RMLUnValidatedMappingExtractor
         
         log.debug(
                 Thread.currentThread().getStackTrace()[1].getMethodName() + ": "
-                //"[RMLMappingFactory:extractLogicalSource] 
                 + "Logical source extracted : "
                 + logicalSource);
         return logicalSource;
@@ -443,7 +330,7 @@ public class RMLValidatedMappingExtractor extends RMLUnValidatedMappingExtractor
                 rmlMappingGraph, triplesMapSubject, namespace, term, triplesMap);
         
         validator.checkEmptyStatements(
-                triplesMap, statements, rmlMappingGraph.URIref(namespace + term), namespace);
+                triplesMap, statements, rmlMappingGraph.URIref(namespace + term), triplesMapSubject);
         //validator.checkMultipleStatements(
         //        triplesMap, statements, rmlMappingGraph.URIref(namespace + term), namespace);
         

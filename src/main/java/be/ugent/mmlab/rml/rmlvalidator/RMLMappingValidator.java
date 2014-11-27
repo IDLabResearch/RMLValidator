@@ -28,13 +28,13 @@ public interface RMLMappingValidator {
      * @param p
      * @param termType
      */
-    public void checkEmptyStatements(TriplesMap triplesMap, List<Statement> statements, URI p, String termType);
+    public void checkEmptyStatements(TriplesMap triplesMap, List<Statement> statements, URI p, Resource resource);
 
     public void checkMultipleStatements(TriplesMap triplesMap, List<Statement> statements, URI p, String termType);
 
     public void checkTermMap(Value constantValue, String stringTemplate, ReferenceIdentifier referenceValue, String stringValue);
 
-    public void checkStatements(List<Statement> statements, URI p);
+    public void checkStatements(TriplesMap triplesMap, List<Statement> statements, URI p);
 
     public void checkIterator(Resource triplesMapSubject, List<Statement> iterators, RMLVocabulary.QLTerm referenceFormulation);
 

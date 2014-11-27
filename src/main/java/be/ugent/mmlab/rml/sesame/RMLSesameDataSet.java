@@ -4,9 +4,13 @@
  */
 package be.ugent.mmlab.rml.sesame;
 
-import be.ugent.mmlab.rml.skolemization.skolemizationFactory;
+import be.ugent.mmlab.rml.extractor.RMLUnValidatedMappingExtractor;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Level;
 import net.antidot.semantic.rdf.model.impl.sesame.SesameDataSet;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
@@ -16,12 +20,21 @@ import org.openrdf.model.URI;
 import org.openrdf.model.Value;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.model.vocabulary.RDF;
+import org.openrdf.query.BindingSet;
+import org.openrdf.query.MalformedQueryException;
+import org.openrdf.query.QueryEvaluationException;
+import org.openrdf.query.QueryLanguage;
+import org.openrdf.query.TupleQuery;
+import org.openrdf.query.TupleQueryResult;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
+import org.openrdf.repository.RepositoryResult;
 import org.openrdf.repository.http.HTTPRepository;
 import org.openrdf.repository.sail.SailRepository;
 import org.openrdf.rio.RDFFormat;
 import org.openrdf.rio.RDFParseException;
+import org.openrdf.rio.RDFWriter;
+import org.openrdf.rio.Rio;
 import org.openrdf.sail.inferencer.fc.ForwardChainingRDFSInferencer;
 import org.openrdf.sail.memory.MemoryStore;
 import org.openrdf.sail.nativerdf.NativeStore;
@@ -54,9 +67,11 @@ public class RMLSesameDataSet extends SesameDataSet {
     public RMLSesameDataSet(boolean inferencing) {
         try {
             if (inferencing) {
+                log.debug("inference enabled");
                 currentRepository = new SailRepository(
                         new ForwardChainingRDFSInferencer(new MemoryStore()));
             } else {
+                log.debug("inference disabled");
                 currentRepository = new SailRepository(new MemoryStore());
             }
             currentRepository.initialize();
@@ -131,20 +146,16 @@ public class RMLSesameDataSet extends SesameDataSet {
     @Override
     public void add(Resource s, URI p, Value o, Resource... contexts) {
 
-        if (isBNode(s)) 
-            s = skolemizationFactory.skolemizeBlankNode(s);
-        if (isBNode(o)) 
-            o = skolemizationFactory.skolemizeBlankNode(o);
-
         try {
             RepositoryConnection con = currentRepository.getConnection();
             try {
                 ValueFactory myFactory = con.getValueFactory();
                 Statement st = myFactory.createStatement((Resource) s, p,
                         (Value) o);
-                log.debug(
+                if(s == null || o == null)
+                    log.debug(
                         Thread.currentThread().getStackTrace()[1].getMethodName() + ": "
-                        + "Added triple (" + s.stringValue()
+                        + "Added triple without checking if it's BNode (" + s.stringValue()
                         + ", " + p.stringValue() + ", " + o.stringValue() + ").");
                 con.add(st, contexts);
                 con.commit();
@@ -156,5 +167,90 @@ public class RMLSesameDataSet extends SesameDataSet {
         } catch (Exception e) {
             // handle exception
         }
+    }
+    
+    @Override
+    public List<Statement> tuplePattern(Resource s, URI p, Value o,
+            Resource... contexts) {
+        log.debug("");
+        try {
+            RepositoryConnection con = currentRepository.getConnection();
+            try {
+                RepositoryResult<Statement> repres = con.getStatements(s, p, o, true, contexts);
+
+                log.debug(
+                        Thread.currentThread().getStackTrace()[1].getMethodName() + ": "
+                        + "\n subject "
+                        + s
+                        + "\n predicate "
+                        + p
+                        + "\n object "
+                        + o);
+                ArrayList<Statement> reslist = new ArrayList<Statement>();
+                while (repres.hasNext()) {
+                    reslist.add(repres.next());
+                }
+                return reslist;
+            } finally {
+                con.close();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    
+    @Override
+    public String printRDF(RDFFormat outform) {
+        try {
+            RepositoryConnection con = currentRepository.getConnection();
+            try {
+                ByteArrayOutputStream out = new ByteArrayOutputStream();
+                RDFWriter w = Rio.createWriter(outform, out);
+
+                con.export(w);
+                String result = new String(out.toByteArray(), "UTF-8");
+                log.info("write result " + result);
+                return result;
+            } finally {
+                con.close();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+        
+    public void skolemization(RMLSesameDataSet rmlMappingGraph) {
+        TupleQueryResult result = null;
+        try {
+            RepositoryConnection con = currentRepository.getConnection();
+            String queryString = "SELECT ?p WHERE { ?x ?p ?y } ";
+            TupleQuery tupleQuery;
+            tupleQuery = con.prepareTupleQuery(QueryLanguage.SPARQL, queryString);
+            result = tupleQuery.evaluate();
+
+        } catch (RepositoryException ex) {
+            java.util.logging.Logger.getLogger(RMLUnValidatedMappingExtractor.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (MalformedQueryException ex) {
+            java.util.logging.Logger.getLogger(RMLUnValidatedMappingExtractor.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (QueryEvaluationException ex) {
+            java.util.logging.Logger.getLogger(RMLUnValidatedMappingExtractor.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        try {
+            while (result.hasNext()) {  // iterate over the result
+                BindingSet bindingSet = result.next();
+                Value valueOfX = bindingSet.getValue("x");
+                Value valueOfY = bindingSet.getValue("y");
+                log.debug(//Thread.currentThread().getStackTrace()[1].getMethodName() + ": "
+                        "\n valueOfX "
+                        + valueOfX.stringValue()
+                        + "\n valueOfY"
+                        + valueOfY.stringValue());
+            }
+        } catch (QueryEvaluationException ex) {
+            java.util.logging.Logger.getLogger(RMLSesameDataSet.class.getName()).log(Level.SEVERE, null, ex);
+        } 
     }
 }

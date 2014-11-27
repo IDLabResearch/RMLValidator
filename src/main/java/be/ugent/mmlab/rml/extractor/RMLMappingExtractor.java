@@ -17,20 +17,22 @@ public interface RMLMappingExtractor {
     
     /**
      *
-     * @param r2rmlMappingGraph
+     * @param rmlMappingGraph
      */
-    public void replaceShortcuts(RMLSesameDataSet r2rmlMappingGraph);
+    public void replaceShortcuts(RMLSesameDataSet rmlMappingGraph);
+    
+    public void skolemizeStatements(RMLSesameDataSet rmlMappingGraph);
     
     /**
      *
-     * @param r2rmlMappingGraph
+     * @param rmlMappingGraph
      * @return
      */
     public Map<Resource, TriplesMap> extractTriplesMapResources(
-            RMLSesameDataSet r2rmlMappingGraph);
+            RMLSesameDataSet rmlMappingGraph);
     
     public void extractTriplesMap(
-            RMLSesameDataSet r2rmlMappingGraph, Resource triplesMapSubject, 
+            RMLSesameDataSet rmlMappingGraph, Resource triplesMapSubject, 
             Map<Resource, TriplesMap> triplesMapResources);
         
 }

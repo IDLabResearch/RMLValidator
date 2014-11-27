@@ -50,8 +50,7 @@ public final class StdObjectMap extends AbstractTermMap implements TermMap, Obje
 	public StdObjectMap(PredicateObjectMap predicateObjectMap,
 			Value constantValue, URI dataType, String languageTag,
 			String stringTemplate, URI termType, String inverseExpression,
-			ReferenceIdentifier referenceValue){ //throws R2RMLDataError,
-			//InvalidRMLStructureException, InvalidRMLSyntaxException {
+			ReferenceIdentifier referenceValue){ 
 		super(constantValue, dataType, languageTag, stringTemplate, termType,
 				inverseExpression, referenceValue);
 		setPredicateObjectMap(predicateObjectMap);

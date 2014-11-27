@@ -9,14 +9,7 @@ import be.ugent.mmlab.rml.extractor.RMLValidatedMappingExtractor;
 import be.ugent.mmlab.rml.model.TriplesMap;
 import be.ugent.mmlab.rml.model.reference.ReferenceIdentifier;
 import be.ugent.mmlab.rml.rml.RMLVocabulary;
-import static be.ugent.mmlab.rml.extractor.RMLValidatedMappingExtractor.isLocalFile;
-import java.io.File;
-import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.List;
-import org.apache.log4j.Level;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.openrdf.model.Resource;
@@ -33,17 +26,17 @@ public class RMLValidator implements RMLMappingValidator {
     // Log
     private static final Logger log = LogManager.getLogger(RMLValidatedMappingExtractor.class);
     
-    private static void launchPreChecks(RMLSesameDataSet r2rmlMappingGraph){
+    private static void launchPreChecks(RMLSesameDataSet rmlMappingGraph){
         // Pre-check 1 : test if a triplesMap with predicateObject map exists
         // without subject map
-        URI p = r2rmlMappingGraph.URIref(RMLVocabulary.R2RML_NAMESPACE
+        URI p = rmlMappingGraph.URIref(RMLVocabulary.R2RML_NAMESPACE
                 + RMLVocabulary.R2RMLTerm.PREDICATE_OBJECT_MAP);
-        List<Statement> statements = r2rmlMappingGraph.tuplePattern(null, p,
+        List<Statement> statements = rmlMappingGraph.tuplePattern(null, p,
                 null);
         for (Statement s : statements) {
-            p = r2rmlMappingGraph.URIref(RMLVocabulary.R2RML_NAMESPACE
+            p = rmlMappingGraph.URIref(RMLVocabulary.R2RML_NAMESPACE
                     + RMLVocabulary.R2RMLTerm.SUBJECT_MAP);
-            List<Statement> otherStatements = r2rmlMappingGraph.tuplePattern(
+            List<Statement> otherStatements = rmlMappingGraph.tuplePattern(
                     s.getSubject(), p, null);
             if (otherStatements.isEmpty()) {
                 log.error( 
@@ -54,49 +47,7 @@ public class RMLValidator implements RMLMappingValidator {
         }
     }
     
-    private void checkInputExists(
-            RMLSesameDataSet rmlMappingGraph, String RMLFile){
-        if(!isLocalFile(RMLFile)){
-            log.info("[RMLMappingFactory:extractRMLMapping] file "
-                    + RMLFile + " loaded from URI.");
-            HttpURLConnection con ;
-            try {
-                con = (HttpURLConnection) new URL(RMLFile).openConnection();
-                con.setRequestMethod("HEAD");
-                if (con.getResponseCode() != HttpURLConnection.HTTP_OK) {
-                    log.error(
-                        Thread.currentThread().getStackTrace()[1].getMethodName() + ": "
-                        + "INPUT error: "
-                        + RMLFile.toString()
-                        + " was not found.");
-                }
-            } catch (MalformedURLException ex) {
-                log.error(ex);
-                Logger.getLogger(RMLValidatedMappingExtractor.class.getName()).log(Level.ERROR, null, ex);
-            } catch (IOException ex) {
-                log.error(ex);
-                Logger.getLogger(RMLValidatedMappingExtractor.class.getName()).log(Level.ERROR, null, ex);
-            }
-        }
-        //RML document is a a local file
-        else {
-            File f = new File(RMLFile);
-            if (!f.exists()) {
-                log.error(
-                        Thread.currentThread().getStackTrace()[1].getMethodName() + ": "
-                        + "INPUT error: "
-                        + RMLFile.toString()
-                        + " does not exist.");
-            } else if (f.isDirectory()) {
-                log.error(
-                        Thread.currentThread().getStackTrace()[1].getMethodName() + ": "
-                        + "INPUT error: "
-                        + RMLFile.toString()
-                        + " is a Directory.");
-            }
-        }        
-    }
-    
+        
     /**
      *
      * @param triplesMapSubject
@@ -206,7 +157,7 @@ public class RMLValidator implements RMLMappingValidator {
      * @param term
      */
     @Override
-    public void checkStatements(List<Statement> statements, URI term){
+    public void checkStatements(TriplesMap triplesMap, List<Statement> statements, URI term){
         if (statements.isEmpty()) {
             log.error(
                     Thread.currentThread().getStackTrace()[1].getMethodName() + ": "
@@ -215,8 +166,8 @@ public class RMLValidator implements RMLMappingValidator {
         } else if (statements.size() > 1) {
             log.error(
                     Thread.currentThread().getStackTrace()[1].getMethodName() + ": "
-                    + statements.get(0).getSubject()
-                    + " has many " + term.getClass().toString()
+                    + triplesMap.getName()
+                    + " has many " + term.getLocalName() 
                     + " but only one is required.");
         }
     }
@@ -230,15 +181,16 @@ public class RMLValidator implements RMLMappingValidator {
      */
     @Override
     public void checkEmptyStatements(
-            TriplesMap triplesMap, List<Statement> statements, URI term, String type){
+            TriplesMap triplesMap, List<Statement> statements, URI term, Resource resource){
         if (statements.isEmpty()) {
             log.error(
                     Thread.currentThread().getStackTrace()[1].getMethodName() + ": "
-                    + triplesMap.getName() + " "
-                    + term.getLocalName()
-                    + " has " + term.getClass().toString()
-                    + " at " + type
-                    +" with no statement found. ");
+                    + "The "
+                    + statements.toString()
+                    + " of "  
+                    + resource.stringValue() 
+                    + " has no " 
+                    + term.getLocalName()); 
         }
     }
     
