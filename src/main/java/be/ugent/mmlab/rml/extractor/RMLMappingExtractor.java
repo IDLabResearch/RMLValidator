@@ -21,7 +21,7 @@ public interface RMLMappingExtractor {
      */
     public void replaceShortcuts(RMLSesameDataSet rmlMappingGraph);
     
-    public void skolemizeStatements(RMLSesameDataSet rmlMappingGraph);
+    public RMLSesameDataSet skolemizeStatements(RMLSesameDataSet rmlMappingGraph);
     
     /**
      *

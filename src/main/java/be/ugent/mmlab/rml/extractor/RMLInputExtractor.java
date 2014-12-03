@@ -24,7 +24,7 @@ import org.openrdf.rio.RDFParseException;
 public class RMLInputExtractor {
     
     // Log
-    private static final Logger log = LogManager.getLogger(RMLValidatedMappingExtractor.class);
+    private static final Logger log = LogManager.getLogger(RMLInputExtractor.class);
     
     public RMLInputExtractor(){}
     

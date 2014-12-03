@@ -116,7 +116,7 @@ public class RMLUnValidatedMappingExtractor implements RMLMappingExtractor{
      * @param rmlMappingGraph
      */
     @Override
-    public void skolemizeStatements(RMLSesameDataSet rmlMappingGraph) {
+    public RMLSesameDataSet skolemizeStatements(RMLSesameDataSet rmlMappingGraph) {
         Map<URI, URI> predicates = new HashMap<URI, URI>();
         predicates.put(
                 vf.createURI(RMLVocabulary.R2RML_NAMESPACE
@@ -222,6 +222,7 @@ public class RMLUnValidatedMappingExtractor implements RMLMappingExtractor{
 
             }
         }
+        return rmlMappingGraph;
     }
        
     /**

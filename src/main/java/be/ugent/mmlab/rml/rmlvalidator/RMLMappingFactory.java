@@ -47,13 +47,13 @@ public final class RMLMappingFactory {
     public RMLMapping extractRMLMapping(String fileToRMLFile) {
         
         // Load RDF data from R2RML Mapping document
-        RMLSesameDataSet rmlMappingGraph ; 
+        RMLSesameDataSet rmlMappingGraph ;
         RMLInputExtractor InputExtractor = new RMLInputExtractor() ;
         rmlMappingGraph = InputExtractor.getMappingDoc(fileToRMLFile, RDFFormat.TURTLE);
         
         // Transform RDF with replacement shortcuts
         extractor.replaceShortcuts(rmlMappingGraph);
-        extractor.skolemizeStatements(rmlMappingGraph);
+        rmlMappingGraph = extractor.skolemizeStatements(rmlMappingGraph);
         
         // Construct R2RML Mapping object
         Map<Resource, TriplesMap> triplesMapResources = 
@@ -70,6 +70,9 @@ public final class RMLMappingFactory {
         for (Resource triplesMapResource : triplesMapResources.keySet())  // Extract each triplesMap
             extractor.extractTriplesMap(
                     rmlMappingGraph, triplesMapResource, triplesMapResources);
+        
+        System.out.println("\n \n " + "OUTPUT: \n ");
+        System.out.println(rmlMappingGraph.printRDF(RDFFormat.TURTLE));
         
         // Generate RMLMapping object
         RMLMapping result = new RMLMapping(triplesMapResources.values());

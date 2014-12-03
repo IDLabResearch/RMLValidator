@@ -5,6 +5,7 @@
 package be.ugent.mmlab.rml.sesame;
 
 import be.ugent.mmlab.rml.extractor.RMLUnValidatedMappingExtractor;
+import be.ugent.mmlab.rml.rml.RMLVocabulary;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -14,6 +15,7 @@ import java.util.logging.Level;
 import net.antidot.semantic.rdf.model.impl.sesame.SesameDataSet;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
+import org.openrdf.OpenRDFException;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
@@ -26,6 +28,7 @@ import org.openrdf.query.QueryEvaluationException;
 import org.openrdf.query.QueryLanguage;
 import org.openrdf.query.TupleQuery;
 import org.openrdf.query.TupleQueryResult;
+import org.openrdf.query.UnsupportedQueryLanguageException;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.RepositoryResult;
@@ -35,6 +38,8 @@ import org.openrdf.rio.RDFFormat;
 import org.openrdf.rio.RDFParseException;
 import org.openrdf.rio.RDFWriter;
 import org.openrdf.rio.Rio;
+import org.openrdf.sail.SailException;
+import org.openrdf.sail.inferencer.fc.CustomGraphQueryInferencer;
 import org.openrdf.sail.inferencer.fc.ForwardChainingRDFSInferencer;
 import org.openrdf.sail.memory.MemoryStore;
 import org.openrdf.sail.nativerdf.NativeStore;
@@ -61,22 +66,141 @@ public class RMLSesameDataSet extends SesameDataSet {
     //static RDFFormat TURTLE = RDFFormat.TURTLE;
     
     public RMLSesameDataSet() {
-		this(false);
+		this(true);
 	}
     
     public RMLSesameDataSet(boolean inferencing) {
         try {
             if (inferencing) {
                 log.debug("inference enabled");
-                currentRepository = new SailRepository(
-                        new ForwardChainingRDFSInferencer(new MemoryStore()));
+
+                String pre =
+                          "PREFIX rml: <http://semweb.mmlab.be/ns/rml#>\n"
+                        + "PREFIX rr:  <http://www.w3.org/ns/r2rml#>";
+                
+                String rule =
+                        pre
+                        + " CONSTRUCT { "
+                        + "?tm <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/r2rml#TriplesMap> . "
+                        + "?sm <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/r2rml#SubjectMap> . } "
+                        + "WHERE {"
+                        + " ?tm <http://semweb.mmlab.be/ns/rml#logicalSource> ?ls ."
+                        + " ?tm <http://www.w3.org/ns/r2rml#subjectMap> ?sm }";
+                String match =
+                        pre
+                        + " CONSTRUCT { "
+                        + "?tm <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/r2rml#TriplesMap> . "
+                        + "?sm <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/r2rml#SubjectMap> .}"
+                        + "WHERE { "
+                        + "?tm <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/r2rml#TriplesMap> . "
+                        + "?sm <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/r2rml#SubjectMap> .}";
+                currentRepository = new SailRepository(new CustomGraphQueryInferencer(
+                        new MemoryStore(), QueryLanguage.SPARQL, rule, match));
             } else {
                 log.debug("inference disabled");
                 currentRepository = new SailRepository(new MemoryStore());
             }
             currentRepository.initialize();
         } catch (RepositoryException e) {
-            e.printStackTrace();
+            log.error(Thread.currentThread().getStackTrace()[1].getMethodName() + ": " + e);
+        } catch (MalformedQueryException ex) {
+            log.error(Thread.currentThread().getStackTrace()[1].getMethodName() + ": " + ex);
+        } catch (UnsupportedQueryLanguageException ex) {
+            log.error(Thread.currentThread().getStackTrace()[1].getMethodName() + ": " + ex);
+        } catch (SailException ex) {
+            log.error(Thread.currentThread().getStackTrace()[1].getMethodName() + ": " + ex);
+        } finally {
+        }
+    }
+    
+    public void executeQuery() {
+        log.debug("Executing queries..");
+        try {
+            RepositoryConnection con = currentRepository.getConnection();
+            try {
+                String queryString2 = ""
+                        + "SELECT ?x "
+                        + "WHERE { "
+                        + "?x <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/r2rml#TriplesMap> } " ;
+                TupleQuery tupleQuery = con.prepareTupleQuery(QueryLanguage.SPARQL, queryString2);
+
+                TupleQueryResult result = tupleQuery.evaluate();
+                
+                log.debug(Thread.currentThread().getStackTrace()[1].getMethodName() + ": "
+                                + "Tuple query 1 result next: "
+                                + result.hasNext());
+                try {
+                    while (result.hasNext()) {  // iterate over the result
+                        BindingSet bindingSet = result.next();
+                        Value valueOfX = bindingSet.getValue("x");
+                        //Value valueOfY = bindingSet.getValue("y");
+                        System.out.println("valueOfX " + valueOfX.stringValue());
+                        //System.out.println("valueOfY " + valueOfY.stringValue());
+                        URI p = this.URIref("http://www.w3.org/1999/02/22-rdf-syntax-ns#type");
+                        //URI o = this.URIref(RMLVocabulary.R2RML_NAMESPACE
+                        //        + RMLVocabulary.R2RMLTerm.SUBJECT_MAP_CLASS);
+                        URI o2 = this.URIref(RMLVocabulary.R2RML_NAMESPACE
+                                + RMLVocabulary.R2RMLTerm.TRIPLES_MAP_CLASS);
+                        this.tuplePattern((Resource) valueOfX, p, o2);
+                        //this.tuplePattern((Resource) valueOfY, p, o);
+                        log.debug(Thread.currentThread().getStackTrace()[1].getMethodName() + ": "
+                                + "Typed triple: "
+                                + valueOfX.stringValue()
+                                + " - "
+                                + p.stringValue()
+                                + " - "
+                                + o2.stringValue());
+                    }
+                } finally {
+                    result.close();
+                }
+            } finally {
+                con.close();
+            }
+        } catch (OpenRDFException e) {
+            // handle exception
+        }
+        
+        try {
+            RepositoryConnection con = currentRepository.getConnection();
+            try {
+                String queryString2 = ""
+                        + "SELECT ?y "
+                        + "WHERE { "
+                        + "?y a <http://www.w3.org/ns/r2rml#SubjectMap> } ";
+
+               TupleQuery tupleQuery = con.prepareTupleQuery(QueryLanguage.SPARQL, queryString2);
+
+                TupleQueryResult result = tupleQuery.evaluate();
+                log.debug(Thread.currentThread().getStackTrace()[1].getMethodName() + ": "
+                                + "Tuple query 2 result next: "
+                                + result.hasNext());
+                try {
+                    while (result.hasNext()) {  // iterate over the result
+                        BindingSet bindingSet = result.next();
+                        Value valueOfY = bindingSet.getValue("y");
+                        System.out.println("valueOfY " + valueOfY.stringValue());
+                        URI p = this.URIref("http://www.w3.org/1999/02/22-rdf-syntax-ns#type");
+                        URI o = this.URIref(RMLVocabulary.R2RML_NAMESPACE
+                                + RMLVocabulary.R2RMLTerm.SUBJECT_MAP_CLASS);
+                        this.tuplePattern((Resource) valueOfY, p, o);
+
+                        log.debug(Thread.currentThread().getStackTrace()[1].getMethodName() + ": "
+                                + "Typed triple: "
+                                + valueOfY.stringValue()
+                                + " - "
+                                + p.stringValue()
+                                + " - "
+                                + o.stringValue());
+                    }
+                } finally {
+                    result.close();
+                }
+            } finally {
+                con.close();
+            }
+        } catch (OpenRDFException e) {
+            // handle exception
         }
     }
 
@@ -172,20 +296,10 @@ public class RMLSesameDataSet extends SesameDataSet {
     @Override
     public List<Statement> tuplePattern(Resource s, URI p, Value o,
             Resource... contexts) {
-        log.debug("");
         try {
             RepositoryConnection con = currentRepository.getConnection();
             try {
                 RepositoryResult<Statement> repres = con.getStatements(s, p, o, true, contexts);
-
-                log.debug(
-                        Thread.currentThread().getStackTrace()[1].getMethodName() + ": "
-                        + "\n subject "
-                        + s
-                        + "\n predicate "
-                        + p
-                        + "\n object "
-                        + o);
                 ArrayList<Statement> reslist = new ArrayList<Statement>();
                 while (repres.hasNext()) {
                     reslist.add(repres.next());
@@ -208,11 +322,14 @@ public class RMLSesameDataSet extends SesameDataSet {
             try {
                 ByteArrayOutputStream out = new ByteArrayOutputStream();
                 RDFWriter w = Rio.createWriter(outform, out);
-
+                //RepositoryResult<Statement> statements = con.getStatements(null, null, null, true);
+                //Model model = Iterations.addAll(statements, new LinkedHashModel());
+                //Rio.write(model, System.out, RDFFormat.TURTLE);
                 con.export(w);
                 String result = new String(out.toByteArray(), "UTF-8");
                 log.info("write result " + result);
                 return result;
+                //return null;
             } finally {
                 con.close();
             }
