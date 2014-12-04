@@ -88,22 +88,35 @@ public class RMLSesameDataSet extends SesameDataSet {
                         pre
                         + " CONSTRUCT { "
                         + "?tm <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/r2rml#TriplesMap> .  "
+                        + "?ls <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/r2rml#LogicalSource> .  "
                         + "?sm <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/r2rml#SubjectMap> . "
-                        + "?pom <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/r2rml#PredicateObjectMap> .} "
+                        + "?pom <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/r2rml#PredicateObjectMap> ."
+                        + "?pm <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/r2rml#PredicateMap> ."
+                        + "?om <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/r2rml#ObjectMap> .} "
                         + " WHERE {"
                         + " ?tm <http://www.w3.org/ns/r2rml#subjectMap> ?sm ."
-                        + " OPTIONAL {?tm <http://www.w3.org/ns/r2rml#predicateObjectMap> ?pom .} }";
+                        + " ?tm <http://semweb.mmlab.be/ns/rml#logicalSource> ?ls ."
+                        + " OPTIONAL {"
+                        + "?tm <http://www.w3.org/ns/r2rml#predicateObjectMap> ?pom ."
+                        + "?pom <http://www.w3.org/ns/r2rml#predicateMap> ?pm ."
+                        + "?pom <http://www.w3.org/ns/r2rml#objectMap> ?om . } }";
                 String match =
                         pre
                         + " CONSTRUCT { "
                         + "?tm <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/r2rml#TriplesMap> . "
+                        + "?ls <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/r2rml#LogicalSource> ."
                         + "?sm <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/r2rml#SubjectMap> . "
-                        + "?pom <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/r2rml#PredicateObjectMap> .}"
+                        + "?pom <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/r2rml#PredicateObjectMap> ."
+                        + "?pm <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/r2rml#PredicateMap> ."
+                        + "?om <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/r2rml#ObjectMap> .}"
                         + " WHERE { "
                         + "?tm <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/r2rml#TriplesMap> . "
+                        + "?ls <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/r2rml#LogicalSource> ."
                         + "?sm <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/r2rml#SubjectMap> ."
                         + "OPTIONAL { "
-                        + "?pom <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/r2rml#PredicateObjectMap> . }}";
+                        + "?pom <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/r2rml#PredicateObjectMap> . "
+                        + "?pm <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/r2rml#PredicateMap> ."
+                        + "?om <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/r2rml#ObjectMap> .}}";
                 log.debug("match " + match);
                 currentRepository = new SailRepository(new CustomGraphQueryInferencer(
                         new MemoryStore(), QueryLanguage.SPARQL, rule, match));    
