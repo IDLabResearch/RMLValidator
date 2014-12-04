@@ -92,14 +92,21 @@ public class RMLSesameDataSet extends SesameDataSet {
                         + "?sm <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/r2rml#SubjectMap> . "
                         + "?pom <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/r2rml#PredicateObjectMap> ."
                         + "?pm <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/r2rml#PredicateMap> ."
-                        + "?om <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/r2rml#ObjectMap> .} "
+                        + "?om <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/r2rml#ObjectMap> ."
+                        + "?jc <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/r2rml#JoinCondition> . "
+                        + "?gm <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/r2rml#GraphMap> . } "
                         + " WHERE {"
                         + " ?tm <http://www.w3.org/ns/r2rml#subjectMap> ?sm ."
                         + " ?tm <http://semweb.mmlab.be/ns/rml#logicalSource> ?ls ."
                         + " OPTIONAL {"
                         + "?tm <http://www.w3.org/ns/r2rml#predicateObjectMap> ?pom ."
                         + "?pom <http://www.w3.org/ns/r2rml#predicateMap> ?pm ."
-                        + "?pom <http://www.w3.org/ns/r2rml#objectMap> ?om . } }";
+                        + "?pom <http://www.w3.org/ns/r2rml#objectMap> ?om . }"
+                        + " OPTIONAL {"
+                        + "?om <http://www.w3.org/ns/r2rml#joinCondition> ?jc. }"
+                        + " OPTIONAL { "
+                        + "?x <http://www.w3.org/ns/r2rml#graphMap> ?gm . } "
+                        + "}";
                 String match =
                         pre
                         + " CONSTRUCT { "
@@ -108,7 +115,9 @@ public class RMLSesameDataSet extends SesameDataSet {
                         + "?sm <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/r2rml#SubjectMap> . "
                         + "?pom <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/r2rml#PredicateObjectMap> ."
                         + "?pm <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/r2rml#PredicateMap> ."
-                        + "?om <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/r2rml#ObjectMap> .}"
+                        + "?om <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/r2rml#ObjectMap> ."
+                        + "?jc <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/r2rml#JoinCondition> ."
+                        + "?gm <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/r2rml#GraphMap> . }"
                         + " WHERE { "
                         + "?tm <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/r2rml#TriplesMap> . "
                         + "?ls <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/r2rml#LogicalSource> ."
@@ -116,7 +125,12 @@ public class RMLSesameDataSet extends SesameDataSet {
                         + "OPTIONAL { "
                         + "?pom <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/r2rml#PredicateObjectMap> . "
                         + "?pm <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/r2rml#PredicateMap> ."
-                        + "?om <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/r2rml#ObjectMap> .}}";
+                        + "?om <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/r2rml#ObjectMap> . }"
+                        + " OPTIONAL {"
+                        + "?jc <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/r2rml#JoinCondition> . }"
+                        + "OPTIONAL { "
+                        + "?gm <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/r2rml#GraphMap> . } "
+                        + "}";
                 log.debug("match " + match);
                 currentRepository = new SailRepository(new CustomGraphQueryInferencer(
                         new MemoryStore(), QueryLanguage.SPARQL, rule, match));    
