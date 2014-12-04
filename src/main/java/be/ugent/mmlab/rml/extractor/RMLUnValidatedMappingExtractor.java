@@ -625,8 +625,7 @@ public class RMLUnValidatedMappingExtractor implements RMLMappingExtractor{
         }
         if (parentTriplesMap == null && joinConditions.isEmpty()) {
             log.debug(
-                    Thread.currentThread().getStackTrace()[1].getMethodName() + ": "
-                    //"[RMLMappingFactory:extractReferencingObjectMap] 
+                    Thread.currentThread().getStackTrace()[1].getMethodName() + ": " 
                     + "This object map is not a referencing object map.");
             return null;
         }

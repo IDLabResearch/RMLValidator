@@ -6,6 +6,7 @@ package be.ugent.mmlab.rml.sesame;
 
 import be.ugent.mmlab.rml.extractor.RMLUnValidatedMappingExtractor;
 import be.ugent.mmlab.rml.rml.RMLVocabulary;
+import info.aduna.iteration.Iterations;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -16,11 +17,13 @@ import net.antidot.semantic.rdf.model.impl.sesame.SesameDataSet;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.openrdf.OpenRDFException;
+import org.openrdf.model.Model;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
 import org.openrdf.model.Value;
 import org.openrdf.model.ValueFactory;
+import org.openrdf.model.impl.LinkedHashModel;
 import org.openrdf.model.vocabulary.RDF;
 import org.openrdf.query.BindingSet;
 import org.openrdf.query.MalformedQueryException;
@@ -81,21 +84,26 @@ public class RMLSesameDataSet extends SesameDataSet {
                 String rule =
                         pre
                         + " CONSTRUCT { "
-                        + "?tm <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/r2rml#TriplesMap> . "
-                        + "?sm <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/r2rml#SubjectMap> . } "
-                        + "WHERE {"
-                        + " ?tm <http://semweb.mmlab.be/ns/rml#logicalSource> ?ls ."
-                        + " ?tm <http://www.w3.org/ns/r2rml#subjectMap> ?sm }";
+                        + "?tm <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/r2rml#TriplesMap> .  "
+                        + "?sm <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/r2rml#SubjectMap> . "
+                        + "?pom <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/r2rml#PredicateObjectMap> .} "
+                        + " WHERE {"
+                        + " ?tm <http://www.w3.org/ns/r2rml#subjectMap> ?sm ."
+                        + " OPTIONAL {?tm <http://www.w3.org/ns/r2rml#predicateObjectMap> ?pom .} }";
                 String match =
                         pre
                         + " CONSTRUCT { "
                         + "?tm <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/r2rml#TriplesMap> . "
-                        + "?sm <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/r2rml#SubjectMap> .}"
-                        + "WHERE { "
+                        + "?sm <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/r2rml#SubjectMap> . "
+                        + "?pom <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/r2rml#PredicateObjectMap> .}"
+                        + " WHERE { "
                         + "?tm <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/r2rml#TriplesMap> . "
-                        + "?sm <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/r2rml#SubjectMap> .}";
+                        + "?sm <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/r2rml#SubjectMap> ."
+                        + "OPTIONAL { "
+                        + "?pom <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/r2rml#PredicateObjectMap> . }}";
+                log.debug("match " + match);
                 currentRepository = new SailRepository(new CustomGraphQueryInferencer(
-                        new MemoryStore(), QueryLanguage.SPARQL, rule, match));
+                        new MemoryStore(), QueryLanguage.SPARQL, rule, match));    
             } else {
                 log.debug("inference disabled");
                 currentRepository = new SailRepository(new MemoryStore());
@@ -320,16 +328,16 @@ public class RMLSesameDataSet extends SesameDataSet {
         try {
             RepositoryConnection con = currentRepository.getConnection();
             try {
-                ByteArrayOutputStream out = new ByteArrayOutputStream();
-                RDFWriter w = Rio.createWriter(outform, out);
-                //RepositoryResult<Statement> statements = con.getStatements(null, null, null, true);
-                //Model model = Iterations.addAll(statements, new LinkedHashModel());
-                //Rio.write(model, System.out, RDFFormat.TURTLE);
-                con.export(w);
-                String result = new String(out.toByteArray(), "UTF-8");
-                log.info("write result " + result);
-                return result;
-                //return null;
+                //ByteArrayOutputStream out = new ByteArrayOutputStream();
+                //RDFWriter w = Rio.createWriter(outform, out);
+                RepositoryResult<Statement> statements = con.getStatements(null, null, null, true);
+                Model model = Iterations.addAll(statements, new LinkedHashModel());
+                Rio.write(model, System.out, RDFFormat.TURTLE);
+                //con.export(w);
+                //String result = new String(out.toByteArray(), "UTF-8");
+                //log.info("write result " + result);
+                //return result;
+                return null;
             } finally {
                 con.close();
             }
