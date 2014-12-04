@@ -9,6 +9,8 @@ import be.ugent.mmlab.rml.rml.RMLVocabulary;
 import info.aduna.iteration.Iterations;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -38,6 +40,7 @@ import org.openrdf.repository.RepositoryResult;
 import org.openrdf.repository.http.HTTPRepository;
 import org.openrdf.repository.sail.SailRepository;
 import org.openrdf.rio.RDFFormat;
+import org.openrdf.rio.RDFHandlerException;
 import org.openrdf.rio.RDFParseException;
 import org.openrdf.rio.RDFWriter;
 import org.openrdf.rio.Rio;
@@ -345,6 +348,28 @@ public class RMLSesameDataSet extends SesameDataSet {
             e.printStackTrace();
         }
         return null;
+    }
+    
+    public void printRDFtoFile(RDFFormat outform) {
+        
+        Model model; // a collection of several RDF statements
+        FileOutputStream out;
+        try {
+            out = new FileOutputStream("/home/andimou/Desktop/validatedMapping.rml.ttl");
+            RDFWriter writer = Rio.createWriter(RDFFormat.RDFXML, out);
+            writer.startRDF();
+            RepositoryConnection con = currentRepository.getConnection();
+            RepositoryResult<Statement> statements = con.getStatements(null, null, null, true);
+            model = Iterations.addAll(statements, new LinkedHashModel());
+            Rio.write(model, out, RDFFormat.TURTLE);
+            //writer.endRDF();
+        } catch (RDFHandlerException e) {
+            // oh no, do something!
+        } catch (RepositoryException ex) {
+            java.util.logging.Logger.getLogger(RMLSesameDataSet.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (FileNotFoundException ex) {
+            java.util.logging.Logger.getLogger(RMLSesameDataSet.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
         
     public void skolemization(RMLSesameDataSet rmlMappingGraph) {

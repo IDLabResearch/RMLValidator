@@ -71,9 +71,9 @@ public final class RMLMappingFactory {
             extractor.extractTriplesMap(
                     rmlMappingGraph, triplesMapResource, triplesMapResources);
         
-        System.out.println("\n \n " + "OUTPUT: \n ");
-        System.out.println(rmlMappingGraph.printRDF(RDFFormat.TURTLE));
-        
+        //System.out.println("\n \n " + "OUTPUT: \n ");
+        //System.out.println(rmlMappingGraph.printRDFtoFile(RDFFormat.TURTLE));
+        rmlMappingGraph.printRDFtoFile(RDFFormat.TURTLE);
         // Generate RMLMapping object
         RMLMapping result = new RMLMapping(triplesMapResources.values());
         return result;
