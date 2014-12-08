@@ -247,10 +247,11 @@ public class RMLUnValidatedMappingExtractor implements RMLMappingExtractor{
     
     protected List<Statement> getTriplesMapResources(RMLSesameDataSet rmlMappingGraph){
         
-        URI p = rmlMappingGraph.URIref(RMLVocabulary.R2RML_NAMESPACE
-                + RMLVocabulary.R2RMLTerm.SUBJECT_MAP);
+        URI o = rmlMappingGraph.URIref(RMLVocabulary.R2RML_NAMESPACE
+                + RMLVocabulary.R2RMLTerm.TRIPLES_MAP_CLASS);
+        URI p = rmlMappingGraph.URIref("http://www.w3.org/1999/02/22-rdf-syntax-ns#type");
         List<Statement> statements = rmlMappingGraph.tuplePattern(null, p,
-                null);
+                o);
         return statements;
     }
     
@@ -334,17 +335,19 @@ public class RMLUnValidatedMappingExtractor implements RMLMappingExtractor{
 
         if (!sourceStatements.isEmpty()) {
             //Extract the file identifier
-            String file = sourceStatements.get(0).getObject().stringValue();
-            
-            if(!iterators.isEmpty())
-                logicalSource = 
-                        new StdLogicalSource(iterators.get(0).getObject().stringValue(), 
-                        file, referenceFormulation);
+            for (Statement sourceStatement : sourceStatements) {
+                String file = sourceStatement.getObject().stringValue();
+
+                if (!iterators.isEmpty()) {
+                    logicalSource =
+                            new StdLogicalSource(sourceStatement.getObject().stringValue(),
+                            file, referenceFormulation);
+                }
+            }
         }
         
         log.debug(
                 Thread.currentThread().getStackTrace()[1].getMethodName() + ": "
-                //"[RMLMappingFactory:extractLogicalSource] 
                 + "Logical source extracted : "
                 + logicalSource);
         return logicalSource;
@@ -439,43 +442,40 @@ public class RMLUnValidatedMappingExtractor implements RMLMappingExtractor{
         return result;
     }
     
-    private Set<PredicateObjectMap> extractPredicateObjectMaps(
+    @Override
+    public Set<PredicateObjectMap> extractPredicateObjectMaps(
             RMLSesameDataSet rmlMappingGraph, Resource triplesMapSubject,
             Set<GraphMap> graphMaps, TriplesMap result,
-            Map<Resource, TriplesMap> triplesMapResources){
+            Map<Resource, TriplesMap> triplesMapResources) {
         log.debug(Thread.currentThread().getStackTrace()[1].getMethodName() + ": "
                 + "Extract predicate-object maps...");
         // Extract predicate-object maps
         URI p = rmlMappingGraph.URIref(RMLVocabulary.R2RML_NAMESPACE
                 + RMLVocabulary.R2RMLTerm.PREDICATE_OBJECT_MAP);
-        
+
         List<Statement> statements = rmlMappingGraph.tuplePattern(
                 triplesMapSubject, p, null);
-        
+
         Set<PredicateObjectMap> predicateObjectMaps = new HashSet<PredicateObjectMap>();
-        try {
-            for (Statement statement : statements) {
-                PredicateObjectMap predicateObjectMap = extractPredicateObjectMap(
-                        rmlMappingGraph, triplesMapSubject,
-                        (Resource) statement.getObject(),
-                        graphMaps, triplesMapResources, result);
-                // Add own tripleMap to predicateObjectMap
-                predicateObjectMap.setOwnTriplesMap(result); 
-                predicateObjectMaps.add(predicateObjectMap);
-            }
-        } catch (ClassCastException e) {
-            log.error(
-                    Thread.currentThread().getStackTrace()[1].getMethodName() + ": "
-                    + "A resource was expected in object of predicateObjectMap of "
-                    + triplesMapSubject.stringValue());
+
+        for (Statement statement : statements) {
+            PredicateObjectMap predicateObjectMap = extractPredicateObjectMap(
+                    rmlMappingGraph, triplesMapSubject,
+                    (Resource) statement.getObject(),
+                    graphMaps, triplesMapResources, result);
+            // Add own tripleMap to predicateObjectMap
+            predicateObjectMap.setOwnTriplesMap(result);
+            predicateObjectMaps.add(predicateObjectMap);
         }
+
         log.debug(Thread.currentThread().getStackTrace()[1].getMethodName() + ": "
                 + "Number of extracted predicate-object maps : "
                 + predicateObjectMaps.size());
         return predicateObjectMaps;
     }
     
-    private PredicateObjectMap extractPredicateObjectMap(
+    @Override
+    public PredicateObjectMap extractPredicateObjectMap(
             RMLSesameDataSet rmlMappingGraph,
             Resource triplesMapSubject,
             Resource predicateObject,
@@ -486,10 +486,6 @@ public class RMLUnValidatedMappingExtractor implements RMLMappingExtractor{
         log.debug(Thread.currentThread().getStackTrace()[1].getMethodName() + ": "
                 + "Extract predicate-object map..");
         
-        // Extract predicate maps
-        //URI p = rmlMappingGraph.URIref(RMLVocabulary.R2RML_NAMESPACE
-        //        + RMLVocabulary.R2RMLTerm.PREDICATE_MAP);
-        
         List<Statement> statements = getStatements(
              rmlMappingGraph, triplesMapSubject, RMLVocabulary.R2RML_NAMESPACE, 
              RMLVocabulary.R2RMLTerm.PREDICATE_MAP, triplesMap);
@@ -498,7 +494,7 @@ public class RMLUnValidatedMappingExtractor implements RMLMappingExtractor{
         Set<PredicateMap> predicateMaps = new HashSet<PredicateMap>();
         try {
             for (Statement statement : statements) {
-                log.info("[RMLMappingFactory] saved Graphs " + savedGraphMaps);
+
                 PredicateMap predicateMap = extractPredicateMap(
                         rmlMappingGraph, (Resource) statement.getObject(),
                         savedGraphMaps, triplesMap);
@@ -536,8 +532,7 @@ public class RMLUnValidatedMappingExtractor implements RMLMappingExtractor{
                     continue;
                 } 
                 ObjectMap objectMap = extractObjectMap(rmlMappingGraph,
-                        (Resource) statement.getObject(), savedGraphMaps, 
-                        triplesMapResources, triplesMapSubject, triplesMap );
+                        (Resource) statement.getObject(), savedGraphMaps, triplesMap );
                 
                 objectMap.setOwnTriplesMap(triplesMapResources.get(triplesMapSubject));
                 log.debug(
@@ -576,12 +571,13 @@ public class RMLUnValidatedMappingExtractor implements RMLMappingExtractor{
         return predicateObjectMap;
     }
     
-    protected PredicateMap extractPredicateMap(
+    @Override
+    public PredicateMap extractPredicateMap(
             RMLSesameDataSet rmlMappingGraph, Resource object,
             Set<GraphMap> graphMaps, TriplesMap triplesMap) {
         log.debug(
                 Thread.currentThread().getStackTrace()[1].getMethodName() + ": " 
-                + "Extract predicate map..");
+                + "Extract unvalidated predicate map..");
         // Extract object maps properties
         Value constantValue = extractValueFromTermMap(rmlMappingGraph,
                 object, RMLVocabulary.R2RMLTerm.CONSTANT, triplesMap);
@@ -663,9 +659,9 @@ public class RMLUnValidatedMappingExtractor implements RMLMappingExtractor{
         return refObjectMap;
     }
     
-    private ObjectMap extractObjectMap(RMLSesameDataSet rmlMappingGraph,
-            Resource object, Set<GraphMap> graphMaps, 
-            Map<Resource, TriplesMap> triplesMapResources, Resource o, TriplesMap triplesMap){
+    @Override
+    public ObjectMap extractObjectMap(RMLSesameDataSet rmlMappingGraph,
+            Resource object, Set<GraphMap> graphMaps, TriplesMap triplesMap){
         log.debug(
                 Thread.currentThread().getStackTrace()[1].getMethodName() + ": " 
                 + "Extract object map..");
@@ -908,7 +904,7 @@ public class RMLUnValidatedMappingExtractor implements RMLMappingExtractor{
             String namespace, RMLVocabulary.Term term, TriplesMap triplesMap){
         URI logicalSource = rmlMappingGraph.URIref(namespace
                 + term);
-        
+        //log.error("generated URI " + logicalSource.toString());
         List<Statement> source = rmlMappingGraph.tuplePattern(
                 triplesMapSubject, logicalSource, null);
         

@@ -6,16 +6,22 @@ package be.ugent.mmlab.rml.rmlvalidator;
 
 import be.ugent.mmlab.rml.sesame.RMLSesameDataSet;
 import be.ugent.mmlab.rml.extractor.RMLValidatedMappingExtractor;
+import be.ugent.mmlab.rml.model.SubjectMap;
 import be.ugent.mmlab.rml.model.TriplesMap;
 import be.ugent.mmlab.rml.model.reference.ReferenceIdentifier;
+import be.ugent.mmlab.rml.rml.R2RMLVocabulary;
 import be.ugent.mmlab.rml.rml.RMLVocabulary;
+import be.ugent.mmlab.rml.rml.RMLVocabulary.*;
 import java.util.List;
+import java.util.Map;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
 import org.openrdf.model.Value;
+import org.openrdf.model.ValueFactory;
+import org.openrdf.model.impl.ValueFactoryImpl;
 
 /**
  *
@@ -25,8 +31,9 @@ public class RMLValidator implements RMLMappingValidator {
     
     // Log
     private static final Logger log = LogManager.getLogger(RMLValidatedMappingExtractor.class);
+    private RMLValidatorResult validres = new RMLValidatorResult();
     
-    private static void launchPreChecks(RMLSesameDataSet rmlMappingGraph){
+    /*private static void launchPreChecks(RMLSesameDataSet rmlMappingGraph){
         // Pre-check 1 : test if a triplesMap with predicateObject map exists
         // without subject map
         URI p = rmlMappingGraph.URIref(RMLVocabulary.R2RML_NAMESPACE
@@ -45,7 +52,7 @@ public class RMLValidator implements RMLMappingValidator {
                         + s.getSubject().stringValue() + ".");
             }
         }
-    }
+    }*/
     
         
     /**
@@ -56,19 +63,27 @@ public class RMLValidator implements RMLMappingValidator {
      */
     @Override
     public void checkLogicalSource(
-            Resource triplesMapSubject, List<Statement> statements, TriplesMap triplesMap){
+            Resource triplesMapSubject, 
+            List<Statement> statements, TriplesMap triplesMap){
+        Value object; 
+        ValueFactory vf  = new ValueFactoryImpl();
+        
         if (statements.isEmpty()) {
-            log.error( 
-                    Thread.currentThread().getStackTrace()[1].getMethodName() + ": "
-                    + triplesMapSubject.stringValue()
-                    + " has no logical source defined.");
+            String objectValue = triplesMapSubject.toString() + " has no logical source defined.";
+            object = vf.createURI(triplesMapSubject.toString());
+            
+            validres.addViolation(
+                    object, RMLTerm.LOGICAL_SOURCE, 
+                    objectValue, Thread.currentThread().getStackTrace()[1].getMethodName());
         }
         else if (statements.size() > 1) {
-            log.error(
-                    Thread.currentThread().getStackTrace()[1].getMethodName() + ": "
-                    + triplesMapSubject.stringValue()
-                    + " has too many logical source defined.");
-        }        
+            String objectValue = triplesMapSubject.toString() 
+                    + " has too many logical source defined.";
+            object = vf.createURI(triplesMapSubject.toString());
+            validres.addViolation(
+                    object, RMLTerm.LOGICAL_SOURCE, 
+                    objectValue, Thread.currentThread().getStackTrace()[1].getMethodName());
+        } 
     }
     
     /**
@@ -77,23 +92,30 @@ public class RMLValidator implements RMLMappingValidator {
      * @param statements
      */
     @Override
-    public void checkReferenceFormulation(
-            Resource triplesMapSubject, List<Statement> statements) { // RMLVocabulary.QLTerm referenceFormulation) {
+    public void checkReferenceFormulation(Resource triplesMapSubject, List<Statement> statements) { 
+        Value object ;
+        ValueFactory vf  = new ValueFactoryImpl();
+        String objectValue;
+
         if (statements.size() > 1) {
-            log.error(
-                    Thread.currentThread().getStackTrace()[1].getMethodName() + ": "
-                    + triplesMapSubject.stringValue()
-                    + " has too many reference formulations defined.");
+            object = statements.get(0).getSubject();
+            objectValue = triplesMapSubject.toString() 
+                    + " has too many reference formulations defined.";
+            validres.addViolation(
+                    object, RMLTerm.REFERENCE_FORMULATION, 
+                    objectValue,Thread.currentThread().getStackTrace()[1].getMethodName());
         } else if (statements.isEmpty()) {
-            log.error(
-                    Thread.currentThread().getStackTrace()[1].getMethodName() + ": "
-                    + triplesMapSubject.stringValue()
-                    + " has no reference formulation.");
+            object = triplesMapSubject;
+            objectValue = triplesMapSubject.toString() + " has no reference formulation.";
+            validres.addViolation(
+                    object, RMLTerm.REFERENCE_FORMULATION,
+                    objectValue, Thread.currentThread().getStackTrace()[1].getMethodName());
         } else if (RMLVocabulary.getQLTerms(statements.get(0).getObject().stringValue()) == null) {
-            log.error(
-                    Thread.currentThread().getStackTrace()[1].getMethodName() + ": "
-                    + triplesMapSubject.stringValue()
-                    + " has unknown reference formulation.");
+            object = statements.get(0).getSubject();
+            objectValue = triplesMapSubject.toString() 
+                    + " has unknown reference formulation.";
+            validres.addViolation(object, RMLTerm.REFERENCE_FORMULATION,
+                    objectValue,Thread.currentThread().getStackTrace()[1].getMethodName());
         }
     }
     
@@ -103,13 +125,17 @@ public class RMLValidator implements RMLMappingValidator {
      * @param statements
      */
     @Override
-    public void checkSource(
-            Resource triplesMapSubject, List<Statement> statements) {
+    public void checkSource(Resource triplesMapSubject, List<Statement> statements) {
+        Value object;
+        ValueFactory vf  = new ValueFactoryImpl();
+        String objectValue;
+        
         if (statements.isEmpty()) {
-            log.error(
-                    Thread.currentThread().getStackTrace()[1].getMethodName() + ": "
-                    + triplesMapSubject.stringValue()
-                    + " has no source for the Logicla Source.");
+            object = vf.createURI(triplesMapSubject.toString());
+            objectValue = triplesMapSubject
+                    + " has no source for the Logical Source.";
+            validres.addViolation(object, RMLTerm.SOURCE, 
+                    objectValue,Thread.currentThread().getStackTrace()[1].getMethodName());
         }
     }
     
@@ -120,35 +146,57 @@ public class RMLValidator implements RMLMappingValidator {
      * @param referenceFormulation
      */
     @Override
-    public void checkIterator(
+    public RMLSesameDataSet checkIterator(
             Resource triplesMapSubject, List<Statement> statements,
             RMLVocabulary.QLTerm referenceFormulation) {
+        Value object;
+        ValueFactory vf  = new ValueFactoryImpl();
+        String objectValue;
+        
         if (statements.isEmpty() && referenceFormulation != RMLVocabulary.QLTerm.CSV_CLASS) {
-            log.error(
-                    Thread.currentThread().getStackTrace()[1].getMethodName() + ": "
-                    + triplesMapSubject.stringValue()
-                    + " has no iterator.");
+            object = triplesMapSubject;
+            objectValue = triplesMapSubject.toString() 
+                    + " has no iterator.";
+            validres.addViolation(object, RMLTerm.ITERATOR, 
+                    objectValue,Thread.currentThread().getStackTrace()[1].getMethodName());
         } else if (!statements.isEmpty() && referenceFormulation == RMLVocabulary.QLTerm.CSV_CLASS) {
-            log.error(
-                    Thread.currentThread().getStackTrace()[1].getMethodName() + ": "
-                    + triplesMapSubject.stringValue()
-                    + " no iterator is required.");
+            object = triplesMapSubject;
+            objectValue = triplesMapSubject.toString() + " no iterator is required.";
+            validres.addViolation(object, RMLTerm.ITERATOR, 
+                    objectValue,Thread.currentThread().getStackTrace()[1].getMethodName());
         }
+        return null;
     }
     
     @Override
-    public void checkTriplesMapResources(List<Statement> statements){
-        if (statements.isEmpty()) {
-            log.error(
-                    Thread.currentThread().getStackTrace()[1].getMethodName() + ": "
-                    +"No subject statement found. ");
-        } else if (statements.size() > 1) {
-            log.error(
-                    Thread.currentThread().getStackTrace()[1].getMethodName() + ": "
-                    + statements.get(0).getSubject()
-                    + " has many subjectMap "
-                    + "(or subject) but only one is required.");
-        }
+    public void checkTriplesMapResources( Map<Resource, TriplesMap> triplesMapResources){ 
+        Value object;
+        ValueFactory vf  = new ValueFactoryImpl();
+        String objectValue;
+        if (triplesMapResources.isEmpty()) {
+            object = null;
+            objectValue = "The mapping document has no Triples Maps. ";
+            validres.addViolation(object, R2RMLTerm.TRIPLES_MAP_CLASS, 
+                    objectValue,Thread.currentThread().getStackTrace()[1].getMethodName());
+        } 
+    }
+    
+    /**
+     *
+     * @param subjMap
+     */
+    @Override
+    public void checkSubjectMap(SubjectMap subjMap){ 
+        Value object;
+        ValueFactory vf  = new ValueFactoryImpl();
+        String objectValue;
+        if (subjMap == null) {
+            object = null;
+            objectValue = "The Triples Map has no Subject Map. ";
+            validres.addViolation(
+                    object, R2RMLTerm.SUBJECT_MAP, 
+                    objectValue,Thread.currentThread().getStackTrace()[1].getMethodName());
+        } 
     }
     
     /**
@@ -157,18 +205,23 @@ public class RMLValidator implements RMLMappingValidator {
      * @param term
      */
     @Override
-    public void checkStatements(TriplesMap triplesMap, List<Statement> statements, URI term){
+    public void checkStatements(Resource resource, List<Statement> statements, Term term){
+        ValueFactory vf  = new ValueFactoryImpl();
+        Value object;
+        String objectValue;
         if (statements.isEmpty()) {
-            log.error(
-                    Thread.currentThread().getStackTrace()[1].getMethodName() + ": "
-                    + "No " + term.getClass().toString()
-                    +" statement found. ");
+            object = vf.createURI(resource.toString());
+            objectValue = "No " + term + " statement found for " + object.stringValue();
+            validres.addViolation(
+                    object, term, 
+                    objectValue,Thread.currentThread().getStackTrace()[1].getMethodName());
         } else if (statements.size() > 1) {
-            log.error(
-                    Thread.currentThread().getStackTrace()[1].getMethodName() + ": "
-                    + triplesMap.getName()
-                    + " has many " + term.getLocalName() 
-                    + " but only one is required.");
+            object = vf.createURI(resource.toString());
+            objectValue = resource.stringValue()
+                    + " has many " + term //.getLocalName() 
+                    + " but only one is required.";
+            validres.addViolation(
+                    object, term, objectValue,Thread.currentThread().getStackTrace()[1].getMethodName());
         }
     }
     
@@ -182,15 +235,25 @@ public class RMLValidator implements RMLMappingValidator {
     @Override
     public void checkEmptyStatements(
             TriplesMap triplesMap, List<Statement> statements, URI term, Resource resource){
+        ValueFactory vf  = new ValueFactoryImpl();
+        Value object;
         if (statements.isEmpty()) {
-            log.error(
+            /*log.error(
                     Thread.currentThread().getStackTrace()[1].getMethodName() + ": "
                     + "The "
                     + statements.toString()
                     + " of "  
                     + resource.stringValue() 
                     + " has no " 
-                    + term.getLocalName()); 
+                    + term.getLocalName()); */
+            //predicate = validres.getResultGraph().URIref("http://purl.org/dc/terms/description");
+            object = vf.createLiteral("The "
+                    //+ statements.get(0).getObject().toString()
+                    //+ " of "  
+                    + triplesMap.getName().toString()
+                    + " has no " 
+                    + term.getLocalName());
+            //validres.addViolation(triplesMap.getName(), object);
         }
     }
     
@@ -204,44 +267,66 @@ public class RMLValidator implements RMLMappingValidator {
     @Override
     public void checkMultipleStatements(
             TriplesMap triplesMap, List<Statement> statements, URI term, String type){
-        
+        ValueFactory vf  = new ValueFactoryImpl();
+        Value object;
         if (statements.size() > 1) {
-            log.error(
+            /*log.error(
                     Thread.currentThread().getStackTrace()[1].getMethodName() + ": "
                     + triplesMap.getName()
                     + " has many " + term.getLocalName()
                     + " at " + type
+                    + " but only one is required.");*/
+            //predicate = validres.getResultGraph().URIref("http://purl.org/dc/terms/description");
+            object = vf.createLiteral(triplesMap.getName()
+                    + " has many " + term.getLocalName()
+                    + " at " + type
                     + " but only one is required.");
+            //validres.addViolation(object);
         }
     }
     
     @Override
     public void checkTermMap(
             Value constantValue, String stringTemplate, 
-            ReferenceIdentifier referenceValue, String resource){
-        if(constantValue != null && stringTemplate != null)
-            log.error(
-                    Thread.currentThread().getStackTrace()[1].getMethodName() + ": "
-                    + resource
-                    + " contains a Term Map that has"
-                    + " both constant and template.");
-        else if(constantValue != null && referenceValue != null)
-            log.error(
-                    Thread.currentThread().getStackTrace()[1].getMethodName() + ": "
-                    + resource
-                    + " contains a Term Map that has"
-                    + " both constant and reference.");
-        else if(stringTemplate != null && referenceValue != null)
-            log.error(
-                    Thread.currentThread().getStackTrace()[1].getMethodName() + ": "
-                    + resource
-                    + " contains a Term Map that has"
-                    + " both template and reference.");
-        else if(stringTemplate == null && referenceValue == null && constantValue == null)
-            log.error(
-                    Thread.currentThread().getStackTrace()[1].getMethodName() + ": "
-                    + resource.toString()
-                    + " contains a Term Map that should have"
-                    + " a constant, a string template or a reference.");           
+            ReferenceIdentifier referenceValue, String resource, Term term){
+        ValueFactory vf  = new ValueFactoryImpl();
+        Value object;
+        String objectValue;
+        if(constantValue != null && stringTemplate != null){
+            object = vf.createLiteral(resource);
+            objectValue = resource + " is a Term Map that has both constant and template.";
+            validres.addViolation(
+                    object, term, objectValue,Thread.currentThread().getStackTrace()[1].getMethodName());
+        }
+        else if(constantValue != null && referenceValue != null){
+            object = vf.createLiteral(resource);
+            objectValue = resource
+                    + " is a " 
+                    + term.toString()
+                    + " Term Map that has"
+                    + " both constant and reference.";
+            validres.addViolation(
+                    object, term,  objectValue,Thread.currentThread().getStackTrace()[1].getMethodName());
+        }
+        else if(stringTemplate != null && referenceValue != null){
+            object = vf.createLiteral(resource);
+            objectValue = resource
+                    + " is a " 
+                    + term.toString()
+                    + " Term Map that has"
+                    + " both template and reference.";
+            validres.addViolation(
+                    object,  term, objectValue,Thread.currentThread().getStackTrace()[1].getMethodName());
+        }
+        else if(stringTemplate == null && referenceValue == null && constantValue == null){
+            object = vf.createLiteral(resource);
+            objectValue = resource.toString()
+                    + " is a " 
+                    + term.toString()
+                    + " Term Map that should have"
+                    + " a constant, a string template or a reference.";
+            validres.addViolation(
+                    object, term, objectValue, Thread.currentThread().getStackTrace()[1].getMethodName());
+        }
     }
 }

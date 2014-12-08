@@ -35,9 +35,9 @@ public class MainTest {
         System.out.println("--------------------------------------------------------------------------------");
 
         RMLMappingFactory mappingFactory = new RMLMappingFactory(true);
-        //mappingFactory.extractRMLMapping("/home/andimou/Desktop/offer.rml.ttl");
+        mappingFactory.extractRMLMapping("/home/andimou/Desktop/offer.rml.ttl");
         //mappingFactory.extractRMLMapping("http://rml.io/rml/data/CD_EWI/Destelbergen/destelbergen_CSV.rml.ttl");
         //mappingFactory.extractRMLMapping("http://rml.io/rml/data/csvw/events/mapping-events.rml.ttl");
-        mappingFactory.extractRMLMapping("http://rml.io/rml/data/drafts/mapping.rml.ttl");
+        //mappingFactory.extractRMLMapping("http://rml.io/rml/data/drafts/mapping.rml.ttl");
     }
 }

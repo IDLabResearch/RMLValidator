@@ -77,7 +77,7 @@ public abstract class AbstractTermMap implements TermMap {
                 setDataType(dataType);
                 setInversionExpression(inverseExpression);
                 //TODO: make it call consistency only when validation is requested
-                checkGlobalConsistency();
+                //checkGlobalConsistency();
                 setOwnTriplesMap(ownTriplesMap);
             } catch (RMLDataError ex) {
                 Logger.getLogger(AbstractTermMap.class.getName()).log(Level.FATAL, null, ex);

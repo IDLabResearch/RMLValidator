@@ -5,9 +5,7 @@
 package be.ugent.mmlab.rml.sesame;
 
 import be.ugent.mmlab.rml.extractor.RMLUnValidatedMappingExtractor;
-import be.ugent.mmlab.rml.rml.RMLVocabulary;
 import info.aduna.iteration.Iterations;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -18,7 +16,6 @@ import java.util.logging.Level;
 import net.antidot.semantic.rdf.model.impl.sesame.SesameDataSet;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
-import org.openrdf.OpenRDFException;
 import org.openrdf.model.Model;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
@@ -67,10 +64,7 @@ public class RMLSesameDataSet extends SesameDataSet {
 
     // Log
     private static final Logger log = LogManager.getLogger(RMLSesameDataSet.class);
-    //private Repository currentRepository = null;
-    
-    //static RDFFormat TURTLE = RDFFormat.TURTLE;
-    
+       
     public RMLSesameDataSet() {
 		this(true);
 	}
@@ -96,7 +90,6 @@ public class RMLSesameDataSet extends SesameDataSet {
                         + "?jc <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/r2rml#JoinCondition> . "
                         + "?gm <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/r2rml#GraphMap> . } "
                         + " WHERE {"
-                        + " ?tm <http://www.w3.org/ns/r2rml#subjectMap> ?sm ."
                         + " ?tm <http://semweb.mmlab.be/ns/rml#logicalSource> ?ls ."
                         + " OPTIONAL {"
                         + "?tm <http://www.w3.org/ns/r2rml#predicateObjectMap> ?pom ."
@@ -151,16 +144,16 @@ public class RMLSesameDataSet extends SesameDataSet {
         }
     }
     
-    public void executeQuery() {
+    /*public void executeQuery() {
         log.debug("Executing queries..");
         try {
             RepositoryConnection con = currentRepository.getConnection();
             try {
-                String queryString2 = ""
+                String queryString = ""
                         + "SELECT ?x "
                         + "WHERE { "
                         + "?x <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/r2rml#TriplesMap> } " ;
-                TupleQuery tupleQuery = con.prepareTupleQuery(QueryLanguage.SPARQL, queryString2);
+                TupleQuery tupleQuery = con.prepareTupleQuery(QueryLanguage.SPARQL, queryString);
 
                 TupleQueryResult result = tupleQuery.evaluate();
                 
@@ -240,7 +233,7 @@ public class RMLSesameDataSet extends SesameDataSet {
         } catch (OpenRDFException e) {
             // handle exception
         }
-    }
+    }*/
 
     public RMLSesameDataSet(String pathToDir, boolean inferencing) {
         File f = new File(pathToDir);
@@ -383,7 +376,7 @@ public class RMLSesameDataSet extends SesameDataSet {
         FileOutputStream out;
         try {
             out = new FileOutputStream("/home/andimou/Desktop/validatedMapping.rml.ttl");
-            RDFWriter writer = Rio.createWriter(RDFFormat.RDFXML, out);
+            RDFWriter writer = Rio.createWriter(RDFFormat.TURTLE, out);
             writer.startRDF();
             RepositoryConnection con = currentRepository.getConnection();
             RepositoryResult<Statement> statements = con.getStatements(null, null, null, true);

@@ -41,7 +41,7 @@ public final class RMLMappingFactory {
             this.extractor = new RMLValidatedMappingExtractor(validator);   
         }
         else
-            extractor = new RMLUnValidatedMappingExtractor();
+            this.extractor = new RMLUnValidatedMappingExtractor();
     }
     
     public RMLMapping extractRMLMapping(String fileToRMLFile) {
@@ -66,6 +66,8 @@ public final class RMLMappingFactory {
                 + " in file "
                 + fileToRMLFile + " : " + triplesMapResources.size());
         
+        validator.checkTriplesMapResources(triplesMapResources);
+
         // Fill each TriplesMap object
         for (Resource triplesMapResource : triplesMapResources.keySet())  // Extract each triplesMap
             extractor.extractTriplesMap(
