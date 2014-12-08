@@ -12,20 +12,48 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <sesame.version>2.7.13</sesame.version>
+    <sesame.version>2.7.14</sesame.version>
   </properties>
   
   <build>
         <plugins>
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>2.3</version>
+                <executions>
+                  <execution>
+                    <phase>package</phase>
+                    <goals>
+                      <goal>shade</goal>
+                    </goals>
+                    <configuration>
+                      <transformers>
+                        <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                          <mainClass>be.ugent.mmlab.rml.rmlvalidator.main.Main</mainClass>
+                        </transformer>
+                        <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
+                      </transformers>
+                      <filters>
+                        <filter>
+                          <artifact>*:*</artifact>
+                          <excludes>
+                            <exclude>META-INF/*.SF</exclude>
+                            <exclude>META-INF/*.DSA</exclude>
+                            <exclude>META-INF/*.RSA</exclude>
+                          </excludes>
+                        </filter>
+                      </filters>
+                    </configuration>
+                  </execution>
+                </executions>
+              </plugin>
+            <!-- <plugin>
               <groupId>org.apache.maven.plugins</groupId>
               <artifactId>maven-assembly-plugin</artifactId>
               <version>2.4</version>
               <configuration>
                   <finalName>rml-validator-${project.version}</finalName>
-                  <!-- <descriptors>
-                      <descriptor>src/main/assembly/onejar.xml</descriptor>
-                  </descriptors> -->
                   <archive>
                       <manifest>
                           <mainClass>be.ugent.mmlab.rml.rmlvalidator.main.Main</mainClass>
@@ -43,7 +71,7 @@
                   </goals>
                 </execution>
               </executions>
-            </plugin>
+            </plugin> -->
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>2.0.2</version>
@@ -105,12 +133,6 @@
             <id>repository.jboss.org</id>
             <url>https://repository.jboss.org/nexus/content/repositories/thirdparty-releases</url>
         </repository>
-        <!-- <repository>
-            <id>jlibs-repository</id>
-            <name>JLibs Repository</name>
-            <url>https://github.com/santhosh-tekuri/maven-repository/raw/master/</url>
-            <layout>default</layout>
-        </repository> -->
     </repositories>
 
   <dependencies>
@@ -210,6 +232,11 @@
         <groupId>org.slf4j</groupId>
         <artifactId>slf4j-log4j12</artifactId>
         <version>1.7.7</version>
+    </dependency>
+    <dependency>
+        <groupId>net.antidot</groupId>
+        <artifactId>db2triples</artifactId>
+        <version>1.0.2</version>
     </dependency>
   </dependencies>
 </project>
