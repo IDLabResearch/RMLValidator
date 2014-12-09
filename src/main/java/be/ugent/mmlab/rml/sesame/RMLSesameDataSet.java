@@ -31,6 +31,7 @@ import org.openrdf.query.QueryLanguage;
 import org.openrdf.query.TupleQuery;
 import org.openrdf.query.TupleQueryResult;
 import org.openrdf.query.UnsupportedQueryLanguageException;
+import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.RepositoryResult;
@@ -52,6 +53,8 @@ import org.openrdf.sail.nativerdf.NativeStore;
  * @author andimou
  */
 public class RMLSesameDataSet extends SesameDataSet {
+    
+    private Repository currentRepository = null;
 
     // useful -local- constants
     static RDFFormat NTRIPLES = RDFFormat.NTRIPLES;
