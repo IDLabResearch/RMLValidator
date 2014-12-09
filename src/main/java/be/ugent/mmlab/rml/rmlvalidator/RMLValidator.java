@@ -9,7 +9,6 @@ import be.ugent.mmlab.rml.extractor.RMLValidatedMappingExtractor;
 import be.ugent.mmlab.rml.model.SubjectMap;
 import be.ugent.mmlab.rml.model.TriplesMap;
 import be.ugent.mmlab.rml.model.reference.ReferenceIdentifier;
-import be.ugent.mmlab.rml.rml.R2RMLVocabulary;
 import be.ugent.mmlab.rml.rml.RMLVocabulary;
 import be.ugent.mmlab.rml.rml.RMLVocabulary.*;
 import java.util.List;

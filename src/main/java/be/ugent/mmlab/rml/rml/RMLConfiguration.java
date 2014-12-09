@@ -29,9 +29,9 @@ public class RMLConfiguration {
         
         cliOptions.addOption("h", "help", false, "show this help message");
         cliOptions.addOption("m", "mapping document", true, "the URI of the mapping file (required)");
-        
-        cliOptions.addOption("g", "graph", false, "the graph to use");
-        cliOptions.addOption("wv", "without validation", false, "no validation");
+        cliOptions.addOption("o", "output document", true, "the output file that contains the skolemized and inferred mappings");
+        cliOptions.addOption("g", "graph", true, "the graph to use");
+        cliOptions.addOption("V", "without validation", false, "no validation");
         cliOptions.addOption("t", "tests are enabled", false, "the RDFUnit tests are called");
         return cliOptions;
     }

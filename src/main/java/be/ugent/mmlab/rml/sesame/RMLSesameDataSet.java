@@ -373,25 +373,27 @@ public class RMLSesameDataSet extends SesameDataSet {
         return null;
     }
     
-    public void printRDFtoFile(RDFFormat outform) {
+    public void printRDFtoFile(String outputFile, RDFFormat outform) {
         
         Model model; // a collection of several RDF statements
         FileOutputStream out;
-        try {
-            out = new FileOutputStream("/home/andimou/Desktop/validatedMapping.rml.ttl");
-            RDFWriter writer = Rio.createWriter(RDFFormat.TURTLE, out);
-            writer.startRDF();
-            RepositoryConnection con = currentRepository.getConnection();
-            RepositoryResult<Statement> statements = con.getStatements(null, null, null, true);
-            model = Iterations.addAll(statements, new LinkedHashModel());
-            Rio.write(model, out, RDFFormat.TURTLE);
-            //writer.endRDF();
-        } catch (RDFHandlerException e) {
-            // oh no, do something!
-        } catch (RepositoryException ex) {
-            java.util.logging.Logger.getLogger(RMLSesameDataSet.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (FileNotFoundException ex) {
-            java.util.logging.Logger.getLogger(RMLSesameDataSet.class.getName()).log(Level.SEVERE, null, ex);
+        if (outputFile != null) {
+            try {
+                out = new FileOutputStream(outputFile);
+                RDFWriter writer = Rio.createWriter(RDFFormat.TURTLE, out);
+                writer.startRDF();
+                RepositoryConnection con = currentRepository.getConnection();
+                RepositoryResult<Statement> statements = con.getStatements(null, null, null, true);
+                model = Iterations.addAll(statements, new LinkedHashModel());
+                Rio.write(model, out, RDFFormat.TURTLE);
+                //writer.endRDF();
+            } catch (RDFHandlerException e) {
+                log.error(e);
+            } catch (RepositoryException ex) {
+                log.error(ex);
+            } catch (FileNotFoundException ex) {
+                log.error(ex);
+            }
         }
     }
         
