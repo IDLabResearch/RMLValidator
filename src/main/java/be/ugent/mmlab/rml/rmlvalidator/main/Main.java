@@ -1,6 +1,7 @@
 package be.ugent.mmlab.rml.rmlvalidator.main;
 
 import be.ugent.mmlab.rml.extractor.RMLInputExtractor;
+import be.ugent.mmlab.rml.rdfunit.RDFUnitValidator;
 import be.ugent.mmlab.rml.rml.RMLConfiguration;
 import be.ugent.mmlab.rml.rmlvalidator.RMLMappingFactory;
 import org.apache.commons.cli.CommandLine;
@@ -47,7 +48,8 @@ public class Main {
                 }
                 if (commandLine.hasOption("V")) {
                     log.info("call RDFUnit");
-                    //call RDFUnit and pass either the original file or the generated one
+                    RDFUnitValidator rdfUnitValidator = new RDFUnitValidator("http://example.com", outputFile);
+                    String rdfunitResults = rdfUnitValidator.validate();
                 }
             }
             else{
