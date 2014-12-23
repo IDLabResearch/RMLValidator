@@ -396,6 +396,25 @@ public class RMLSesameDataSet extends SesameDataSet {
             }
         }
     }
+    
+    @Override
+    public void remove(Resource s, URI p, Value o, Resource... context) {
+		try {
+			RepositoryConnection con = currentRepository.getConnection();
+			try {
+				ValueFactory myFactory = con.getValueFactory();
+				Statement st = myFactory.createStatement((Resource) s, p,
+						(Value) o);
+				con.remove(st, context);
+			} finally {
+                            con.commit();
+				con.close();
+			}
+		} catch (Exception e) {
+                    log.error("Error " + e);
+			// handle exception
+		}
+	}
         
     public void skolemization(RMLSesameDataSet rmlMappingGraph) {
         TupleQueryResult result = null;

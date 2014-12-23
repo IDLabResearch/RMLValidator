@@ -16,6 +16,7 @@ public class MainTest {
      * @param args the command line arguments
      */
     public static void main(String[] args) throws ParseException {
+        //String map_doc = "/home/andimou/Desktop/offer.rml.ttl";
         String map_doc = "/home/andimou/Desktop/offer.rml.ttl";
         String outputFile = "/home/andimou/Desktop/offerProcessed.rml.ttl";
         BasicConfigurator.configure();

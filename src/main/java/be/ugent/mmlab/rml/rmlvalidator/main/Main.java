@@ -46,7 +46,7 @@ public class Main {
                     mappingFactory = new RMLMappingFactory(true);
                     mappingFactory.extractRMLMapping(map_doc, outputFile);
                 }
-                if (commandLine.hasOption("V")) {
+                if (commandLine.hasOption("t")) {
                     log.info("call RDFUnit");
                     RDFUnitValidator rdfUnitValidator = new RDFUnitValidator("http://example.com", outputFile);
                     String rdfunitResults = rdfUnitValidator.validate();

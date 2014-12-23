@@ -10,9 +10,11 @@ import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
+import org.openrdf.model.URI;
 import org.openrdf.model.Value;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.model.impl.ValueFactoryImpl;
+import org.openrdf.rio.RDFFormat;
 
 /**
  *
@@ -36,7 +38,11 @@ public class skolemizationFactory {
                     tri.getSubject(),
                     tri.getPredicate(),
                     tri.getObject());
-            rmlMappingGraph.add(skolemizedMap, tri.getPredicate(), tri.getObject());
+            List<Statement> test = rmlMappingGraph.tuplePattern(
+                tri.getSubject(), tri.getPredicate(), tri.getObject());
+            if(!test.isEmpty())
+                log.error("triple " + tri.toString() + " was not removed");
+                rmlMappingGraph.add(skolemizedMap, tri.getPredicate(), tri.getObject());
         }
         List<Statement> triplesObject = rmlMappingGraph.tuplePattern(
                 null, null, resource);
