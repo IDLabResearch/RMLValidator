@@ -2,6 +2,7 @@ package be.ugent.mmlab.rml.rdfunit;
 
 import org.aksw.rdfunit.RDFUnit;
 import org.aksw.rdfunit.RDFUnitConfiguration;
+import org.aksw.rdfunit.Utils.RDFUnitUtils;
 import org.aksw.rdfunit.enums.TestCaseExecutionType;
 import org.aksw.rdfunit.exceptions.UndefinedSerializationException;
 import org.aksw.rdfunit.io.reader.RDFReaderException;
@@ -15,6 +16,7 @@ import org.aksw.rdfunit.tests.executors.monitors.SimpleTestExecutorMonitor;
 import org.aksw.rdfunit.tests.generators.TestGeneratorExecutor;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 
 /**
  * Description
@@ -31,11 +33,15 @@ public class RDFUnitValidator {
     private final TestSuite testSuite;
 
     public RDFUnitValidator(String datasetURI, String rdfDataFile) {
+
+        RDFUnitUtils.fillSchemaServiceFromLOV();
+
         configuration = new RDFUnitConfiguration(datasetURI, dataFolder);
 
         // Set the source
        // try {
-            configuration.setCustomDereferenceURI(rdfDataFile);
+        File file = new File(rdfDataFile);
+            configuration.setCustomDereferenceURI(file.getAbsolutePath());
             //configuration.setCustomTextSource(rdfData, serializationFormat);
        // } catch (UndefinedSerializationException e) {
        //     throw new IllegalArgumentException("Unsupported format"); // should never be thrown
