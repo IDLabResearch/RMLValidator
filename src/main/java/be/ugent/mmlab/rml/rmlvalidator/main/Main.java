@@ -4,11 +4,18 @@ import be.ugent.mmlab.rml.extractor.RMLInputExtractor;
 import be.ugent.mmlab.rml.rdfunit.RDFUnitValidator;
 import be.ugent.mmlab.rml.rml.RMLConfiguration;
 import be.ugent.mmlab.rml.rmlvalidator.RMLMappingFactory;
+import be.ugent.mmlab.rml.sesame.RMLSesameDataSet;
+import java.io.IOException;
+import java.util.logging.Level;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.ParseException;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
+import org.openrdf.model.Resource;
+import org.openrdf.repository.RepositoryException;
+import org.openrdf.rio.RDFFormat;
+import org.openrdf.rio.RDFParseException;
 
 /**
  *
@@ -50,6 +57,8 @@ public class Main {
                     log.info("call RDFUnit");
                     RDFUnitValidator rdfUnitValidator = new RDFUnitValidator("http://example.com", outputFile);
                     String rdfunitResults = rdfUnitValidator.validate();
+                    RMLSesameDataSet rdfunitresults = new RMLSesameDataSet();
+                    rdfunitresults.loadDataFromInputStream(rdfunitResults, RDFFormat.TURTLE, (Resource) null);
                 }
             }
             else{
@@ -70,6 +79,12 @@ public class Main {
             }
         } catch (ParseException ex) {
             log.error(ex);
+        } catch (RepositoryException ex) {
+            java.util.logging.Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (RDFParseException ex) {
+            java.util.logging.Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            java.util.logging.Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
         }
 
     }

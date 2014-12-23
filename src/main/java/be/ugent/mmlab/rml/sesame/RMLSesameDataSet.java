@@ -6,10 +6,16 @@ package be.ugent.mmlab.rml.sesame;
 
 import be.ugent.mmlab.rml.extractor.RMLUnValidatedMappingExtractor;
 import info.aduna.iteration.Iterations;
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.StringBufferInputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -299,6 +305,27 @@ public class RMLSesameDataSet extends SesameDataSet {
                 e.printStackTrace();
             }
         }
+    }
+    
+    public void loadDataFromInputStream(String input, RDFFormat format,
+            Resource... contexts) throws RepositoryException,
+            RDFParseException, IOException {
+        RepositoryConnection con = null;
+        try {
+            con = currentRepository.getConnection();
+            InputStream stream =
+                    new ByteArrayInputStream(input.getBytes());
+
+            con.add(stream, "http://example.com", format, contexts);
+
+        } finally {
+            try {
+                con.close();
+            } catch (RepositoryException e) {
+                e.printStackTrace();
+            }
+        }
+
     }
     
     @Override
