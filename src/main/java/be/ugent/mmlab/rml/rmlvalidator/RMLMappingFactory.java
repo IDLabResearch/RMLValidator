@@ -36,9 +36,10 @@ public final class RMLMappingFactory {
     }
    
     public void setRMLMappingFactory(boolean validate){
+        this.validator = new RMLValidator();
+
         if(validate){
-            this.validator = new RMLValidator();
-            this.extractor = new RMLValidatedMappingExtractor(validator);   
+            this.extractor = new RMLValidatedMappingExtractor(validator);
         }
         else
             this.extractor = new RMLUnValidatedMappingExtractor();
