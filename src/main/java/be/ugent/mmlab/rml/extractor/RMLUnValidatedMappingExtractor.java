@@ -192,6 +192,10 @@ public class RMLUnValidatedMappingExtractor implements RMLMappingExtractor{
                 + RMLVocabulary.RMLTerm.ITERATOR),
                 vf.createURI(RMLVocabulary.RML_NAMESPACE
                 + RMLVocabulary.RMLTerm.ITERATOR));
+        
+        predicates
+                .put(vf.createURI("http://www.w3.org/1999/02/22-rdf-syntax-ns#type"),
+                vf.createURI("http://www.w3.org/1999/02/22-rdf-syntax-ns#type"));
 
         for (URI u : predicates.keySet()) {
             List<Statement> triples = rmlMappingGraph.tuplePattern(

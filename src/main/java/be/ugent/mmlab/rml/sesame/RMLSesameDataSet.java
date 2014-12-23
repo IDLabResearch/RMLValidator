@@ -6,16 +6,12 @@ package be.ugent.mmlab.rml.sesame;
 
 import be.ugent.mmlab.rml.extractor.RMLUnValidatedMappingExtractor;
 import info.aduna.iteration.Iterations;
-import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.StringBufferInputStream;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -91,7 +87,7 @@ public class RMLSesameDataSet extends SesameDataSet {
                         pre
                         + " CONSTRUCT { "
                         + "?tm <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/r2rml#TriplesMap> .  "
-                        + "?ls <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/r2rml#LogicalSource> .  "
+                        + "?ls <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://semweb.mmlab.be/ns/rml#LogicalSource> .  "
                         + "?sm <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/r2rml#SubjectMap> . "
                         + "?pom <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/r2rml#PredicateObjectMap> ."
                         + "?pm <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/r2rml#PredicateMap> ."
@@ -100,6 +96,7 @@ public class RMLSesameDataSet extends SesameDataSet {
                         + "?gm <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/r2rml#GraphMap> . } "
                         + " WHERE {"
                         + " ?tm <http://semweb.mmlab.be/ns/rml#logicalSource> ?ls ."
+                        + " ?tm <http://www.w3.org/ns/r2rml#subjectMap> ?sm ."
                         + " OPTIONAL {"
                         + "?tm <http://www.w3.org/ns/r2rml#predicateObjectMap> ?pom ."
                         + "?pom <http://www.w3.org/ns/r2rml#predicateMap> ?pm ."
@@ -113,7 +110,7 @@ public class RMLSesameDataSet extends SesameDataSet {
                         pre
                         + " CONSTRUCT { "
                         + "?tm <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/r2rml#TriplesMap> . "
-                        + "?ls <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/r2rml#LogicalSource> ."
+                        + "?ls <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://semweb.mmlab.be/ns/rml#LogicalSource> ."
                         + "?sm <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/r2rml#SubjectMap> . "
                         + "?pom <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/r2rml#PredicateObjectMap> ."
                         + "?pm <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/r2rml#PredicateMap> ."
@@ -122,7 +119,7 @@ public class RMLSesameDataSet extends SesameDataSet {
                         + "?gm <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/r2rml#GraphMap> . }"
                         + " WHERE { "
                         + "?tm <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/r2rml#TriplesMap> . "
-                        + "?ls <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/r2rml#LogicalSource> ."
+                        + "?ls <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://semweb.mmlab.be/ns/rml#LogicalSource> ."
                         + "?sm <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/r2rml#SubjectMap> ."
                         + "OPTIONAL { "
                         + "?pom <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/r2rml#PredicateObjectMap> . "
@@ -432,7 +429,7 @@ public class RMLSesameDataSet extends SesameDataSet {
 				ValueFactory myFactory = con.getValueFactory();
 				Statement st = myFactory.createStatement((Resource) s, p,
 						(Value) o);
-				con.remove(st, context);
+				con.remove(st);
 			} finally {
                             con.commit();
                             con.close();
@@ -442,7 +439,7 @@ public class RMLSesameDataSet extends SesameDataSet {
 			// handle exception
 		}
 	}
-        
+    
     public void skolemization(RMLSesameDataSet rmlMappingGraph) {
         TupleQueryResult result = null;
         try {
