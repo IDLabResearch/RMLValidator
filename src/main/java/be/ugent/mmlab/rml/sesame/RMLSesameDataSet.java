@@ -380,12 +380,12 @@ public class RMLSesameDataSet extends SesameDataSet {
         if (outputFile != null) {
             try {
                 out = new FileOutputStream(outputFile);
-                RDFWriter writer = Rio.createWriter(RDFFormat.TURTLE, out);
+                RDFWriter writer = Rio.createWriter(outform, out);
                 writer.startRDF();
                 RepositoryConnection con = currentRepository.getConnection();
                 RepositoryResult<Statement> statements = con.getStatements(null, null, null, true);
                 model = Iterations.addAll(statements, new LinkedHashModel());
-                Rio.write(model, out, RDFFormat.TURTLE);
+                Rio.write(model, out, outform);
                 //writer.endRDF();
             } catch (RDFHandlerException e) {
                 log.error(e);
@@ -408,7 +408,7 @@ public class RMLSesameDataSet extends SesameDataSet {
 				con.remove(st, context);
 			} finally {
                             con.commit();
-				con.close();
+                            con.close();
 			}
 		} catch (Exception e) {
                     log.error("Error " + e);

@@ -10,7 +10,6 @@ import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
-import org.openrdf.model.URI;
 import org.openrdf.model.Value;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.model.impl.ValueFactoryImpl;
@@ -32,7 +31,7 @@ public class skolemizationFactory {
 
         List<Statement> triplesSubject = rmlMappingGraph.tuplePattern(
                 (Resource) resource, null, null);
-
+rmlMappingGraph.printRDFtoFile("/home/andimou/Desktop/test_before.nt", RDFFormat.NTRIPLES);
         for (Statement tri : triplesSubject) {
             rmlMappingGraph.remove(
                     tri.getSubject(),
@@ -53,6 +52,7 @@ public class skolemizationFactory {
                     tri.getObject());
             rmlMappingGraph.add(tri.getSubject(), tri.getPredicate(), skolemizedMap);
         }
+        rmlMappingGraph.printRDFtoFile("/home/andimou/Desktop/test_after.nt", RDFFormat.NTRIPLES);
     }
 
     public static Resource skolemizeBlankNode(Value re) {
