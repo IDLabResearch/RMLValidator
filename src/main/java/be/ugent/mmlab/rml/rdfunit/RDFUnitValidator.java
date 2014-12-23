@@ -30,15 +30,16 @@ public class RDFUnitValidator {
 
     private final TestSuite testSuite;
 
-    public RDFUnitValidator(String datasetURI, String rdfData) {
+    public RDFUnitValidator(String datasetURI, String rdfDataFile) {
         configuration = new RDFUnitConfiguration(datasetURI, dataFolder);
 
         // Set the source
-        try {
-            configuration.setCustomTextSource(rdfData, serializationFormat);
-        } catch (UndefinedSerializationException e) {
-            throw new IllegalArgumentException("Unsupported format"); // should never be thrown
-        }
+       // try {
+            configuration.setCustomDereferenceURI(rdfDataFile);
+            //configuration.setCustomTextSource(rdfData, serializationFormat);
+       // } catch (UndefinedSerializationException e) {
+       //     throw new IllegalArgumentException("Unsupported format"); // should never be thrown
+       // }
 
         configuration.setTestCaseExecutionType(testCaseExecutionType);
 
