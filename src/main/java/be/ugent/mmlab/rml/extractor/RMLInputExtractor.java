@@ -57,11 +57,11 @@ public class RMLInputExtractor {
             try {
                 rmlMappingGraph.loadDataFromFile(fileToRMLFile, RDFFormat.TURTLE);
             } catch (RepositoryException ex) {
-                java.util.logging.Logger.getLogger(RMLInputExtractor.class.getName()).log(Level.SEVERE, null, ex);
+                log.error(ex);
             } catch (IOException ex) {
-                java.util.logging.Logger.getLogger(RMLInputExtractor.class.getName()).log(Level.SEVERE, null, ex);
+                log.error(ex);
             } catch (RDFParseException ex) {
-                java.util.logging.Logger.getLogger(RMLInputExtractor.class.getName()).log(Level.SEVERE, null, ex);
+                log.error(ex);
             }
         }
         log.debug(Thread.currentThread().getStackTrace()[1].getMethodName() + ": "

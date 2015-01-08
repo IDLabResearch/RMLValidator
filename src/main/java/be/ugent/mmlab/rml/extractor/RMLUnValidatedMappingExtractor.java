@@ -83,7 +83,7 @@ public class RMLUnValidatedMappingExtractor implements RMLMappingExtractor{
                 + RMLVocabulary.R2RMLTerm.GRAPH),
                 vf.createURI(RMLVocabulary.R2RML_NAMESPACE
                 + RMLVocabulary.R2RMLTerm.GRAPH_MAP));
-        
+              
         for (URI u : shortcutPredicates.keySet()) {
             List<Statement> shortcutTriples = rmlMappingGraph.tuplePattern(
                     null, u, null);

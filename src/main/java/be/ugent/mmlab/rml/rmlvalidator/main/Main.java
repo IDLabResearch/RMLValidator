@@ -45,21 +45,25 @@ public class Main {
             } 
             if (commandLine.hasOption("m")) {
                 map_doc = commandLine.getOptionValue("m", null);
+                System.out.println("\n Map doc: " + map_doc);
                 RMLMappingFactory mappingFactory;
-                if (commandLine.hasOption("V")) {
+                if (commandLine.hasOption("t")) {
+                    System.out.println("\n Started with mapping doc. \n ");
+                    mappingFactory = new RMLMappingFactory(true);
+                    mappingFactory.extractRMLMapping(map_doc, outputFile);
+                    System.out.println("\n Started with RDFUnit. \n ");
+                    RDFUnitValidator rdfUnitValidator = new RDFUnitValidator("http://example.com", outputFile);
+                    String rdfunitResults = rdfUnitValidator.validate();
+                    RMLSesameDataSet rdfunitresults = new RMLSesameDataSet();
+                    rdfunitresults.loadDataFromInputStream(rdfunitResults, RDFFormat.TURTLE, (Resource) null);
+                }else if (commandLine.hasOption("V")) {
                     mappingFactory = new RMLMappingFactory(false);
                     mappingFactory.extractRMLMapping(map_doc, outputFile);
                 } else {
                     mappingFactory = new RMLMappingFactory(true);
                     mappingFactory.extractRMLMapping(map_doc, outputFile);
                 }
-                if (commandLine.hasOption("t")) {
-                    log.info("call RDFUnit");
-                    RDFUnitValidator rdfUnitValidator = new RDFUnitValidator("http://example.com", outputFile);
-                    String rdfunitResults = rdfUnitValidator.validate();
-                    RMLSesameDataSet rdfunitresults = new RMLSesameDataSet();
-                    rdfunitresults.loadDataFromInputStream(rdfunitResults, RDFFormat.TURTLE, (Resource) null);
-                }
+                
             }
             else{
                 System.out.println("\n No input mapping document was provided. \n ");
@@ -67,7 +71,7 @@ public class Main {
                 System.out.println("RML Validator");
                 System.out.println("--------------------------------------------------------------------------------");
                 System.out.println("");
-                System.out.println("Usage: mvn exec:java -Dexec.args=\"-m <mapping_file> -o <output_file> -V\"");
+                System.out.println("Usage: mvn exec:java -Dexec.args=\"-m <mapping_file> -o <output_file> -V -t\"");
                 System.out.println("");
                 System.out.println("With");
                 System.out.println("    <mapping_file> = The RML mapping document conform with the RML specification (http://semweb.mmlab.be/rml/spec.html)");
@@ -80,11 +84,11 @@ public class Main {
         } catch (ParseException ex) {
             log.error(ex);
         } catch (RepositoryException ex) {
-            java.util.logging.Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+            log.error(ex);
         } catch (RDFParseException ex) {
-            java.util.logging.Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+            log.error(ex);
         } catch (IOException ex) {
-            java.util.logging.Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+            log.error(ex);
         }
 
     }

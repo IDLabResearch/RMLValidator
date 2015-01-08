@@ -12,6 +12,8 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -470,5 +472,24 @@ public class RMLSesameDataSet extends SesameDataSet {
         } catch (QueryEvaluationException ex) {
             java.util.logging.Logger.getLogger(RMLSesameDataSet.class.getName()).log(Level.SEVERE, null, ex);
         } 
+    }
+    
+    @Override
+    public void addURI(String urlstring, RDFFormat format) {
+        try {
+            RepositoryConnection con = currentRepository.getConnection();
+            try {
+                URL url = new URL(urlstring);
+                URLConnection uricon = (URLConnection) url.openConnection();
+                uricon.addRequestProperty("accept", format.getDefaultMIMEType());
+                InputStream instream = uricon.getInputStream();
+                log.info("input stream established");
+                con.add(instream, urlstring, format);
+            } finally {
+                con.close();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }
