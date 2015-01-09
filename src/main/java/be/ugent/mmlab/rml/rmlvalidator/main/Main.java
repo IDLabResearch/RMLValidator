@@ -6,7 +6,6 @@ import be.ugent.mmlab.rml.rml.RMLConfiguration;
 import be.ugent.mmlab.rml.rmlvalidator.RMLMappingFactory;
 import be.ugent.mmlab.rml.sesame.RMLSesameDataSet;
 import java.io.IOException;
-import java.util.logging.Level;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.ParseException;
 import org.apache.log4j.BasicConfigurator;

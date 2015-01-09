@@ -483,7 +483,6 @@ public class RMLSesameDataSet extends SesameDataSet {
                 URLConnection uricon = (URLConnection) url.openConnection();
                 uricon.addRequestProperty("accept", format.getDefaultMIMEType());
                 InputStream instream = uricon.getInputStream();
-                log.info("input stream established");
                 con.add(instream, urlstring, format);
             } finally {
                 con.close();

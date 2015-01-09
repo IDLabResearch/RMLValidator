@@ -36,11 +36,13 @@ public class skolemizationFactory {
                     (Resource) resource,
                     tri.getPredicate(),
                     tri.getObject());
-            List<Statement> test = rmlMappingGraph.tuplePattern(
-                tri.getSubject(), tri.getPredicate(), tri.getObject());
-            if(!test.isEmpty())
-                log.error("triple " + tri.toString() + " was not removed");
-                rmlMappingGraph.add(skolemizedMap, tri.getPredicate(), tri.getObject());
+            if(tri.getPredicate().toString().equals("http://www.w3.org/1999/02/22-rdf-syntax-ns#type")){
+                rmlMappingGraph.remove(
+                    (Resource) resource,
+                    vf.createURI("http://www.w3.org/1999/02/22-rdf-syntax-ns#type"),
+                    tri.getObject());
+            }
+            rmlMappingGraph.add(skolemizedMap, tri.getPredicate(), tri.getObject());
         }
         List<Statement> triplesObject = rmlMappingGraph.tuplePattern(
                 null, null, resource);
