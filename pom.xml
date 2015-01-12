@@ -203,12 +203,22 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-log4j12</artifactId>
-            <version>1.7.7</version>
+            <version>1.7.9</version>
         </dependency>
         <dependency>
             <groupId>net.antidot</groupId>
             <artifactId>db2triples</artifactId>
             <version>1.0.2</version>
+            <exclusions>
+                <!--exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-log4j12</artifactId>
+                </exclusion-->
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-simple</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.aksw.rdfunit</groupId>
