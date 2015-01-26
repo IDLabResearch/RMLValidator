@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import net.antidot.semantic.rdf.model.impl.sesame.SesameDataSet;
+import org.apache.commons.io.IOUtils;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.openrdf.model.Model;
@@ -306,7 +307,7 @@ public class RMLSesameDataSet extends SesameDataSet {
         }
     }
     
-    public void loadDataFromInputStream(String input, RDFFormat format,
+    public void loadDataFromInputStream(String input, String resultFileRDFUnit, RDFFormat format,
             Resource... contexts) throws RepositoryException,
             RDFParseException, IOException {
         RepositoryConnection con = null;
@@ -314,6 +315,7 @@ public class RMLSesameDataSet extends SesameDataSet {
             con = currentRepository.getConnection();
             InputStream stream =
                     new ByteArrayInputStream(input.getBytes());
+            IOUtils.copy(stream, new FileOutputStream(resultFileRDFUnit));
 
             con.add(stream, "http://example.com", format, contexts);
 
@@ -321,7 +323,7 @@ public class RMLSesameDataSet extends SesameDataSet {
             try {
                 con.close();
             } catch (RepositoryException e) {
-                e.printStackTrace();
+                log.error(e);
             }
         }
 

@@ -54,7 +54,8 @@ public class Main {
                     RDFUnitValidator rdfUnitValidator = new RDFUnitValidator("http://example.com", outputFile);
                     String rdfunitResults = rdfUnitValidator.validate();
                     RMLSesameDataSet rdfunitresults = new RMLSesameDataSet();
-                    rdfunitresults.loadDataFromInputStream(rdfunitResults, RDFFormat.TURTLE, (Resource) null);
+                    String resultFileRDFUnit = "/home/andimou/Documents/results.rml.ttl";
+                    rdfunitresults.loadDataFromInputStream(rdfunitResults, resultFileRDFUnit, RDFFormat.TURTLE, (Resource) null);
                 }else if (commandLine.hasOption("V")) {
                     mappingFactory = new RMLMappingFactory(false);
                     mappingFactory.extractRMLMapping(map_doc, outputFile);
