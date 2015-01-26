@@ -307,7 +307,7 @@ public class RMLSesameDataSet extends SesameDataSet {
         }
     }
     
-    public void loadDataFromInputStream(String input, String resultFileRDFUnit, RDFFormat format,
+    public void loadDataFromInputStream(String input, String resultFileRDFUnit, String baseURI, RDFFormat format,
             Resource... contexts) throws RepositoryException,
             RDFParseException, IOException {
         RepositoryConnection con = null;
@@ -316,9 +316,8 @@ public class RMLSesameDataSet extends SesameDataSet {
             InputStream stream =
                     new ByteArrayInputStream(input.getBytes());
             IOUtils.copy(stream, new FileOutputStream(resultFileRDFUnit));
-
-            con.add(stream, "http://example.com", format, contexts);
-
+            
+                        
         } finally {
             try {
                 con.close();
