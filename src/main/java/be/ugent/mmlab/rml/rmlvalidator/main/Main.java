@@ -54,7 +54,7 @@ public class Main {
                     RDFUnitValidator rdfUnitValidator = new RDFUnitValidator("http://example.com", outputFile);
                     String rdfunitResults = rdfUnitValidator.validate();
                     RMLSesameDataSet rdfunitresults = new RMLSesameDataSet();
-                    String resultFileRDFUnit = "/home/andimou/Documents/results.rml.ttl";
+                    String resultFileRDFUnit = commandLine.getOptionValue("t", null);
                     String baseURI = "http://example.com";
                     rdfunitresults.loadDataFromInputStream(
                             rdfunitResults, resultFileRDFUnit, baseURI, RDFFormat.TURTLE, (Resource) null);
