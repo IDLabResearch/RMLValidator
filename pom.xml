@@ -13,7 +13,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <sesame.version>2.7.14</sesame.version>
-        <rdfunit.version>0.7.3-SNAPSHOT</rdfunit.version>
+        <rdfunit.version>0.7.3</rdfunit.version>
     </properties>
 
     <build>
@@ -104,6 +104,11 @@
         <repository>
             <id>repository.jboss.org</id>
             <url>https://repository.jboss.org/nexus/content/repositories/thirdparty-releases</url>
+        </repository>
+        <repository>
+            <id>maven.aksw.internal</id>
+            <name>University Leipzig, AKSW Maven2 Repository</name>
+            <url>http://maven.aksw.org/repository/internal</url>
         </repository>
     </repositories>
 
