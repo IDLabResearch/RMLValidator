@@ -15,15 +15,17 @@ Usage
 -----
 The validator can be run using Maven. You can run a mapping process by executing the following command.
     
-    mvn exec:java -Dexec.args=-m "<mapping_file>"
+    mvn exec:java -Dexec.args=-m "<mapping_file> [-o <output_file> -V]"
 
 Or using the JAR file
 
-    java -jar target/RMLValidator-1.0.jar -m "<mapping_file>"
+    java -jar target/RMLValidator-1.0.jar -m "<mapping_file> [-o <outupt_file> -V]"
 
 With 
     
     <mapping_file> = The RML mapping file conform with the [RML specification](http://semweb.mmlab.be/ns/rml)
+    <output_file> = The RML mapping document conform with skolemized and inferred statements.
+    add -V to validate it using RDFUnit	
         
 For instance, to run example1, execute the following command by replacing the paths to the files with the local paths:
 
