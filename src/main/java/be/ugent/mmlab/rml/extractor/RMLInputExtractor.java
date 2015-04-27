@@ -28,8 +28,18 @@ public class RMLInputExtractor {
     
     public RMLInputExtractor(){}
     
-    public RMLSesameDataSet getMappingDoc(String fileToRMLFile, RDFFormat format) {
+    public RMLSesameDataSet getMappingDoc(String fileToRMLFile, String outputFile, RDFFormat format) {
+        
         RMLSesameDataSet rmlMappingGraph = new RMLSesameDataSet();
+        
+        /*if (outputFile != null) { // Check if use of native store is required
+            log.debug("[RMLEngine:runRMLMapping] Use native store "
+                    + outputFile);
+            rmlMappingGraph = new RMLSesameDataSet(outputFile, false);
+        } else {
+            log.debug("[RMLEngine:runRMLMapping] Use default store (memory) ");
+            rmlMappingGraph = new RMLSesameDataSet();
+        }*/
 
         //RML document is a URI
         if (!isLocalFile(fileToRMLFile)) {

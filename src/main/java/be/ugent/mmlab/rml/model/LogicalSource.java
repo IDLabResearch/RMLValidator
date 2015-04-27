@@ -1,6 +1,6 @@
 package be.ugent.mmlab.rml.model;
 
-import be.ugent.mmlab.rml.rml.RMLVocabulary;
+import be.ugent.mmlab.rml.vocabulary.RMLVocabulary;
 
 /**
  *

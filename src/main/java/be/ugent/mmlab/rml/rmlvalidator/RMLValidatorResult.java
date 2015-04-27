@@ -4,9 +4,9 @@
  */
 package be.ugent.mmlab.rml.rmlvalidator;
 
-import be.ugent.mmlab.rml.rml.RMLVocabulary;
-import be.ugent.mmlab.rml.rml.RMLVocabulary.R2RMLTerm;
-import be.ugent.mmlab.rml.rml.RMLVocabulary.Term;
+import be.ugent.mmlab.rml.vocabulary.RMLVocabulary;
+import be.ugent.mmlab.rml.vocabulary.RMLVocabulary.R2RMLTerm;
+import be.ugent.mmlab.rml.vocabulary.RMLVocabulary.Term;
 import be.ugent.mmlab.rml.sesame.RMLSesameDataSet;
 import java.text.SimpleDateFormat;
 import java.util.Date;

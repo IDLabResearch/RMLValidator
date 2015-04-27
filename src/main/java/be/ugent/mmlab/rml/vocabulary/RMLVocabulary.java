@@ -9,9 +9,14 @@
  *
  ***************************************************************************
  */
-package be.ugent.mmlab.rml.rml;
+package be.ugent.mmlab.rml.vocabulary;
+
+import org.apache.log4j.LogManager;
 
 public class RMLVocabulary {
+    
+    // Log
+    private static final org.apache.log4j.Logger log = LogManager.getLogger(RMLVocabulary.class);
 
     // In this document, examples assume the following namespace 
     // prefix bindings unless otherwise stated:
@@ -45,7 +50,7 @@ public class RMLVocabulary {
         REFERENCE("reference"),
         ITERATOR("iterator"),
         VERSION("version"),
-        SOURCE("source");
+        SOURCE("source"); 
         
         private String displayName;
 
@@ -65,7 +70,8 @@ public class RMLVocabulary {
         XPATH_CLASS("XPath"),
         SQL_CLASS("SQL"),
         JSONPATH_CLASS("JSONPath"),
-        CSV_CLASS("CSV");
+        CSV_CLASS("CSV"),
+        CSS3_CLASS("CSS3");
         
         private String displayName;
 

@@ -15,7 +15,6 @@ package be.ugent.mmlab.rml.extractor;
  */
 
 
-import static be.ugent.mmlab.rml.extractor.RMLUnValidatedMappingExtractor.extractValuesFromResource;
 import be.ugent.mmlab.rml.model.GraphMap;
 import be.ugent.mmlab.rml.model.LogicalSource;
 import be.ugent.mmlab.rml.model.ObjectMap;
@@ -33,8 +32,8 @@ import be.ugent.mmlab.rml.model.std.StdPredicateMap;
 import be.ugent.mmlab.rml.model.std.StdPredicateObjectMap;
 import be.ugent.mmlab.rml.sesame.RMLSesameDataSet;
 import be.ugent.mmlab.rml.rmlvalidator.RMLValidator;
-import be.ugent.mmlab.rml.rml.RMLVocabulary;
-import be.ugent.mmlab.rml.rml.RMLVocabulary.R2RMLTerm;
+import be.ugent.mmlab.rml.vocabulary.RMLVocabulary;
+import be.ugent.mmlab.rml.vocabulary.RMLVocabulary.R2RMLTerm;
 import be.ugent.mmlab.rml.rmlvalidator.RMLMappingValidator;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -103,7 +102,7 @@ public class RMLValidatedMappingExtractor extends RMLUnValidatedMappingExtractor
 
             for (Statement predicateStatement : predicateStatements) {
                 PredicateMap predicateMap = extractPredicateMap(
-                        rmlMappingGraph, (Resource) predicateStatement.getObject(),
+                        rmlMappingGraph, predicateStatement,
                         savedGraphMaps, triplesMap);
 
                 predicateMaps.add(predicateMap);
@@ -171,9 +170,9 @@ public class RMLValidatedMappingExtractor extends RMLUnValidatedMappingExtractor
     
     @Override
     public PredicateMap extractPredicateMap(
-            RMLSesameDataSet rmlMappingGraph, Resource object,
+            RMLSesameDataSet rmlMappingGraph, Statement statement,
             Set<GraphMap> graphMaps, TriplesMap triplesMap) {
-
+        Resource object = (Resource) statement.getObject();
         // Extract object maps properties
         Value constantValue = extractValueFromTermMap(rmlMappingGraph,
                 object, RMLVocabulary.R2RMLTerm.CONSTANT, triplesMap);

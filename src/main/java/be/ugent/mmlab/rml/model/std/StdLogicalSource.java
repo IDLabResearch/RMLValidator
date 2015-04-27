@@ -1,7 +1,7 @@
 package be.ugent.mmlab.rml.model.std;
 
 import be.ugent.mmlab.rml.model.LogicalSource;
-import be.ugent.mmlab.rml.rml.RMLVocabulary.QLTerm;
+import be.ugent.mmlab.rml.vocabulary.RMLVocabulary.QLTerm;
 
 /**
  *  Concrete implementation of a Logical Source
@@ -10,28 +10,50 @@ import be.ugent.mmlab.rml.rml.RMLVocabulary.QLTerm;
  */
 public class StdLogicalSource implements LogicalSource {
 
-    private String reference;
+    private String iterator;
     private QLTerm referenceFormulation = QLTerm.SQL_CLASS;
     private String identifier;
+    private String splitCondition;
 
-    public StdLogicalSource(String reference, String identifier) {
-        this.reference = reference;
+    public StdLogicalSource(String identifier, QLTerm referenceFormulation) {
+        this.referenceFormulation = referenceFormulation;
         this.identifier = identifier;
+    }
+    
+    public StdLogicalSource(String identifier, QLTerm referenceFormulation, String splitCondition) {
+        this.referenceFormulation = referenceFormulation;
+        this.identifier = identifier;
+        this.splitCondition = splitCondition;
     }
 
     public StdLogicalSource(String reference) {
-        this.reference = reference;
+        this.iterator = reference;
     }
 
-    public StdLogicalSource(String reference, String identifier, QLTerm referenceFormulation) {
-        this.reference = reference;
+    public StdLogicalSource(String iterator, String identifier, QLTerm referenceFormulation) {
+        this.iterator = iterator;
         this.identifier = identifier;
         this.referenceFormulation = referenceFormulation;
     }
     
+    public StdLogicalSource(String iterator, String identifier, 
+            QLTerm referenceFormulation, String splitCondition) {
+        this.iterator = iterator;
+        this.identifier = identifier;
+        this.referenceFormulation = referenceFormulation;
+        this.splitCondition = splitCondition;
+    }
+    
+        @Override
+    public String toString() {
+        return "[StdLogicalSource : iterator = " + iterator
+                + "; identifier" + identifier + "; referenceFormulation = " + referenceFormulation 
+                + "; splitCondition = " + splitCondition + "]";
+    }
+
     @Override
     public String getReference() {
-        return reference;
+        return iterator;
     }
 
     @Override
@@ -43,10 +65,5 @@ public class StdLogicalSource implements LogicalSource {
     public String getIdentifier() {
         return identifier;
     }
-
-    @Override
-    public String toString() {
-        return "[StdLogicalSource : reference = " + reference
-                + "; identifier" + identifier + "; referenceFormulation = " + referenceFormulation + "]";
-    }
+    
 }

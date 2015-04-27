@@ -10,7 +10,7 @@ import be.ugent.mmlab.rml.extractor.RMLUnValidatedMappingExtractor;
 import be.ugent.mmlab.rml.extractor.RMLValidatedMappingExtractor;
 import be.ugent.mmlab.rml.model.RMLMapping;
 import be.ugent.mmlab.rml.model.TriplesMap;
-import be.ugent.mmlab.rml.rml.RMLVocabulary;
+import be.ugent.mmlab.rml.vocabulary.RMLVocabulary;
 import be.ugent.mmlab.rml.sesame.RMLSesameDataSet;
 import java.util.Map;
 import org.apache.log4j.LogManager;
@@ -50,10 +50,12 @@ public final class RMLMappingFactory {
         // Load RDF data from R2RML Mapping document
         RMLSesameDataSet rmlMappingGraph ;
         RMLInputExtractor InputExtractor = new RMLInputExtractor() ;
-        rmlMappingGraph = InputExtractor.getMappingDoc(fileToRMLFile, RDFFormat.TURTLE);
+        rmlMappingGraph = InputExtractor.getMappingDoc(fileToRMLFile, outputFile, RDFFormat.TURTLE);
         
         // Transform RDF with replacement shortcuts
         extractor.replaceShortcuts(rmlMappingGraph);
+        
+        //skolemize blank node statements
         rmlMappingGraph = extractor.skolemizeStatements(rmlMappingGraph);
         
         // Construct R2RML Mapping object

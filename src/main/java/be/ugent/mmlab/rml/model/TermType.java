@@ -28,7 +28,7 @@
  ****************************************************************************/
 package be.ugent.mmlab.rml.model;
 
-import be.ugent.mmlab.rml.rml.R2RMLVocabulary;
+import be.ugent.mmlab.rml.vocabulary.R2RMLVocabulary;
 
 public enum TermType {
 

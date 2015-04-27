@@ -2,7 +2,7 @@ package be.ugent.mmlab.rml.rmlvalidator.main;
 
 import be.ugent.mmlab.rml.extractor.RMLInputExtractor;
 import be.ugent.mmlab.rml.rdfunit.RDFUnitValidator;
-import be.ugent.mmlab.rml.rml.RMLConfiguration;
+import be.ugent.mmlab.rml.vocabulary.RMLConfiguration;
 import be.ugent.mmlab.rml.rmlvalidator.RMLMappingFactory;
 import be.ugent.mmlab.rml.sesame.RMLSesameDataSet;
 import java.io.IOException;
@@ -47,15 +47,21 @@ public class Main {
                 System.out.println("\n Map doc: " + map_doc);
                 RMLMappingFactory mappingFactory;
                 if (commandLine.hasOption("t")) {
-                    System.out.println("\n Started with mapping doc. \n ");
+                    //Mapping Document validation
+                    System.out.println("\n Started Mapping Document validation. \n ");
                     mappingFactory = new RMLMappingFactory(true);
                     mappingFactory.extractRMLMapping(map_doc, outputFile);
-                    System.out.println("\n Started with RDFUnit. \n ");
+                    
+                    //Schema validation
+                    System.out.println("\n Started Mapping Document Schema validation with RDFUnit. \n ");
                     RDFUnitValidator rdfUnitValidator = new RDFUnitValidator("http://example.com", outputFile);
-                    String rdfunitResults = rdfUnitValidator.validate();
+                    String rdfunitResults = rdfUnitValidator.validate();                   
+                    
                     RMLSesameDataSet rdfunitresults = new RMLSesameDataSet();
                     String resultFileRDFUnit = commandLine.getOptionValue("t", null);
                     String baseURI = "http://example.com";
+                    
+                    System.out.println("\n RDFUnit results processing.. \n ");
                     rdfunitresults.loadDataFromInputStream(
                             rdfunitResults, resultFileRDFUnit, baseURI, RDFFormat.TURTLE, (Resource) null);
                 }else if (commandLine.hasOption("V")) {
@@ -79,7 +85,7 @@ public class Main {
                 System.out.println("    <mapping_file> = The RML mapping document conform with the RML specification (http://semweb.mmlab.be/rml/spec.html)");
                 System.out.println("    <output_file> = The RML mapping document conform with skolemized and inferred statements.");
                 System.out.println("add -V not to validate the mapping document");
-                System.out.println("add -q to pass the quality tests");
+                System.out.println("add -t to pass the quality tests");
                 System.out.println("");
                 System.out.println("--------------------------------------------------------------------------------");
             }

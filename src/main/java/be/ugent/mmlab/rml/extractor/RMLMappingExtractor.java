@@ -13,6 +13,7 @@ import be.ugent.mmlab.rml.sesame.RMLSesameDataSet;
 import java.util.Map;
 import java.util.Set;
 import org.openrdf.model.Resource;
+import org.openrdf.model.Statement;
 
 /**
  *
@@ -57,7 +58,7 @@ public interface RMLMappingExtractor {
      * @return
      */
     public PredicateMap extractPredicateMap(
-            RMLSesameDataSet rmlMappingGraph, Resource object,
+            RMLSesameDataSet rmlMappingGraph, Statement object,
             Set<GraphMap> graphMaps, TriplesMap triplesMap);
     
     /**

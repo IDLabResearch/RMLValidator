@@ -16,6 +16,8 @@ import org.aksw.rdfunit.tests.generators.TestGeneratorExecutor;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
 
 /**
  * Description
@@ -24,6 +26,10 @@ import java.io.File;
  * @since 12/18/14 12:51 PM
  */
 public class RDFUnitValidator {
+    
+    // Log
+    private static final Logger log = LogManager.getLogger(RDFUnitValidator.class);
+    
     private final String dataFolder = ".rdfunit/";
     private final String serializationFormat = "TURTLE";
     private final TestCaseExecutionType testCaseExecutionType = TestCaseExecutionType.extendedTestCaseResult;

@@ -4,7 +4,6 @@
  */
 package be.ugent.mmlab.rml.sesame;
 
-import be.ugent.mmlab.rml.extractor.RMLUnValidatedMappingExtractor;
 import info.aduna.iteration.Iterations;
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -91,7 +90,7 @@ public class RMLSesameDataSet extends SesameDataSet {
                         + " CONSTRUCT { "
                         + "?tm <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/r2rml#TriplesMap> .  "
                         + "?ls <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://semweb.mmlab.be/ns/rml#LogicalSource> .  "
-                        + "?sm <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/r2rml#SubjectMap> . "
+                        //+ "?sm <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/r2rml#SubjectMap> . "
                         + "?pom <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/r2rml#PredicateObjectMap> ."
                         + "?pm <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/r2rml#PredicateMap> ."
                         + "?om <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/r2rml#ObjectMap> ."
@@ -99,7 +98,7 @@ public class RMLSesameDataSet extends SesameDataSet {
                         + "?gm <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/r2rml#GraphMap> . } "
                         + " WHERE {"
                         + " ?tm <http://semweb.mmlab.be/ns/rml#logicalSource> ?ls ."
-                        + " ?tm <http://www.w3.org/ns/r2rml#subjectMap> ?sm ."
+                       // + " ?tm <http://www.w3.org/ns/r2rml#subjectMap> ?sm ."
                         + " OPTIONAL {"
                         + "?tm <http://www.w3.org/ns/r2rml#predicateObjectMap> ?pom ."
                         + "?pom <http://www.w3.org/ns/r2rml#predicateMap> ?pm ."
@@ -114,7 +113,7 @@ public class RMLSesameDataSet extends SesameDataSet {
                         + " CONSTRUCT { "
                         + "?tm <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/r2rml#TriplesMap> . "
                         + "?ls <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://semweb.mmlab.be/ns/rml#LogicalSource> ."
-                        + "?sm <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/r2rml#SubjectMap> . "
+                        //+ "?sm <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/r2rml#SubjectMap> . "
                         + "?pom <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/r2rml#PredicateObjectMap> ."
                         + "?pm <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/r2rml#PredicateMap> ."
                         + "?om <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/r2rml#ObjectMap> ."
@@ -153,97 +152,6 @@ public class RMLSesameDataSet extends SesameDataSet {
         }
     }
     
-    /*public void executeQuery() {
-        log.debug("Executing queries..");
-        try {
-            RepositoryConnection con = currentRepository.getConnection();
-            try {
-                String queryString = ""
-                        + "SELECT ?x "
-                        + "WHERE { "
-                        + "?x <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/r2rml#TriplesMap> } " ;
-                TupleQuery tupleQuery = con.prepareTupleQuery(QueryLanguage.SPARQL, queryString);
-
-                TupleQueryResult result = tupleQuery.evaluate();
-                
-                log.debug(Thread.currentThread().getStackTrace()[1].getMethodName() + ": "
-                                + "Tuple query 1 result next: "
-                                + result.hasNext());
-                try {
-                    while (result.hasNext()) {  // iterate over the result
-                        BindingSet bindingSet = result.next();
-                        Value valueOfX = bindingSet.getValue("x");
-                        //Value valueOfY = bindingSet.getValue("y");
-                        System.out.println("valueOfX " + valueOfX.stringValue());
-                        //System.out.println("valueOfY " + valueOfY.stringValue());
-                        URI p = this.URIref("http://www.w3.org/1999/02/22-rdf-syntax-ns#type");
-                        //URI o = this.URIref(RMLVocabulary.R2RML_NAMESPACE
-                        //        + RMLVocabulary.R2RMLTerm.SUBJECT_MAP_CLASS);
-                        URI o2 = this.URIref(RMLVocabulary.R2RML_NAMESPACE
-                                + RMLVocabulary.R2RMLTerm.TRIPLES_MAP_CLASS);
-                        this.tuplePattern((Resource) valueOfX, p, o2);
-                        //this.tuplePattern((Resource) valueOfY, p, o);
-                        log.debug(Thread.currentThread().getStackTrace()[1].getMethodName() + ": "
-                                + "Typed triple: "
-                                + valueOfX.stringValue()
-                                + " - "
-                                + p.stringValue()
-                                + " - "
-                                + o2.stringValue());
-                    }
-                } finally {
-                    result.close();
-                }
-            } finally {
-                con.close();
-            }
-        } catch (OpenRDFException e) {
-            // handle exception
-        }
-        
-        try {
-            RepositoryConnection con = currentRepository.getConnection();
-            try {
-                String queryString2 = ""
-                        + "SELECT ?y "
-                        + "WHERE { "
-                        + "?y a <http://www.w3.org/ns/r2rml#SubjectMap> } ";
-
-               TupleQuery tupleQuery = con.prepareTupleQuery(QueryLanguage.SPARQL, queryString2);
-
-                TupleQueryResult result = tupleQuery.evaluate();
-                log.debug(Thread.currentThread().getStackTrace()[1].getMethodName() + ": "
-                                + "Tuple query 2 result next: "
-                                + result.hasNext());
-                try {
-                    while (result.hasNext()) {  // iterate over the result
-                        BindingSet bindingSet = result.next();
-                        Value valueOfY = bindingSet.getValue("y");
-                        System.out.println("valueOfY " + valueOfY.stringValue());
-                        URI p = this.URIref("http://www.w3.org/1999/02/22-rdf-syntax-ns#type");
-                        URI o = this.URIref(RMLVocabulary.R2RML_NAMESPACE
-                                + RMLVocabulary.R2RMLTerm.SUBJECT_MAP_CLASS);
-                        this.tuplePattern((Resource) valueOfY, p, o);
-
-                        log.debug(Thread.currentThread().getStackTrace()[1].getMethodName() + ": "
-                                + "Typed triple: "
-                                + valueOfY.stringValue()
-                                + " - "
-                                + p.stringValue()
-                                + " - "
-                                + o.stringValue());
-                    }
-                } finally {
-                    result.close();
-                }
-            } finally {
-                con.close();
-            }
-        } catch (OpenRDFException e) {
-            // handle exception
-        }
-    }*/
-
     public RMLSesameDataSet(String pathToDir, boolean inferencing) {
         File f = new File(pathToDir);
         try {
@@ -443,6 +351,23 @@ public class RMLSesameDataSet extends SesameDataSet {
 		}
 	}
     
+    public void remove(Statement st, Resource... contexts) {
+
+        try {
+            RepositoryConnection con = currentRepository.getConnection();
+            try {
+                con.remove(st, contexts);
+                con.commit();
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                con.close();
+            }
+        } catch (Exception e) {
+            // handle exception
+        }
+    }
+    
     public void skolemization(RMLSesameDataSet rmlMappingGraph) {
         TupleQueryResult result = null;
         try {
@@ -453,11 +378,11 @@ public class RMLSesameDataSet extends SesameDataSet {
             result = tupleQuery.evaluate();
 
         } catch (RepositoryException ex) {
-            java.util.logging.Logger.getLogger(RMLUnValidatedMappingExtractor.class.getName()).log(Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(RMLSesameDataSet.class.getName()).log(Level.SEVERE, null, ex);
         } catch (MalformedQueryException ex) {
-            java.util.logging.Logger.getLogger(RMLUnValidatedMappingExtractor.class.getName()).log(Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(RMLSesameDataSet.class.getName()).log(Level.SEVERE, null, ex);
         } catch (QueryEvaluationException ex) {
-            java.util.logging.Logger.getLogger(RMLUnValidatedMappingExtractor.class.getName()).log(Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(RMLSesameDataSet.class.getName()).log(Level.SEVERE, null, ex);
         }
         try {
             while (result.hasNext()) {  // iterate over the result
