@@ -327,6 +327,62 @@ public class RMLSesameDataSet extends SesameDataSet {
         }
     }
     
+    /**
+     *
+     * @param s
+     * @param p
+     * @param o
+     * @param contexts
+     */
+    @Override
+    public void remove(Resource s, URI p, Value o, Resource... contexts) {
+
+        try {
+            RepositoryConnection con = currentRepository.getConnection();
+            
+
+            ValueFactory myFactory = con.getValueFactory();
+            if(p.stringValue().equals("http://www.w3.org/1999/02/22-rdf-syntax-ns#type")){
+                Statement st = myFactory.createStatement((Resource) s, p,
+                        (Value) o);
+                con.remove(st);
+                con.remove(s, RDF.TYPE, o);
+            }
+            
+            Statement st = myFactory.createStatement((Resource) s, p,
+                    (Value) o);
+            RepositoryResult<Statement> statements = con.getStatements(s, p, o, false);
+            Model aboutToDelete = Iterations.addAll(statements, new LinkedHashModel());
+            con.remove(s, null, o, contexts);
+            con.remove(aboutToDelete);
+            con.remove(s, p, o);
+            con.remove(st, contexts);
+            con.commit();
+            con.close();
+        } catch (Exception e) {
+            log.error(e);
+        } finally {
+            //con.close();
+        }
+    }
+    
+    public void remove(Statement st, Resource... contexts) {
+
+        try {
+            RepositoryConnection con = currentRepository.getConnection();
+            try {
+                con.remove(st, contexts);
+                con.commit();
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                con.close();
+            }
+        } catch (Exception e) {
+            // handle exception
+        }
+    }
+    
     @Override
     public List<Statement> tuplePattern(Resource s, URI p, Value o,
             Resource... contexts) {

@@ -192,7 +192,7 @@ public class RMLUnValidatedMappingExtractor implements RMLMappingExtractor{
                 + RMLVocabulary.RMLTerm.ITERATOR),
                 vf.createURI(RMLVocabulary.RML_NAMESPACE
                 + RMLVocabulary.RMLTerm.ITERATOR));
-
+        
         for (URI u : predicates.keySet()) {
             List<Statement> triples = rmlMappingGraph.tuplePattern(
                     null, u, null);

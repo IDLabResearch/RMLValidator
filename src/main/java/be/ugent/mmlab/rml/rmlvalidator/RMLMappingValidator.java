@@ -39,7 +39,7 @@ public interface RMLMappingValidator {
     public void checkMultipleStatements(TriplesMap triplesMap, List<Statement> statements, URI p, String termType);
 
     public void checkTermMap(
-            Value constantValue, String stringTemplate, ReferenceIdentifier referenceValue, String stringValue, Term term);
+            Value constantValue, String stringTemplate, ReferenceIdentifier referenceValue, Resource stringValue, Term term);
 
     public void checkStatements(Resource resource, List<Statement> statements, Term p);
 

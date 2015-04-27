@@ -45,10 +45,10 @@ public class Main {
                     mappingFactory = new RMLMappingFactory(true);
                     mappingFactory.extractRMLMapping(map_doc, outputFile);
                 }
-                if (commandLine.hasOption("V")) {
+                /*if (commandLine.hasOption("V")) {
                     log.info("call RDFUnit");
                     //call RDFUnit and pass either the original file or the generated one
-                }
+                }*/
             }
             else{
                 System.out.println("\n No input mapping document was provided. \n ");
@@ -68,6 +68,7 @@ public class Main {
             }
         } catch (ParseException ex) {
             log.error(ex);
+            RMLConfiguration.displayHelp();
         }
 
     }

@@ -25,7 +25,7 @@ import org.openrdf.rio.RDFFormat;
 public final class RMLMappingFactory {
     
     // Log
-    private static final Logger log = LogManager.getLogger(RMLValidatedMappingExtractor.class);
+    private static final Logger log = LogManager.getLogger(RMLMappingFactory.class);
     
     private RMLMappingExtractor extractor;
     private RMLMappingValidator validator;
@@ -65,7 +65,7 @@ public final class RMLMappingFactory {
                 + RMLVocabulary.R2RMLTerm.TRIPLES_MAP_CLASS
                 + " in file "
                 + fileToRMLFile + " : " + triplesMapResources.size());
-        
+
         validator.checkTriplesMapResources(triplesMapResources);
 
         // Fill each TriplesMap object

@@ -188,7 +188,7 @@ public class RMLValidatedMappingExtractor extends RMLUnValidatedMappingExtractor
                 extractReferenceIdentifier(rmlMappingGraph, object, triplesMap);
         
         validator.checkTermMap(
-                constantValue, stringTemplate, referenceValue, object.stringValue(), R2RMLTerm.PREDICATE_MAP);
+                constantValue, stringTemplate, referenceValue, object, R2RMLTerm.PREDICATE_MAP);
 
         PredicateMap result = new StdPredicateMap(null, constantValue,
                 stringTemplate, inverseExpression, referenceValue, termType);
@@ -222,7 +222,7 @@ public class RMLValidatedMappingExtractor extends RMLUnValidatedMappingExtractor
                 extractReferenceIdentifier(rmlMappingGraph, object, triplesMap);
         
         validator.checkTermMap(
-                constantValue, stringTemplate, referenceValue, object.stringValue(), R2RMLTerm.OBJECT_MAP);
+                constantValue, stringTemplate, referenceValue, object, R2RMLTerm.OBJECT_MAP);
 
         StdObjectMap result = new StdObjectMap(null, constantValue, dataType,
                 languageTag, stringTemplate, termType, inverseExpression,
@@ -255,8 +255,9 @@ public class RMLValidatedMappingExtractor extends RMLUnValidatedMappingExtractor
                 + R2RMLTerm.SUBJECT_MAP);
         List<Statement> statements = rmlMappingGraph.tuplePattern(
                 triplesMapSubject, p, null);
-
-        validator.checkStatements(triplesMapSubject, statements, R2RMLTerm.SUBJECT_MAP);
+        
+            validator.checkStatements(triplesMapSubject, statements, R2RMLTerm.SUBJECT_MAP);
+        
         if (!statements.isEmpty()) {
             Resource subjectMap = (Resource) statements.get(0).getObject();
 
@@ -268,9 +269,9 @@ public class RMLValidatedMappingExtractor extends RMLUnValidatedMappingExtractor
                     subjectMap, R2RMLTerm.TERM_TYPE, triplesMap);
             String inverseExpression = extractLiteralFromTermMap(rmlMappingGraph,
                     subjectMap, R2RMLTerm.INVERSE_EXPRESSION, triplesMap);
-
+            
             validator.checkTermMap(
-                    constantValue, stringTemplate, null, subjectMap.toString(), R2RMLTerm.SUBJECT_MAP);
+                    constantValue, stringTemplate, null, subjectMap, R2RMLTerm.SUBJECT_MAP);
 
             //MVS: Decide on ReferenceIdentifier
             //TODO:Add check if the referenceValue is a valid reference according to the reference formulation

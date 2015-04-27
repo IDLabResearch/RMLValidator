@@ -170,7 +170,6 @@ public class RMLValidator implements RMLMappingValidator {
     @Override
     public void checkTriplesMapResources( Map<Resource, TriplesMap> triplesMapResources){ 
         Value object;
-        ValueFactory vf  = new ValueFactoryImpl();
         String objectValue;
         if (triplesMapResources.isEmpty()) {
             object = null;
@@ -217,7 +216,7 @@ public class RMLValidator implements RMLMappingValidator {
         } else if (statements.size() > 1) {
             object = vf.createURI(resource.toString());
             objectValue = resource.stringValue()
-                    + " has many " + term //.getLocalName() 
+                    + " has many " + term  
                     + " but only one is required.";
             validres.addViolation(
                     object, term, objectValue,Thread.currentThread().getStackTrace()[1].getMethodName());
@@ -287,18 +286,18 @@ public class RMLValidator implements RMLMappingValidator {
     @Override
     public void checkTermMap(
             Value constantValue, String stringTemplate, 
-            ReferenceIdentifier referenceValue, String resource, Term term){
+            ReferenceIdentifier referenceValue, Resource resource, Term term){
         ValueFactory vf  = new ValueFactoryImpl();
         Value object;
         String objectValue;
         if(constantValue != null && stringTemplate != null){
-            object = vf.createLiteral(resource);
+            object = vf.createLiteral(resource.stringValue());
             objectValue = resource + " is a Term Map that has both constant and template.";
             validres.addViolation(
                     object, term, objectValue,Thread.currentThread().getStackTrace()[1].getMethodName());
         }
         else if(constantValue != null && referenceValue != null){
-            object = vf.createLiteral(resource);
+            object = vf.createLiteral(resource.stringValue());
             objectValue = resource
                     + " is a " 
                     + term.toString()
@@ -308,7 +307,7 @@ public class RMLValidator implements RMLMappingValidator {
                     object, term,  objectValue,Thread.currentThread().getStackTrace()[1].getMethodName());
         }
         else if(stringTemplate != null && referenceValue != null){
-            object = vf.createLiteral(resource);
+            object = vf.createLiteral(resource.stringValue());
             objectValue = resource
                     + " is a " 
                     + term.toString()
@@ -317,8 +316,8 @@ public class RMLValidator implements RMLMappingValidator {
             validres.addViolation(
                     object,  term, objectValue,Thread.currentThread().getStackTrace()[1].getMethodName());
         }
-        else if(stringTemplate == null && referenceValue == null && constantValue == null){
-            object = vf.createLiteral(resource);
+        else if(stringTemplate == null && referenceValue == null && constantValue == null & resource == null){
+            object = vf.createLiteral(resource.stringValue());
             objectValue = resource.toString()
                     + " is a " 
                     + term.toString()
