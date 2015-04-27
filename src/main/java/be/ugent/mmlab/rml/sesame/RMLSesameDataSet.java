@@ -309,13 +309,13 @@ public class RMLSesameDataSet extends SesameDataSet {
     
     public void loadDataFromInputStream(String input, String resultFileRDFUnit, String baseURI, RDFFormat format,
             Resource... contexts) throws RepositoryException,
-            RDFParseException, IOException {
+            RDFParseException, IOException {       
         RepositoryConnection con = null;
         try {
             con = currentRepository.getConnection();
             InputStream stream =
                     new ByteArrayInputStream(input.getBytes());
-            IOUtils.copy(stream, new FileOutputStream(resultFileRDFUnit));
+            IOUtils.copy(stream, new FileOutputStream(input));
             
                         
         } finally {
