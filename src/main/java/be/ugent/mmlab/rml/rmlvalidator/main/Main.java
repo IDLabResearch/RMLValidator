@@ -96,7 +96,8 @@ public class Main {
         } catch (RDFParseException ex) {
             log.error(ex);
         } catch (IOException ex) {
-            log.error(ex);
+            //log.error(ex);
+            log.error("error with the output file.");
         }
 
     }
