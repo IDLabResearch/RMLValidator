@@ -5,7 +5,9 @@ import be.ugent.mmlab.rml.rdfunit.RDFUnitValidator;
 import be.ugent.mmlab.rml.vocabulary.RMLConfiguration;
 import be.ugent.mmlab.rml.rmlvalidator.RMLMappingFactory;
 import be.ugent.mmlab.rml.sesame.RMLSesameDataSet;
+import be.ugent.mmlab.rml.sesame.FileSesameDataset;
 import java.io.IOException;
+import java.util.logging.Level;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.ParseException;
 import org.apache.log4j.BasicConfigurator;
@@ -43,27 +45,36 @@ public class Main {
                 outputFile = commandLine.getOptionValue("o", null);
             } 
             if (commandLine.hasOption("m")) {
+                String baseURI = "http://example.com";
                 map_doc = commandLine.getOptionValue("m", null);
                 System.out.println("\n Map doc: " + map_doc);
                 RMLMappingFactory mappingFactory;
-                if (commandLine.hasOption("t")) {
+                
+                if (commandLine.hasOption("q")) {
+                    String outputFileRDFUnit = commandLine.getOptionValue("q", null);
+               log.error("outputFileRDFUnit " + outputFileRDFUnit);     
                     //Mapping Document validation
                     System.out.println("\n Started Mapping Document validation. \n ");
                     mappingFactory = new RMLMappingFactory(true);
                     mappingFactory.extractRMLMapping(map_doc, outputFile);
                     
                     //Schema validation
+                    System.out.println("\n Started RDFUnit. \n ");
+                    RDFUnitValidator rdfUnitValidator = new RDFUnitValidator(baseURI, outputFile);
+                    
                     System.out.println("\n Started Mapping Document Schema validation with RDFUnit. \n ");
-                    RDFUnitValidator rdfUnitValidator = new RDFUnitValidator("http://example.com", outputFile);
-                    String rdfunitResults = rdfUnitValidator.validate();                   
+                    String rdfunitStringResults = rdfUnitValidator.validate();                   
+                    //log.error("rdfunitResults " + rdfunitStringResults);
+                    FileSesameDataset rdfunitresults = new FileSesameDataset(outputFileRDFUnit, "turtle");
                     
-                    RMLSesameDataSet rdfunitresults = new RMLSesameDataSet();
-                    String resultFileRDFUnit = commandLine.getOptionValue("t", null);
-                    String baseURI = "http://example.com";
-                    
+                    //rdfunitresults.printRDFtoFile(outputFileRDFUnit,RDFFormat.TURTLE);
+                    rdfunitresults.addString(rdfunitStringResults, outputFileRDFUnit, RDFFormat.TURTLE);
                     System.out.println("\n RDFUnit results processing.. \n ");
-                    rdfunitresults.loadDataFromInputStream(
-                            rdfunitResults, resultFileRDFUnit, baseURI, RDFFormat.TURTLE, (Resource) null);
+                    //rdfunitresults.loadDataFromInputStream(
+                    //        rdfunitResults, baseURI, RDFFormat.TURTLE, (Resource) null);
+                    //rdfunitresults.printRDFtoFile(outputFileRDFUnit, RDFFormat.TURTLE);
+                    //log.error("rdfunitresults " + rdfunitresults);
+                    
                 }else if (commandLine.hasOption("V")) {
                     mappingFactory = new RMLMappingFactory(false);
                     mappingFactory.extractRMLMapping(map_doc, outputFile);
@@ -91,6 +102,12 @@ public class Main {
             }
         } catch (ParseException ex) {
             log.error(ex);
+        } /*catch (RepositoryException ex) {
+            java.util.logging.Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (RDFParseException ex) {
+            java.util.logging.Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            java.util.logging.Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
         } catch (RepositoryException ex) {
             log.error(ex);
         } catch (RDFParseException ex) {
@@ -98,7 +115,7 @@ public class Main {
         } catch (IOException ex) {
             //log.error(ex);
             log.error("error with the output file.");
-        }
+        }*/
 
     }
 }

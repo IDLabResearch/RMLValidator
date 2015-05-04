@@ -32,7 +32,7 @@ public class RMLConfiguration {
         cliOptions.addOption("o", "output document", true, "the output file that contains the skolemized and inferred mappings");
         cliOptions.addOption("g", "graph", true, "the graph to use");
         cliOptions.addOption("V", "without validation", false, "no validation");
-        cliOptions.addOption("t", "tests are enabled", false, "the RDFUnit tests are called");
+        cliOptions.addOption("q", "tests are enabled", true, "the RDFUnit tests are called");
         return cliOptions;
     }
     

@@ -58,7 +58,7 @@ import org.openrdf.sail.nativerdf.NativeStore;
  */
 public class RMLSesameDataSet extends SesameDataSet {
     
-    private Repository currentRepository = null;
+    private Repository currentRepository, fileRepository = null;
 
     // useful -local- constants
     static RDFFormat NTRIPLES = RDFFormat.NTRIPLES;
@@ -153,6 +153,7 @@ public class RMLSesameDataSet extends SesameDataSet {
     }
     
     public RMLSesameDataSet(String pathToDir, boolean inferencing) {
+        log.error("path to dir " + pathToDir);
         File f = new File(pathToDir);
         try {
             if (inferencing) {
@@ -215,7 +216,7 @@ public class RMLSesameDataSet extends SesameDataSet {
         }
     }
     
-    public void loadDataFromInputStream(String input, String resultFileRDFUnit, String baseURI, RDFFormat format,
+    public void loadDataFromInputStream(String input, String baseURI, RDFFormat format,
             Resource... contexts) throws RepositoryException,
             RDFParseException, IOException {       
         RepositoryConnection con = null;

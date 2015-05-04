@@ -119,7 +119,8 @@ public class RMLUnValidatedMappingExtractor implements RMLMappingExtractor{
      * @param rmlMappingGraph
      */
     @Override
-    public RMLSesameDataSet skolemizeStatements(RMLSesameDataSet rmlMappingGraph) {
+    public RMLSesameDataSet skolemizeStatements(
+            RMLSesameDataSet rmlMappingGraph, RMLSesameDataSet newRmlMappingGraph) {
         List<URI> skolemPredicates = new ArrayList<URI>();
         
         skolemPredicates.add(
@@ -165,20 +166,18 @@ public class RMLUnValidatedMappingExtractor implements RMLMappingExtractor{
                     + triples.size());
 
             for (Statement triple : triples) {
-                Resource blankSubjectMap = triple.getSubject();
-                Resource skolemizedMap = skolemizationFactory.skolemizeBlankNode(blankSubjectMap);
-                if (triple.getSubject().toString().startsWith("_:")) {
-                    skolemizationFactory.skolemSubstitution(triple.getSubject(), skolemizedMap, rmlMappingGraph);
+                if (triple.getSubject().getClass() != org.openrdf.sail.memory.model.MemBNode.class) {
+                    skolemizationFactory.skolemization(
+                            triple.getSubject(), rmlMappingGraph);
                 }
             }
             for (Statement triple : triples) {
-                Value blankObjectMap = triple.getObject();
-                Resource skolemizedMap = skolemizationFactory.skolemizeBlankNode(blankObjectMap);
-                if (triple.getObject().toString().startsWith("_:") && 
-                        (  triple.getObject().getClass() == Resource.class
+                if (triple.getObject().getClass() != org.openrdf.sail.memory.model.MemBNode.class &&
+                    (  triple.getObject().getClass() == Resource.class
                         || triple.getObject().getClass() == Value.class
                         || triple.getObject().getClass() == org.openrdf.sail.memory.model.MemBNode.class) ) {
-                    skolemizationFactory.skolemSubstitution(triple.getObject(), skolemizedMap, rmlMappingGraph);
+                    skolemizationFactory.skolemization(
+                            triple.getObject(), rmlMappingGraph);
                 }
 
             }

@@ -46,7 +46,8 @@ public class RDFUnitValidator {
         // Set the source
        // try {
         File file = new File(rdfDataFile);
-            configuration.setCustomDereferenceURI(file.getAbsolutePath());
+        log.error("file.getAbsolutePath() " + file.getAbsolutePath());
+        configuration.setCustomDereferenceURI(file.getAbsolutePath());
             //configuration.setCustomTextSource(rdfData, serializationFormat);
        // } catch (UndefinedSerializationException e) {
        //     throw new IllegalArgumentException("Unsupported format"); // should never be thrown
@@ -81,7 +82,8 @@ public class RDFUnitValidator {
         final boolean enableRDFUnitLogging = false;
         final SimpleTestExecutorMonitor testExecutorMonitor = new SimpleTestExecutorMonitor(enableRDFUnitLogging);
 
-        final TestExecutor testExecutor = TestExecutorFactory.createTestExecutor(configuration.getTestCaseExecutionType());
+        final TestExecutor testExecutor = 
+                TestExecutorFactory.createTestExecutor(configuration.getTestCaseExecutionType());
         testExecutor.addTestExecutorMonitor(testExecutorMonitor);
 
         final TestSource testSource = configuration.getTestSource();

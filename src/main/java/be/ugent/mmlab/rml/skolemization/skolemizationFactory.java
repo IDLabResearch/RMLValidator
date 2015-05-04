@@ -5,6 +5,7 @@
 package be.ugent.mmlab.rml.skolemization;
 
 import be.ugent.mmlab.rml.sesame.RMLSesameDataSet;
+import com.hp.hpl.jena.vocabulary.RDF;
 import java.util.List;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
@@ -13,7 +14,6 @@ import org.openrdf.model.Statement;
 import org.openrdf.model.Value;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.model.impl.ValueFactoryImpl;
-import org.openrdf.rio.RDFFormat;
 
 /**
  *
@@ -26,37 +26,86 @@ public class skolemizationFactory {
     
     private static ValueFactory vf = new ValueFactoryImpl();
 
-    public static void skolemSubstitution(
-            Value resource, Resource skolemizedMap, RMLSesameDataSet rmlMappingGraph) {
+    public static RMLSesameDataSet skolemization(Value resource, RMLSesameDataSet rmlMappingGraph) {
+        
+        List<Statement> triples;
+        
+        Resource skolemizedResource; 
+        
+        triples = rmlMappingGraph.tuplePattern((Resource) resource, null, null);
+        
+        for (Statement triple : triples) {
+            //subject is Blank Node
+            if(triple.getSubject().getClass() == org.openrdf.sail.memory.model.MemBNode.class){
+                //skolemize subject
+                skolemizedResource = skolemizationFactory.skolemizeBlankNode(resource);
+                
+                replaceSubjectSkolem(rmlMappingGraph, triple, skolemizedResource);
+                
+                skolemizeAssociated(rmlMappingGraph, triple.getSubject(), skolemizedResource);
 
-        List<Statement> triplesSubject = rmlMappingGraph.tuplePattern(
-                (Resource) resource, null, null);
-        for (Statement tri : triplesSubject) {
-            rmlMappingGraph.remove(
-                    (Resource) resource,
-                    tri.getPredicate(),
-                    tri.getObject());
-            if(tri.getPredicate().toString().equals("http://www.w3.org/1999/02/22-rdf-syntax-ns#type")){
-                rmlMappingGraph.remove(
-                    (Resource) resource,
-                    vf.createURI("http://www.w3.org/1999/02/22-rdf-syntax-ns#type"),
-                    tri.getObject());
+                }
+                //Object is Blank Node
+                else if (triple.getObject().getClass() == org.openrdf.sail.memory.model.MemBNode.class) {
+                    
+                    //skolemize object
+                    skolemizedResource = skolemizationFactory.skolemizeBlankNode(triple.getObject());
+                
+                    replaceObjectSkolem(rmlMappingGraph, triple, skolemizedResource);
+                
+                    skolemizeAssociated(rmlMappingGraph, (Resource) triple.getObject(), skolemizedResource);
+            
+                    }
+                
             }
-            rmlMappingGraph.add(skolemizedMap, tri.getPredicate(), tri.getObject());
-        }
-        List<Statement> triplesObject = rmlMappingGraph.tuplePattern(
-                null, null, resource);
-        for (Statement tri : triplesObject) {
+        
+        return rmlMappingGraph;
+    }
+    
+    private static void replaceSubjectSkolem(
+        RMLSesameDataSet rmlMappingGraph, Statement triple, Resource skolemizedResource) {
+        //replace cuurent triple with skolemized value
+        rmlMappingGraph.remove(triple.getSubject(), triple.getPredicate(), triple.getObject());
+        //and replace it with the skolemized value
+        rmlMappingGraph.add(skolemizedResource, triple.getPredicate(), triple.getObject());
+    }
+    
+    private static void replaceObjectSkolem(
+        RMLSesameDataSet rmlMappingGraph, Statement triple, Resource skolemizedResource) {
+        //replace cuurent triple with skolemized value
+        rmlMappingGraph.remove(triple.getSubject(), triple.getPredicate(), triple.getObject());
+        //and replace it with the skolemized value
+        rmlMappingGraph.add(triple.getSubject(), triple.getPredicate(), skolemizedResource);
+    }
+    
+    private static void skolemizeAssociated(
+            RMLSesameDataSet rmlMappingGraph, Resource resource, Resource skolemizedResource) {
+        
+        //retrieve all triples that the resource appears as subject
+        List<Statement> triples = rmlMappingGraph.tuplePattern((Resource) resource, null, null);
+
+        for (Statement triple : triples) {
+            //remove triple
             rmlMappingGraph.remove(
-                    tri.getSubject(),
-                    tri.getPredicate(),
-                    tri.getObject());
-            rmlMappingGraph.add(tri.getSubject(), tri.getPredicate(), skolemizedMap);
+                    (Resource) resource, triple.getPredicate(), triple.getObject());
+            //and replace it with the skolemized value
+            rmlMappingGraph.add(skolemizedResource, triple.getPredicate(), triple.getObject());
         }
-        rmlMappingGraph.printRDFtoFile("/home/andimou/Desktop/test_after.nt", RDFFormat.NTRIPLES);
+
+        //retrieve all triples that the resource appears as object
+        triples = rmlMappingGraph.tuplePattern(null, null, resource);
+
+        for (Statement triple : triples) {
+            
+            //remove existing triple
+            rmlMappingGraph.remove(
+                    triple.getSubject(), triple.getPredicate(), resource);
+            //and replace it with the skolemized value
+            rmlMappingGraph.add(triple.getSubject(), triple.getPredicate(), skolemizedResource);
+        }
     }
 
-    public static Resource skolemizeBlankNode(Value re) {
+    private static Resource skolemizeBlankNode(Value re) {
         if (re != null && re.stringValue().contains(".well-known/genid/")) {
             return (Resource) re;
         }

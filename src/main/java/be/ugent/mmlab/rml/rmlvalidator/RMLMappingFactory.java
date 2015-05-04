@@ -12,10 +12,12 @@ import be.ugent.mmlab.rml.model.RMLMapping;
 import be.ugent.mmlab.rml.model.TriplesMap;
 import be.ugent.mmlab.rml.vocabulary.RMLVocabulary;
 import be.ugent.mmlab.rml.sesame.RMLSesameDataSet;
+import java.util.List;
 import java.util.Map;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.openrdf.model.Resource;
+import org.openrdf.model.Statement;
 import org.openrdf.rio.RDFFormat;
 
 /**
@@ -48,7 +50,8 @@ public final class RMLMappingFactory {
     public RMLMapping extractRMLMapping(String fileToRMLFile, String outputFile) {
         
         // Load RDF data from R2RML Mapping document
-        RMLSesameDataSet rmlMappingGraph ;
+        RMLSesameDataSet rmlMappingGraph, newRmlMappingGraph ;
+        newRmlMappingGraph = new RMLSesameDataSet() ;
         RMLInputExtractor InputExtractor = new RMLInputExtractor() ;
         rmlMappingGraph = InputExtractor.getMappingDoc(fileToRMLFile, outputFile, RDFFormat.TURTLE);
         
@@ -56,7 +59,16 @@ public final class RMLMappingFactory {
         extractor.replaceShortcuts(rmlMappingGraph);
         
         //skolemize blank node statements
-        rmlMappingGraph = extractor.skolemizeStatements(rmlMappingGraph);
+        rmlMappingGraph = extractor.skolemizeStatements(rmlMappingGraph, newRmlMappingGraph);
+        
+        List<Statement> triples = rmlMappingGraph.tuplePattern(null, null, null);
+        for (Statement triple : triples) {
+            if (triple.getSubject().getClass() != org.openrdf.sail.memory.model.MemBNode.class
+                    && triple.getObject().getClass() != org.openrdf.sail.memory.model.MemBNode.class)
+                newRmlMappingGraph.add(triple.getSubject(), triple.getPredicate(), triple.getObject());
+        }
+        
+        rmlMappingGraph = newRmlMappingGraph;
         
         // Construct R2RML Mapping object
         Map<Resource, TriplesMap> triplesMapResources = 
@@ -76,7 +88,7 @@ public final class RMLMappingFactory {
             extractor.extractTriplesMap(
                     rmlMappingGraph, triplesMapResource, triplesMapResources);
 
-        rmlMappingGraph.printRDFtoFile(outputFile, RDFFormat.NTRIPLES);
+        rmlMappingGraph.printRDFtoFile(outputFile, RDFFormat.TURTLE);
         // Generate RMLMapping object
         RMLMapping result = new RMLMapping(triplesMapResources.values());
         return result;

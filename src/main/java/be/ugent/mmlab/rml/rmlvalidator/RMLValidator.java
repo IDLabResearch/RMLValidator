@@ -215,7 +215,7 @@ public class RMLValidator implements RMLMappingValidator {
             validres.addViolation(
                     object, term, 
                     objectValue,Thread.currentThread().getStackTrace()[1].getMethodName());
-        } else if (statements.size() > 1) {
+        } else if (statements.size() > 1 && term != RMLVocabulary.R2RMLTerm.PREDICATE_MAP) {
             object = vf.createURI(resource.toString());
             objectValue = resource.stringValue()
                     + " has many " + term //.getLocalName() 

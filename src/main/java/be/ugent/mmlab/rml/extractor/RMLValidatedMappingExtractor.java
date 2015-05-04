@@ -98,7 +98,8 @@ public class RMLValidatedMappingExtractor extends RMLUnValidatedMappingExtractor
             List<Statement> predicateStatements =
                     getStatements(rmlMappingGraph, (Resource) statement.getObject(),
                     RMLVocabulary.R2RML_NAMESPACE, RMLVocabulary.R2RMLTerm.PREDICATE_MAP, triplesMap);
-            validator.checkStatements(triplesMapSubject, statements, R2RMLTerm.PREDICATE_MAP);
+            
+            validator.checkStatements((Resource) statement.getObject(), predicateStatements, R2RMLTerm.PREDICATE_MAP);
 
             for (Statement predicateStatement : predicateStatements) {
                 PredicateMap predicateMap = extractPredicateMap(
