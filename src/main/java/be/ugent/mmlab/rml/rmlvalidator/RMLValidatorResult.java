@@ -1,17 +1,13 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package be.ugent.mmlab.rml.rmlvalidator;
 
-import be.ugent.mmlab.rml.rml.RMLVocabulary;
-import be.ugent.mmlab.rml.rml.RMLVocabulary.R2RMLTerm;
-import be.ugent.mmlab.rml.rml.RMLVocabulary.Term;
 import be.ugent.mmlab.rml.sesame.RMLSesameDataSet;
+import be.ugent.mmlab.rml.vocabulary.R2RMLVocabulary;
+import be.ugent.mmlab.rml.vocabulary.R2RMLVocabulary.R2RMLTerm;
+import be.ugent.mmlab.rml.vocabulary.Term;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.openrdf.model.Literal;
 import org.openrdf.model.URI;
 import org.openrdf.model.Value;
@@ -24,7 +20,7 @@ import org.openrdf.model.impl.ValueFactoryImpl;
  */
 public class RMLValidatorResult {
     // Log
-    private static final Logger log = LogManager.getLogger(RMLValidatorResult.class);
+    private static final Logger log = LoggerFactory.getLogger(RMLValidatorResult.class);
     
     private RMLSesameDataSet resultGraph = new RMLSesameDataSet();
     private String time;
@@ -81,7 +77,7 @@ public class RMLValidatorResult {
     
     private void addViolationPath(Term term){
         URI predicate = resultGraph.URIref("http://spinrdf.org/spl#violationPath");
-        URI object = resultGraph.URIref(RMLVocabulary.R2RML_NAMESPACE + term);
+        URI object = resultGraph.URIref(R2RMLVocabulary.R2RML_NAMESPACE + term);
         for(R2RMLTerm value : R2RMLTerm.values())
             if(value.equals(term))
                 resultGraph.add(getSubject(), predicate, object );

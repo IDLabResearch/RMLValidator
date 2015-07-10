@@ -1,16 +1,12 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package be.ugent.mmlab.rml.extractor;
 
-import be.ugent.mmlab.rml.model.GraphMap;
+import be.ugent.mmlab.rml.model.RDFTerm.GraphMap;
 import be.ugent.mmlab.rml.model.JoinCondition;
 import be.ugent.mmlab.rml.model.LogicalSource;
-import be.ugent.mmlab.rml.model.ObjectMap;
-import be.ugent.mmlab.rml.model.PredicateMap;
+import be.ugent.mmlab.rml.model.RDFTerm.ObjectMap;
+import be.ugent.mmlab.rml.model.RDFTerm.PredicateMap;
 import be.ugent.mmlab.rml.model.PredicateObjectMap;
-import be.ugent.mmlab.rml.model.ReferencingObjectMap;
+import be.ugent.mmlab.rml.model.RDFTerm.ReferencingObjectMap;
 import be.ugent.mmlab.rml.model.std.StdGraphMap;
 import be.ugent.mmlab.rml.model.std.StdJoinCondition;
 import be.ugent.mmlab.rml.model.std.StdLogicalSource;
@@ -20,20 +16,20 @@ import be.ugent.mmlab.rml.model.std.StdPredicateObjectMap;
 import be.ugent.mmlab.rml.model.std.StdReferencingObjectMap;
 import be.ugent.mmlab.rml.model.std.StdSubjectMap;
 import be.ugent.mmlab.rml.model.std.StdTriplesMap;
-import be.ugent.mmlab.rml.model.SubjectMap;
+import be.ugent.mmlab.rml.model.RDFTerm.SubjectMap;
 import be.ugent.mmlab.rml.model.TriplesMap;
-import be.ugent.mmlab.rml.model.reference.ReferenceIdentifier;
-import be.ugent.mmlab.rml.model.reference.ReferenceIdentifierImpl;
-import be.ugent.mmlab.rml.rml.RMLVocabulary;
+import be.ugent.mmlab.rml.vocabulary.RMLVocabulary;
 import be.ugent.mmlab.rml.sesame.RMLSesameDataSet;
 import be.ugent.mmlab.rml.skolemization.skolemizationFactory;
+import be.ugent.mmlab.rml.vocabulary.QLVocabulary;
+import be.ugent.mmlab.rml.vocabulary.R2RMLVocabulary;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.openrdf.model.BNode;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
@@ -43,13 +39,14 @@ import org.openrdf.model.ValueFactory;
 import org.openrdf.model.impl.ValueFactoryImpl;
 
 /**
- *
+ * RML Validator : RMLUnValidatedMappingExtractor
+ * 
  * @author andimou
  */
 public class RMLUnValidatedMappingExtractor implements RMLMappingExtractor{
     
     // Log
-    private static final Logger log = LogManager.getLogger(RMLUnValidatedMappingExtractor.class);
+    private static final Logger log = LoggerFactory.getLogger(RMLUnValidatedMappingExtractor.class);
     // Value factory
     private static ValueFactory vf = new ValueFactoryImpl();
     
@@ -65,24 +62,24 @@ public class RMLUnValidatedMappingExtractor implements RMLMappingExtractor{
     public void replaceShortcuts(RMLSesameDataSet rmlMappingGraph) {
         Map<URI, URI> shortcutPredicates = new HashMap<URI, URI>();
         shortcutPredicates.put(
-                vf.createURI(RMLVocabulary.R2RML_NAMESPACE
-                + RMLVocabulary.R2RMLTerm.SUBJECT),
-                vf.createURI(RMLVocabulary.R2RML_NAMESPACE
-                + RMLVocabulary.R2RMLTerm.SUBJECT_MAP));
+                vf.createURI(R2RMLVocabulary.R2RML_NAMESPACE
+                + R2RMLVocabulary.R2RMLTerm.SUBJECT),
+                vf.createURI(R2RMLVocabulary.R2RML_NAMESPACE
+                + R2RMLVocabulary.R2RMLTerm.SUBJECT_MAP));
         shortcutPredicates.put(
-                vf.createURI(RMLVocabulary.R2RML_NAMESPACE
-                + RMLVocabulary.R2RMLTerm.PREDICATE),
-                vf.createURI(RMLVocabulary.R2RML_NAMESPACE
-                + RMLVocabulary.R2RMLTerm.PREDICATE_MAP));
-        shortcutPredicates.put(vf.createURI(RMLVocabulary.R2RML_NAMESPACE
-                + RMLVocabulary.R2RMLTerm.OBJECT), 
-                vf.createURI(RMLVocabulary.R2RML_NAMESPACE
-                + RMLVocabulary.R2RMLTerm.OBJECT_MAP));
+                vf.createURI(R2RMLVocabulary.R2RML_NAMESPACE
+                + R2RMLVocabulary.R2RMLTerm.PREDICATE),
+                vf.createURI(R2RMLVocabulary.R2RML_NAMESPACE
+                + R2RMLVocabulary.R2RMLTerm.PREDICATE_MAP));
+        shortcutPredicates.put(vf.createURI(R2RMLVocabulary.R2RML_NAMESPACE
+                + R2RMLVocabulary.R2RMLTerm.OBJECT), 
+                vf.createURI(R2RMLVocabulary.R2RML_NAMESPACE
+                + R2RMLVocabulary.R2RMLTerm.OBJECT_MAP));
         shortcutPredicates
-                .put(vf.createURI(RMLVocabulary.R2RML_NAMESPACE
-                + RMLVocabulary.R2RMLTerm.GRAPH),
-                vf.createURI(RMLVocabulary.R2RML_NAMESPACE
-                + RMLVocabulary.R2RMLTerm.GRAPH_MAP));
+                .put(vf.createURI(R2RMLVocabulary.R2RML_NAMESPACE
+                + R2RMLVocabulary.R2RMLTerm.GRAPH),
+                vf.createURI(R2RMLVocabulary.R2RML_NAMESPACE
+                + R2RMLVocabulary.R2RMLTerm.GRAPH_MAP));
         
         for (URI u : shortcutPredicates.keySet()) {
             List<Statement> shortcutTriples = rmlMappingGraph.tuplePattern(
@@ -119,53 +116,53 @@ public class RMLUnValidatedMappingExtractor implements RMLMappingExtractor{
     public RMLSesameDataSet skolemizeStatements(RMLSesameDataSet rmlMappingGraph) {
         Map<URI, URI> predicates = new HashMap<URI, URI>();
         predicates.put(
-                vf.createURI(RMLVocabulary.R2RML_NAMESPACE
-                + RMLVocabulary.R2RMLTerm.SUBJECT_MAP),
-                vf.createURI(RMLVocabulary.R2RML_NAMESPACE
-                + RMLVocabulary.R2RMLTerm.SUBJECT_MAP));
+                vf.createURI(R2RMLVocabulary.R2RML_NAMESPACE
+                + R2RMLVocabulary.R2RMLTerm.SUBJECT_MAP),
+                vf.createURI(R2RMLVocabulary.R2RML_NAMESPACE
+                + R2RMLVocabulary.R2RMLTerm.SUBJECT_MAP));
         predicates.put(
-                vf.createURI(RMLVocabulary.R2RML_NAMESPACE
-                + RMLVocabulary.R2RMLTerm.PREDICATE_MAP),
-                vf.createURI(RMLVocabulary.R2RML_NAMESPACE
-                + RMLVocabulary.R2RMLTerm.PREDICATE_MAP));
-        predicates.put(vf.createURI(RMLVocabulary.R2RML_NAMESPACE
-                + RMLVocabulary.R2RMLTerm.OBJECT_MAP),
-                vf.createURI(RMLVocabulary.R2RML_NAMESPACE
-                + RMLVocabulary.R2RMLTerm.OBJECT_MAP));
-        predicates.put(vf.createURI(RMLVocabulary.R2RML_NAMESPACE
-                + RMLVocabulary.R2RMLTerm.PARENT_TRIPLES_MAP),
-                vf.createURI(RMLVocabulary.R2RML_NAMESPACE
-                + RMLVocabulary.R2RMLTerm.PARENT_TRIPLES_MAP));
-        predicates.put(vf.createURI(RMLVocabulary.R2RML_NAMESPACE
-                + RMLVocabulary.R2RMLTerm.JOIN_CONDITION),
-                vf.createURI(RMLVocabulary.R2RML_NAMESPACE
-                + RMLVocabulary.R2RMLTerm.JOIN_CONDITION));
+                vf.createURI(R2RMLVocabulary.R2RML_NAMESPACE
+                + R2RMLVocabulary.R2RMLTerm.PREDICATE_MAP),
+                vf.createURI(R2RMLVocabulary.R2RML_NAMESPACE
+                + R2RMLVocabulary.R2RMLTerm.PREDICATE_MAP));
+        predicates.put(vf.createURI(R2RMLVocabulary.R2RML_NAMESPACE
+                + R2RMLVocabulary.R2RMLTerm.OBJECT_MAP),
+                vf.createURI(R2RMLVocabulary.R2RML_NAMESPACE
+                + R2RMLVocabulary.R2RMLTerm.OBJECT_MAP));
+        predicates.put(vf.createURI(R2RMLVocabulary.R2RML_NAMESPACE
+                + R2RMLVocabulary.R2RMLTerm.PARENT_TRIPLES_MAP),
+                vf.createURI(R2RMLVocabulary.R2RML_NAMESPACE
+                + R2RMLVocabulary.R2RMLTerm.PARENT_TRIPLES_MAP));
+        predicates.put(vf.createURI(R2RMLVocabulary.R2RML_NAMESPACE
+                + R2RMLVocabulary.R2RMLTerm.JOIN_CONDITION),
+                vf.createURI(R2RMLVocabulary.R2RML_NAMESPACE
+                + R2RMLVocabulary.R2RMLTerm.JOIN_CONDITION));
         predicates
-                .put(vf.createURI(RMLVocabulary.R2RML_NAMESPACE
-                + RMLVocabulary.R2RMLTerm.GRAPH_MAP),
-                vf.createURI(RMLVocabulary.R2RML_NAMESPACE
-                + RMLVocabulary.R2RMLTerm.GRAPH_MAP));
+                .put(vf.createURI(R2RMLVocabulary.R2RML_NAMESPACE
+                + R2RMLVocabulary.R2RMLTerm.GRAPH_MAP),
+                vf.createURI(R2RMLVocabulary.R2RML_NAMESPACE
+                + R2RMLVocabulary.R2RMLTerm.GRAPH_MAP));
         predicates
-                .put(vf.createURI(RMLVocabulary.R2RML_NAMESPACE
-                + RMLVocabulary.R2RMLTerm.CLASS),
-                vf.createURI(RMLVocabulary.R2RML_NAMESPACE
-                + RMLVocabulary.R2RMLTerm.CLASS));
+                .put(vf.createURI(R2RMLVocabulary.R2RML_NAMESPACE
+                + R2RMLVocabulary.R2RMLTerm.CLASS),
+                vf.createURI(R2RMLVocabulary.R2RML_NAMESPACE
+                + R2RMLVocabulary.R2RMLTerm.CLASS));
         predicates
-                .put(vf.createURI(RMLVocabulary.R2RML_NAMESPACE
-                + RMLVocabulary.R2RMLTerm.CONSTANT),
-                vf.createURI(RMLVocabulary.R2RML_NAMESPACE
-                + RMLVocabulary.R2RMLTerm.CONSTANT));
+                .put(vf.createURI(R2RMLVocabulary.R2RML_NAMESPACE
+                + R2RMLVocabulary.R2RMLTerm.CONSTANT),
+                vf.createURI(R2RMLVocabulary.R2RML_NAMESPACE
+                + R2RMLVocabulary.R2RMLTerm.CONSTANT));
 
         predicates
-                .put(vf.createURI(RMLVocabulary.R2RML_NAMESPACE
-                + RMLVocabulary.R2RMLTerm.TEMPLATE),
-                vf.createURI(RMLVocabulary.R2RML_NAMESPACE
-                + RMLVocabulary.R2RMLTerm.TEMPLATE));
+                .put(vf.createURI(R2RMLVocabulary.R2RML_NAMESPACE
+                + R2RMLVocabulary.R2RMLTerm.TEMPLATE),
+                vf.createURI(R2RMLVocabulary.R2RML_NAMESPACE
+                + R2RMLVocabulary.R2RMLTerm.TEMPLATE));
         predicates
-                .put(vf.createURI(RMLVocabulary.R2RML_NAMESPACE
-                + RMLVocabulary.R2RMLTerm.TERM_TYPE),
-                vf.createURI(RMLVocabulary.R2RML_NAMESPACE
-                + RMLVocabulary.R2RMLTerm.TERM_TYPE));
+                .put(vf.createURI(R2RMLVocabulary.R2RML_NAMESPACE
+                + R2RMLVocabulary.R2RMLTerm.TERM_TYPE),
+                vf.createURI(R2RMLVocabulary.R2RML_NAMESPACE
+                + R2RMLVocabulary.R2RMLTerm.TERM_TYPE));
 
         predicates
                 .put(vf.createURI(RMLVocabulary.RML_NAMESPACE
@@ -247,8 +244,8 @@ public class RMLUnValidatedMappingExtractor implements RMLMappingExtractor{
     
     protected List<Statement> getTriplesMapResources(RMLSesameDataSet rmlMappingGraph){
         
-        URI o = rmlMappingGraph.URIref(RMLVocabulary.R2RML_NAMESPACE
-                + RMLVocabulary.R2RMLTerm.TRIPLES_MAP_CLASS);
+        URI o = rmlMappingGraph.URIref(R2RMLVocabulary.R2RML_NAMESPACE
+                + R2RMLVocabulary.R2RMLTerm.TRIPLES_MAP_CLASS);
         URI p = rmlMappingGraph.URIref("http://www.w3.org/1999/02/22-rdf-syntax-ns#type");
         List<Statement> statements = rmlMappingGraph.tuplePattern(null, p,
                 o);
@@ -319,7 +316,7 @@ public class RMLUnValidatedMappingExtractor implements RMLMappingExtractor{
         Resource blankLogicalSource = 
                 extractLogicalSource(rmlMappingGraph, triplesMapSubject, triplesMap);
         
-        RMLVocabulary.QLTerm referenceFormulation =
+        QLVocabulary.QLTerm referenceFormulation =
                 getReferenceFormulation(rmlMappingGraph, triplesMapSubject, blankLogicalSource, triplesMap);
 
         //Extract the iterator to create the iterator. Some formats have null, like CSV or SQL
@@ -368,7 +365,7 @@ public class RMLUnValidatedMappingExtractor implements RMLMappingExtractor{
         return blankLogicalSource;
     }
     
-    protected RMLVocabulary.QLTerm getReferenceFormulation(
+    protected QLVocabulary.QLTerm getReferenceFormulation(
             RMLSesameDataSet rmlMappingGraph, Resource triplesMapSubject, 
             Resource subject, TriplesMap triplesMap) 
     {       
@@ -379,7 +376,7 @@ public class RMLUnValidatedMappingExtractor implements RMLMappingExtractor{
         if (statements.isEmpty()) 
             return null;
         else
-            return RMLVocabulary.getQLTerms(statements.get(0).getObject().stringValue());
+            return QLVocabulary.getQLTerms(statements.get(0).getObject().stringValue());
     }
     
     protected SubjectMap extractSubjectMap(
@@ -391,7 +388,7 @@ public class RMLUnValidatedMappingExtractor implements RMLMappingExtractor{
         
         // Extract subject map
         List<Statement> statements = getStatements(rmlMappingGraph, triplesMapSubject,
-                RMLVocabulary.R2RML_NAMESPACE, RMLVocabulary.R2RMLTerm.SUBJECT_MAP, triplesMap);
+                R2RMLVocabulary.R2RML_NAMESPACE, R2RMLVocabulary.R2RMLTerm.SUBJECT_MAP, triplesMap);
         
         Resource subjectMap = (Resource) statements.get(0).getObject();
         
@@ -401,13 +398,13 @@ public class RMLUnValidatedMappingExtractor implements RMLMappingExtractor{
                 + subjectMap.stringValue());
 
         Value constantValue = extractValueFromTermMap(rmlMappingGraph,
-                subjectMap, RMLVocabulary.R2RMLTerm.CONSTANT, triplesMap);
+                subjectMap, R2RMLVocabulary.R2RMLTerm.CONSTANT, triplesMap);
         String stringTemplate = extractLiteralFromTermMap(rmlMappingGraph,
-                subjectMap, RMLVocabulary.R2RMLTerm.TEMPLATE, triplesMap);
+                subjectMap, R2RMLVocabulary.R2RMLTerm.TEMPLATE, triplesMap);
         URI termType = (URI) extractValueFromTermMap(rmlMappingGraph,
-                subjectMap, RMLVocabulary.R2RMLTerm.TERM_TYPE, triplesMap);
+                subjectMap, R2RMLVocabulary.R2RMLTerm.TERM_TYPE, triplesMap);
         String inverseExpression = extractLiteralFromTermMap(rmlMappingGraph,
-                subjectMap, RMLVocabulary.R2RMLTerm.INVERSE_EXPRESSION, triplesMap);
+                subjectMap, R2RMLVocabulary.R2RMLTerm.INVERSE_EXPRESSION, triplesMap);
         //TODO:fix the following validation
         //validator.checkTermMap(constantValue, stringTemplate, null, subjectMap.toString());
 
@@ -419,12 +416,12 @@ public class RMLUnValidatedMappingExtractor implements RMLMappingExtractor{
         //AD: The values of the rr:class property must be IRIs. 
         //AD: Would that mean that it can not be a reference to an extract of the input or a template?
         Set<URI> classIRIs = extractURIsFromTermMap(rmlMappingGraph,
-                subjectMap, RMLVocabulary.R2RMLTerm.CLASS);
+                subjectMap, R2RMLVocabulary.R2RMLTerm.CLASS);
         
         //AD:Move it a separate function that extracts the GraphMaps
         Set<GraphMap> graphMaps = new HashSet<GraphMap>();
         Set<Value> graphMapValues = extractValuesFromResource(
-                rmlMappingGraph, subjectMap, RMLVocabulary.R2RMLTerm.GRAPH_MAP);
+                rmlMappingGraph, subjectMap, R2RMLVocabulary.R2RMLTerm.GRAPH_MAP);
        
         if (graphMapValues != null) {
             graphMaps = extractGraphMapValues(rmlMappingGraph, graphMapValues, savedGraphMaps, triplesMap);
@@ -450,8 +447,8 @@ public class RMLUnValidatedMappingExtractor implements RMLMappingExtractor{
         log.debug(Thread.currentThread().getStackTrace()[1].getMethodName() + ": "
                 + "Extract predicate-object maps...");
         // Extract predicate-object maps
-        URI p = rmlMappingGraph.URIref(RMLVocabulary.R2RML_NAMESPACE
-                + RMLVocabulary.R2RMLTerm.PREDICATE_OBJECT_MAP);
+        URI p = rmlMappingGraph.URIref(R2RMLVocabulary.R2RML_NAMESPACE
+                + R2RMLVocabulary.R2RMLTerm.PREDICATE_OBJECT_MAP);
 
         List<Statement> statements = rmlMappingGraph.tuplePattern(
                 triplesMapSubject, p, null);
@@ -487,8 +484,8 @@ public class RMLUnValidatedMappingExtractor implements RMLMappingExtractor{
                 + "Extract predicate-object map..");
         
         List<Statement> statements = getStatements(
-             rmlMappingGraph, triplesMapSubject, RMLVocabulary.R2RML_NAMESPACE, 
-             RMLVocabulary.R2RMLTerm.PREDICATE_MAP, triplesMap);
+             rmlMappingGraph, triplesMapSubject, R2RMLVocabulary.R2RML_NAMESPACE, 
+             R2RMLVocabulary.R2RMLTerm.PREDICATE_MAP, triplesMap);
         
         
         Set<PredicateMap> predicateMaps = new HashSet<PredicateMap>();
@@ -507,8 +504,8 @@ public class RMLUnValidatedMappingExtractor implements RMLMappingExtractor{
                     + predicateObject.stringValue());
         }
         // Extract object maps
-        URI o = rmlMappingGraph.URIref(RMLVocabulary.R2RML_NAMESPACE
-                + RMLVocabulary.R2RMLTerm.OBJECT_MAP);
+        URI o = rmlMappingGraph.URIref(R2RMLVocabulary.R2RML_NAMESPACE
+                + R2RMLVocabulary.R2RMLTerm.OBJECT_MAP);
         statements = rmlMappingGraph.tuplePattern(predicateObject, o, null);
         if (statements.size() < 1) {
             log.error(
@@ -554,7 +551,7 @@ public class RMLUnValidatedMappingExtractor implements RMLMappingExtractor{
         // Add graphMaps
         Set<GraphMap> graphMaps = new HashSet<GraphMap>();
         Set<Value> graphMapValues = extractValuesFromResource(
-                rmlMappingGraph, predicateObject, RMLVocabulary.R2RMLTerm.GRAPH_MAP);
+                rmlMappingGraph, predicateObject, R2RMLVocabulary.R2RMLTerm.GRAPH_MAP);
         
         if (graphMapValues != null) {
             graphMaps = extractGraphMapValues(
@@ -580,14 +577,14 @@ public class RMLUnValidatedMappingExtractor implements RMLMappingExtractor{
                 + "Extract unvalidated predicate map..");
         // Extract object maps properties
         Value constantValue = extractValueFromTermMap(rmlMappingGraph,
-                object, RMLVocabulary.R2RMLTerm.CONSTANT, triplesMap);
+                object, R2RMLVocabulary.R2RMLTerm.CONSTANT, triplesMap);
         String stringTemplate = extractLiteralFromTermMap(rmlMappingGraph,
-                object, RMLVocabulary.R2RMLTerm.TEMPLATE, triplesMap);
+                object, R2RMLVocabulary.R2RMLTerm.TEMPLATE, triplesMap);
         URI termType = (URI) extractValueFromTermMap(rmlMappingGraph, object,
-                RMLVocabulary.R2RMLTerm.TERM_TYPE, triplesMap);
+                R2RMLVocabulary.R2RMLTerm.TERM_TYPE, triplesMap);
 
         String inverseExpression = extractLiteralFromTermMap(rmlMappingGraph,
-                object, RMLVocabulary.R2RMLTerm.INVERSE_EXPRESSION, triplesMap);
+                object, R2RMLVocabulary.R2RMLTerm.INVERSE_EXPRESSION, triplesMap);
 
         //MVS: Decide on ReferenceIdentifier
         ReferenceIdentifier referenceValue = 
@@ -609,7 +606,7 @@ public class RMLUnValidatedMappingExtractor implements RMLMappingExtractor{
                 Thread.currentThread().getStackTrace()[1].getMethodName() + ": "
                 + "Extract referencing object map..");
         URI parentTriplesMap = (URI) extractValueFromTermMap(rmlMappingGraph,
-                object, RMLVocabulary.R2RMLTerm.PARENT_TRIPLES_MAP, triplesMap);
+                object, R2RMLVocabulary.R2RMLTerm.PARENT_TRIPLES_MAP, triplesMap);
         Set<JoinCondition> joinConditions = extractJoinConditions(
                 rmlMappingGraph, object, triplesMap);
         if (parentTriplesMap == null && !joinConditions.isEmpty()) {
@@ -667,17 +664,17 @@ public class RMLUnValidatedMappingExtractor implements RMLMappingExtractor{
                 + "Extract object map..");
         // Extract object maps properties
         Value constantValue = extractValueFromTermMap(rmlMappingGraph,
-                object, RMLVocabulary.R2RMLTerm.CONSTANT, triplesMap);
+                object, R2RMLVocabulary.R2RMLTerm.CONSTANT, triplesMap);
         String stringTemplate = extractLiteralFromTermMap(rmlMappingGraph,
-                object, RMLVocabulary.R2RMLTerm.TEMPLATE, triplesMap);
+                object, R2RMLVocabulary.R2RMLTerm.TEMPLATE, triplesMap);
         String languageTag = extractLiteralFromTermMap(rmlMappingGraph,
-                object, RMLVocabulary.R2RMLTerm.LANGUAGE, triplesMap);
+                object, R2RMLVocabulary.R2RMLTerm.LANGUAGE, triplesMap);
         URI termType = (URI) extractValueFromTermMap(rmlMappingGraph, object,
-                RMLVocabulary.R2RMLTerm.TERM_TYPE, triplesMap);
+                R2RMLVocabulary.R2RMLTerm.TERM_TYPE, triplesMap);
         URI dataType = (URI) extractValueFromTermMap(rmlMappingGraph, object,
-                RMLVocabulary.R2RMLTerm.DATATYPE, triplesMap);
+                R2RMLVocabulary.R2RMLTerm.DATATYPE, triplesMap);
         String inverseExpression = extractLiteralFromTermMap(rmlMappingGraph,
-                object, RMLVocabulary.R2RMLTerm.INVERSE_EXPRESSION, triplesMap);
+                object, R2RMLVocabulary.R2RMLTerm.INVERSE_EXPRESSION, triplesMap);
 
         //MVS: Decide on ReferenceIdentifier
         ReferenceIdentifier referenceValue = 
@@ -717,16 +714,16 @@ public class RMLUnValidatedMappingExtractor implements RMLMappingExtractor{
                 + "Extract join conditions..");
         Set<JoinCondition> result = new HashSet<JoinCondition>();
         // Extract predicate-object maps
-        URI p = rmlMappingGraph.URIref(RMLVocabulary.R2RML_NAMESPACE
-                + RMLVocabulary.R2RMLTerm.JOIN_CONDITION);
+        URI p = rmlMappingGraph.URIref(R2RMLVocabulary.R2RML_NAMESPACE
+                + R2RMLVocabulary.R2RMLTerm.JOIN_CONDITION);
         List<Statement> statements = rmlMappingGraph.tuplePattern(object, p, null);
         try {
             for (Statement statement : statements) {
                 Resource jc = (Resource) statement.getObject();
                 String child = extractLiteralFromTermMap(rmlMappingGraph, jc,
-                        RMLVocabulary.R2RMLTerm.CHILD, triplesMap);
+                        R2RMLVocabulary.R2RMLTerm.CHILD, triplesMap);
                 String parent = extractLiteralFromTermMap(rmlMappingGraph,
-                        jc, RMLVocabulary.R2RMLTerm.PARENT, triplesMap);
+                        jc, R2RMLVocabulary.R2RMLTerm.PARENT, triplesMap);
                 if (parent == null || child == null) {
                     log.error(
                             "[RMLMappingFactory:extractReferencingObjectMap] "
@@ -788,7 +785,7 @@ public class RMLUnValidatedMappingExtractor implements RMLMappingExtractor{
      
     protected static Set<URI> extractURIsFromTermMap(
             RMLSesameDataSet rmlMappingGraph, Resource termType,
-            RMLVocabulary.R2RMLTerm term){
+            R2RMLVocabulary.R2RMLTerm term){
             
         URI p = getTermURI(rmlMappingGraph, term);
 
@@ -874,7 +871,7 @@ public class RMLUnValidatedMappingExtractor implements RMLMappingExtractor{
                 extractReferenceIdentifier(rmlMappingGraph, graphMap, triplesMap);
 
         URI termType = (URI) extractValueFromTermMap(rmlMappingGraph,
-                graphMap, RMLVocabulary.R2RMLTerm.TERM_TYPE, triplesMap);
+                graphMap, R2RMLVocabulary.R2RMLTerm.TERM_TYPE, triplesMap);
 
         GraphMap result = new StdGraphMap(constantValue, stringTemplate,
                 inverseExpression, referenceValue, termType);
@@ -887,11 +884,11 @@ public class RMLUnValidatedMappingExtractor implements RMLMappingExtractor{
     
     protected static URI getTermURI(
             RMLSesameDataSet rmlMappingGraph, Enum term) {
-        String namespace = RMLVocabulary.R2RML_NAMESPACE;
+        String namespace = R2RMLVocabulary.R2RML_NAMESPACE;
 
         if (term instanceof RMLVocabulary.RMLTerm) {
             namespace = RMLVocabulary.RML_NAMESPACE;
-        } else if (!(term instanceof RMLVocabulary.R2RMLTerm)) 
+        } else if (!(term instanceof R2RMLVocabulary.R2RMLTerm)) 
             log.error(
                     "[RMLMappingFactory:extractValueFromTermMap] " + term + " is not valid.");
 

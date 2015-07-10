@@ -16,26 +16,27 @@ package be.ugent.mmlab.rml.extractor;
 
 
 import static be.ugent.mmlab.rml.extractor.RMLUnValidatedMappingExtractor.extractValuesFromResource;
-import be.ugent.mmlab.rml.model.GraphMap;
+import be.ugent.mmlab.rml.model.RDFTerm.GraphMap;
 import be.ugent.mmlab.rml.model.LogicalSource;
-import be.ugent.mmlab.rml.model.ObjectMap;
-import be.ugent.mmlab.rml.model.PredicateMap;
+import be.ugent.mmlab.rml.model.RDFTerm.ObjectMap;
+import be.ugent.mmlab.rml.model.RDFTerm.PredicateMap;
 import be.ugent.mmlab.rml.model.PredicateObjectMap;
 import be.ugent.mmlab.rml.model.RMLMapping;
-import be.ugent.mmlab.rml.model.ReferencingObjectMap;
+import be.ugent.mmlab.rml.model.RDFTerm.ReferencingObjectMap;
 import be.ugent.mmlab.rml.model.std.StdLogicalSource;
 import be.ugent.mmlab.rml.model.std.StdObjectMap;
 import be.ugent.mmlab.rml.model.std.StdSubjectMap;
-import be.ugent.mmlab.rml.model.SubjectMap;
+import be.ugent.mmlab.rml.model.RDFTerm.SubjectMap;
 import be.ugent.mmlab.rml.model.TriplesMap;
-import be.ugent.mmlab.rml.model.reference.ReferenceIdentifier;
 import be.ugent.mmlab.rml.model.std.StdPredicateMap;
 import be.ugent.mmlab.rml.model.std.StdPredicateObjectMap;
 import be.ugent.mmlab.rml.sesame.RMLSesameDataSet;
 import be.ugent.mmlab.rml.rmlvalidator.RMLValidator;
-import be.ugent.mmlab.rml.rml.RMLVocabulary;
-import be.ugent.mmlab.rml.rml.RMLVocabulary.R2RMLTerm;
+import be.ugent.mmlab.rml.vocabulary.RMLVocabulary;
+import be.ugent.mmlab.rml.vocabulary.R2RMLVocabulary.R2RMLTerm;
 import be.ugent.mmlab.rml.rmlvalidator.RMLMappingValidator;
+import be.ugent.mmlab.rml.vocabulary.QLVocabulary;
+import be.ugent.mmlab.rml.vocabulary.R2RMLVocabulary;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashSet;
@@ -46,8 +47,8 @@ import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
 import org.openrdf.model.Value;
-import org.apache.log4j.Logger;
-import org.apache.log4j.LogManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class RMLValidatedMappingExtractor extends RMLUnValidatedMappingExtractor
     implements RMLMappingExtractor {
@@ -60,7 +61,7 @@ public class RMLValidatedMappingExtractor extends RMLUnValidatedMappingExtractor
     RMLUnValidatedMappingExtractor subextractor;
 
     // Log
-    private static final Logger log = LogManager.getLogger(RMLValidatedMappingExtractor.class);   
+    private static final Logger log = LoggerFactory.getLogger(RMLValidatedMappingExtractor.class);   
 
     public RMLValidatedMappingExtractor(RMLMappingValidator validator) {
         this.validator = validator;
@@ -90,8 +91,8 @@ public class RMLValidatedMappingExtractor extends RMLUnValidatedMappingExtractor
             TriplesMap triplesMap) {
 
         List<Statement> statements = getStatements(
-                rmlMappingGraph, triplesMapSubject, RMLVocabulary.R2RML_NAMESPACE,
-                RMLVocabulary.R2RMLTerm.PREDICATE_OBJECT_MAP, triplesMap);
+                rmlMappingGraph, triplesMapSubject, R2RMLVocabulary.R2RML_NAMESPACE,
+                R2RMLVocabulary.R2RMLTerm.PREDICATE_OBJECT_MAP, triplesMap);
 
         validator.checkStatements(predicateObject, statements, R2RMLTerm.PREDICATE_OBJECT_MAP);
 
@@ -109,8 +110,8 @@ public class RMLValidatedMappingExtractor extends RMLUnValidatedMappingExtractor
         }
 
         // Extract object maps
-        URI o = rmlMappingGraph.URIref(RMLVocabulary.R2RML_NAMESPACE
-                + RMLVocabulary.R2RMLTerm.OBJECT_MAP);
+        URI o = rmlMappingGraph.URIref(R2RMLVocabulary.R2RML_NAMESPACE
+                + R2RMLVocabulary.R2RMLTerm.OBJECT_MAP);
         statements = rmlMappingGraph.tuplePattern(predicateObject, o, null);
         validator.checkStatements(predicateObject, statements, R2RMLTerm.OBJECT_MAP);
 
@@ -150,7 +151,7 @@ public class RMLValidatedMappingExtractor extends RMLUnValidatedMappingExtractor
         // Add graphMaps
         Set<GraphMap> graphMaps = new HashSet<GraphMap>();
         Set<Value> graphMapValues = extractValuesFromResource(
-                rmlMappingGraph, predicateObject, RMLVocabulary.R2RMLTerm.GRAPH_MAP);
+                rmlMappingGraph, predicateObject, R2RMLVocabulary.R2RMLTerm.GRAPH_MAP);
 
         if (graphMapValues != null) {
             graphMaps = extractGraphMapValues(
@@ -174,14 +175,14 @@ public class RMLValidatedMappingExtractor extends RMLUnValidatedMappingExtractor
 
         // Extract object maps properties
         Value constantValue = extractValueFromTermMap(rmlMappingGraph,
-                object, RMLVocabulary.R2RMLTerm.CONSTANT, triplesMap);
+                object, R2RMLVocabulary.R2RMLTerm.CONSTANT, triplesMap);
         String stringTemplate = extractLiteralFromTermMap(rmlMappingGraph,
-                object, RMLVocabulary.R2RMLTerm.TEMPLATE, triplesMap);
+                object, R2RMLVocabulary.R2RMLTerm.TEMPLATE, triplesMap);
         URI termType = (URI) extractValueFromTermMap(rmlMappingGraph, object,
-                RMLVocabulary.R2RMLTerm.TERM_TYPE, triplesMap);
+                R2RMLVocabulary.R2RMLTerm.TERM_TYPE, triplesMap);
 
         String inverseExpression = extractLiteralFromTermMap(rmlMappingGraph,
-                object, RMLVocabulary.R2RMLTerm.INVERSE_EXPRESSION, triplesMap);
+                object, R2RMLVocabulary.R2RMLTerm.INVERSE_EXPRESSION, triplesMap);
 
         //MVS: Decide on ReferenceIdentifier
         ReferenceIdentifier referenceValue = 
@@ -359,7 +360,7 @@ public class RMLValidatedMappingExtractor extends RMLUnValidatedMappingExtractor
         Resource blankLogicalSource = 
                 extractLogicalSource(rmlMappingGraph, triplesMapSubject, triplesMap);
         
-        RMLVocabulary.QLTerm referenceFormulation =
+        QLVocabulary.QLTerm referenceFormulation =
                 getReferenceFormulation(rmlMappingGraph, triplesMapSubject, blankLogicalSource, triplesMap);
 
         //Extract the iterator to create the iterator. Some formats have null, like CSV or SQL
@@ -468,7 +469,7 @@ public class RMLValidatedMappingExtractor extends RMLUnValidatedMappingExtractor
      * @return
      */
     @Override
-    protected RMLVocabulary.QLTerm getReferenceFormulation(
+    protected QLVocabulary.QLTerm getReferenceFormulation(
             RMLSesameDataSet rmlMappingGraph, Resource triplesMapSubject, 
             Resource subject, TriplesMap triplesMap) 
     {       
@@ -481,7 +482,7 @@ public class RMLValidatedMappingExtractor extends RMLUnValidatedMappingExtractor
         if (statements.isEmpty()) 
             return null;
         else
-            return RMLVocabulary.getQLTerms(statements.get(0).getObject().stringValue());
+            return QLVocabulary.getQLTerms(statements.get(0).getObject().stringValue());
     }
     
     public static boolean isLocalFile(String source) {

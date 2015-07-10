@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package be.ugent.mmlab.rml.rmlvalidator;
 
 import be.ugent.mmlab.rml.extractor.RMLInputExtractor;
@@ -10,11 +6,11 @@ import be.ugent.mmlab.rml.extractor.RMLUnValidatedMappingExtractor;
 import be.ugent.mmlab.rml.extractor.RMLValidatedMappingExtractor;
 import be.ugent.mmlab.rml.model.RMLMapping;
 import be.ugent.mmlab.rml.model.TriplesMap;
-import be.ugent.mmlab.rml.rml.RMLVocabulary;
 import be.ugent.mmlab.rml.sesame.RMLSesameDataSet;
+import be.ugent.mmlab.rml.vocabulary.R2RMLVocabulary;
 import java.util.Map;
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.openrdf.model.Resource;
 import org.openrdf.rio.RDFFormat;
 
@@ -25,7 +21,7 @@ import org.openrdf.rio.RDFFormat;
 public final class RMLMappingFactory {
     
     // Log
-    private static final Logger log = LogManager.getLogger(RMLMappingFactory.class);
+    private static final Logger log = LoggerFactory.getLogger(RMLMappingFactory.class);
     
     private RMLMappingExtractor extractor;
     private RMLMappingValidator validator;
@@ -62,7 +58,7 @@ public final class RMLMappingFactory {
         log.debug(Thread.currentThread().getStackTrace()[1].getMethodName() + ": "
                 + "Number of RML triples with "
                 + " type "
-                + RMLVocabulary.R2RMLTerm.TRIPLES_MAP_CLASS
+                + R2RMLVocabulary.R2RMLTerm.TRIPLES_MAP_CLASS
                 + " in file "
                 + fileToRMLFile + " : " + triplesMapResources.size());
 

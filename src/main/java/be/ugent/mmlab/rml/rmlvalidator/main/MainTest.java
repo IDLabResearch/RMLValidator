@@ -5,6 +5,8 @@ import be.ugent.mmlab.rml.rmlvalidator.RMLMappingFactory;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.ParseException;
 import org.apache.log4j.BasicConfigurator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -39,8 +41,5 @@ public class MainTest {
 
         RMLMappingFactory mappingFactory = new RMLMappingFactory(true);
         mappingFactory.extractRMLMapping(map_doc, outputFile);
-        //mappingFactory.extractRMLMapping("http://rml.io/rml/data/CD_EWI/Destelbergen/destelbergen_CSV.rml.ttl");
-        //mappingFactory.extractRMLMapping("http://rml.io/rml/data/csvw/events/mapping-events.rml.ttl");
-        //mappingFactory.extractRMLMapping("http://rml.io/rml/data/drafts/mapping.rml.ttl");
     }
 }

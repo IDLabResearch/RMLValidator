@@ -1,20 +1,18 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package be.ugent.mmlab.rml.rmlvalidator;
 
 import be.ugent.mmlab.rml.sesame.RMLSesameDataSet;
 import be.ugent.mmlab.rml.extractor.RMLValidatedMappingExtractor;
-import be.ugent.mmlab.rml.model.SubjectMap;
+import be.ugent.mmlab.rml.model.RDFTerm.SubjectMap;
 import be.ugent.mmlab.rml.model.TriplesMap;
 import be.ugent.mmlab.rml.model.reference.ReferenceIdentifier;
-import be.ugent.mmlab.rml.rml.RMLVocabulary;
-import be.ugent.mmlab.rml.rml.RMLVocabulary.*;
+import be.ugent.mmlab.rml.vocabulary.QLVocabulary;
+import be.ugent.mmlab.rml.vocabulary.R2RMLVocabulary.R2RMLTerm;
+import be.ugent.mmlab.rml.vocabulary.RMLVocabulary.*;
+import be.ugent.mmlab.rml.vocabulary.Term;
 import java.util.List;
 import java.util.Map;
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
@@ -23,13 +21,14 @@ import org.openrdf.model.ValueFactory;
 import org.openrdf.model.impl.ValueFactoryImpl;
 
 /**
+ * RML Validator : RMLValidator
  *
  * @author andimou
  */
 public class RMLValidator implements RMLMappingValidator {
     
     // Log
-    private static final Logger log = LogManager.getLogger(RMLValidatedMappingExtractor.class);
+    private static final Logger log = LoggerFactory.getLogger(RMLValidatedMappingExtractor.class);
     private RMLValidatorResult validres = new RMLValidatorResult();
     
     /*private static void launchPreChecks(RMLSesameDataSet rmlMappingGraph){
@@ -109,7 +108,7 @@ public class RMLValidator implements RMLMappingValidator {
             validres.addViolation(
                     object, RMLTerm.REFERENCE_FORMULATION,
                     objectValue, Thread.currentThread().getStackTrace()[1].getMethodName());
-        } else if (RMLVocabulary.getQLTerms(statements.get(0).getObject().stringValue()) == null) {
+        } else if (QLVocabulary.getQLTerms(statements.get(0).getObject().stringValue()) == null) {
             object = statements.get(0).getSubject();
             objectValue = triplesMapSubject.toString() 
                     + " has unknown reference formulation.";
@@ -147,18 +146,18 @@ public class RMLValidator implements RMLMappingValidator {
     @Override
     public RMLSesameDataSet checkIterator(
             Resource triplesMapSubject, List<Statement> statements,
-            RMLVocabulary.QLTerm referenceFormulation) {
+            QLVocabulary.QLTerm referenceFormulation) {
         Value object;
         ValueFactory vf  = new ValueFactoryImpl();
         String objectValue;
         
-        if (statements.isEmpty() && referenceFormulation != RMLVocabulary.QLTerm.CSV_CLASS) {
+        if (statements.isEmpty() && referenceFormulation != QLVocabulary.QLTerm.CSV_CLASS) {
             object = triplesMapSubject;
             objectValue = triplesMapSubject.toString() 
                     + " has no iterator.";
             validres.addViolation(object, RMLTerm.ITERATOR, 
                     objectValue,Thread.currentThread().getStackTrace()[1].getMethodName());
-        } else if (!statements.isEmpty() && referenceFormulation == RMLVocabulary.QLTerm.CSV_CLASS) {
+        } else if (!statements.isEmpty() && referenceFormulation == QLVocabulary.QLTerm.CSV_CLASS) {
             object = triplesMapSubject;
             objectValue = triplesMapSubject.toString() + " no iterator is required.";
             validres.addViolation(object, RMLTerm.ITERATOR, 

@@ -1,12 +1,8 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package be.ugent.mmlab.rml.extractor;
 
-import be.ugent.mmlab.rml.model.GraphMap;
-import be.ugent.mmlab.rml.model.ObjectMap;
-import be.ugent.mmlab.rml.model.PredicateMap;
+import be.ugent.mmlab.rml.model.RDFTerm.GraphMap;
+import be.ugent.mmlab.rml.model.RDFTerm.ObjectMap;
+import be.ugent.mmlab.rml.model.RDFTerm.PredicateMap;
 import be.ugent.mmlab.rml.model.PredicateObjectMap;
 import be.ugent.mmlab.rml.model.TriplesMap;
 import be.ugent.mmlab.rml.sesame.RMLSesameDataSet;
@@ -15,7 +11,8 @@ import java.util.Set;
 import org.openrdf.model.Resource;
 
 /**
- *
+ * RMLUnValidatedMappingExtractor : RMLMappingExtractor
+ * 
  * @author andimou
  */
 public interface RMLMappingExtractor {

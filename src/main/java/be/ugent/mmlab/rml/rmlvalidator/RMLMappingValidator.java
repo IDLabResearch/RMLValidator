@@ -1,15 +1,11 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package be.ugent.mmlab.rml.rmlvalidator;
 
-import be.ugent.mmlab.rml.model.SubjectMap;
+import be.ugent.mmlab.rml.model.RDFTerm.SubjectMap;
 import be.ugent.mmlab.rml.model.TriplesMap;
 import be.ugent.mmlab.rml.model.reference.ReferenceIdentifier;
-import be.ugent.mmlab.rml.rml.RMLVocabulary;
-import be.ugent.mmlab.rml.rml.RMLVocabulary.Term;
 import be.ugent.mmlab.rml.sesame.RMLSesameDataSet;
+import be.ugent.mmlab.rml.vocabulary.QLVocabulary;
+import be.ugent.mmlab.rml.vocabulary.Term;
 import java.util.List;
 import java.util.Map;
 import org.openrdf.model.Resource;
@@ -18,7 +14,8 @@ import org.openrdf.model.URI;
 import org.openrdf.model.Value;
 
 /**
- *
+ * RML Validator : RMLMappingValidator
+ * 
  * @author andimou
  */
 public interface RMLMappingValidator {
@@ -44,7 +41,7 @@ public interface RMLMappingValidator {
     public void checkStatements(Resource resource, List<Statement> statements, Term p);
 
     public RMLSesameDataSet checkIterator(
-            Resource triplesMapSubject, List<Statement> iterators, RMLVocabulary.QLTerm referenceFormulation);
+            Resource triplesMapSubject, List<Statement> iterators, QLVocabulary.QLTerm referenceFormulation);
 
     public void checkSource(Resource triplesMapSubject, List<Statement> sourceStatements);
 
