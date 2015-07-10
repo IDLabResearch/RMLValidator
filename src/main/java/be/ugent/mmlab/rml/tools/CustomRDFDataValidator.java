@@ -1,35 +1,51 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package be.ugent.mmlab.rml.tools;
 
-import net.antidot.semantic.rdf.model.tools.RDFDataValidator;
+import org.openrdf.model.ValueFactory;
+import org.openrdf.model.impl.ValueFactoryImpl;
+
+
 
 /**
+ * *************************************************************************
  *
- * This class customizes the implementation by db2triples
- * 
- * @author mielvandersande
+ * RML - Validator : RMLValidatorResult
+ *
+ *
+ * @author mielvandersande, andimou
+ *
+ ***************************************************************************
  */
-public class CustomRDFDataValidator extends RDFDataValidator{
-    	/**
-	 * The set of validatable RDF datatypes includes all datatypes 
-	 * in the RDF datatype column of the table of natural datatype
-	 * mappings, as defined in [XMLSCHEMA2]. 
-	 * @param string
-	 * @return
-	 */
-	public static boolean isValidDatatype(String datatype) {
-		boolean isValid = true;
-		if (!isValidURI(datatype)) return false;
-                
-                //MVS: Removed constraint since it prevents using types other than XSD
-/*		try {
-			XSDType.toXSDType(datatype);
-		} catch (IllegalArgumentException e) {
-			isValid = false;
-		}*/
-		return isValid;
-	}
+public class CustomRDFDataValidator {
+
+    /**
+     * @param string
+     * @return
+     */
+    public static boolean isValidDatatype(String datatype) {
+        boolean isValid = true;
+        if (!isValidURI(datatype)) {
+            return false;
+        }
+
+        return isValid;
+    }
+
+    public static boolean isValidURI(String strURI) {
+        ValueFactory vf = new ValueFactoryImpl();
+        boolean isValid = false;
+        if (strURI == null) {
+            return false;
+        }
+        try {
+            // All cases are not take into account... use openRDF library
+            vf.createURI(strURI);
+            // @todo : check if this rule is not too strict
+            if (!strURI.contains(" ")) {
+                isValid = true;
+            }
+        } catch (Exception e) {
+            // Nothing
+        }
+        return isValid;
+    }
 }

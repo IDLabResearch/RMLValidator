@@ -1,8 +1,9 @@
 package be.ugent.mmlab.rml.rmlvalidator;
 
+import be.ugent.mmlab.rml.extraction.RMLMappingExtractor;
+import be.ugent.mmlab.rml.extraction.RMLUnValidatedMappingExtractor;
+import be.ugent.mmlab.rml.extraction.concrete.TriplesMapExtractor;
 import be.ugent.mmlab.rml.extractor.RMLInputExtractor;
-import be.ugent.mmlab.rml.extractor.RMLMappingExtractor;
-import be.ugent.mmlab.rml.extractor.RMLUnValidatedMappingExtractor;
 import be.ugent.mmlab.rml.extractor.RMLValidatedMappingExtractor;
 import be.ugent.mmlab.rml.model.RMLMapping;
 import be.ugent.mmlab.rml.model.TriplesMap;
@@ -15,13 +16,19 @@ import org.openrdf.model.Resource;
 import org.openrdf.rio.RDFFormat;
 
 /**
+ * *************************************************************************
+ *
+ * RML - Validator : RMLMappingFactory
+ *
  *
  * @author andimou
+ *
+ ***************************************************************************
  */
 public final class RMLMappingFactory {
     
     // Log
-    private static final Logger log = LoggerFactory.getLogger(RMLMappingFactory.class);
+    static final Logger log = LoggerFactory.getLogger(RMLMappingFactory.class);
     
     private RMLMappingExtractor extractor;
     private RMLMappingValidator validator;
@@ -65,9 +72,11 @@ public final class RMLMappingFactory {
         validator.checkTriplesMapResources(triplesMapResources);
 
         // Fill each TriplesMap object
-        for (Resource triplesMapResource : triplesMapResources.keySet())  // Extract each triplesMap
-            extractor.extractTriplesMap(
+        for (Resource triplesMapResource : triplesMapResources.keySet()) { // Extract each triplesMap
+            TriplesMapExtractor triplesMapExtractor = new TriplesMapExtractor();
+            triplesMapExtractor.extractTriplesMap(
                     rmlMappingGraph, triplesMapResource, triplesMapResources);
+        }
 
         rmlMappingGraph.printRDFtoFile(outputFile, RDFFormat.TURTLE);
         // Generate RMLMapping object

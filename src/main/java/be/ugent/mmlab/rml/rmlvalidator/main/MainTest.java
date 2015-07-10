@@ -1,6 +1,6 @@
 package be.ugent.mmlab.rml.rmlvalidator.main;
 
-import be.ugent.mmlab.rml.rml.RMLConfiguration;
+import be.ugent.mmlab.rml.rmlvalidator.config.RMLValidatorConfiguration;
 import be.ugent.mmlab.rml.rmlvalidator.RMLMappingFactory;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.ParseException;
@@ -9,10 +9,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * *************************************************************************
+ *
+ * RML - Validator : MainTest
+ *
  *
  * @author andimou
+ *
+ ***************************************************************************
  */
 public class MainTest {
+    
+    // Log
+    static final Logger log = LoggerFactory.getLogger(MainTest.class);
 
     /**
      * @param args the command line arguments
@@ -21,10 +30,10 @@ public class MainTest {
         String map_doc = "/home/andimou/Desktop/offer.rml.ttl";
         String outputFile = "/home/andimou/Desktop/offerProcessed.rml.ttl";
         BasicConfigurator.configure();
-        CommandLine commandLine = RMLConfiguration.parseArguments(args);
+        CommandLine commandLine = RMLValidatorConfiguration.parseArguments(args);
 
         if (commandLine.hasOption("h")) 
-            RMLConfiguration.displayHelp();
+            RMLValidatorConfiguration.displayHelp();
         if (commandLine.hasOption("o")) 
             outputFile = commandLine.getOptionValue("o", null);
         

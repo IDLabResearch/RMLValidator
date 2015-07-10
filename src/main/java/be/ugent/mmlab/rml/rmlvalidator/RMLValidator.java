@@ -1,10 +1,9 @@
 package be.ugent.mmlab.rml.rmlvalidator;
 
 import be.ugent.mmlab.rml.sesame.RMLSesameDataSet;
-import be.ugent.mmlab.rml.extractor.RMLValidatedMappingExtractor;
 import be.ugent.mmlab.rml.model.RDFTerm.SubjectMap;
 import be.ugent.mmlab.rml.model.TriplesMap;
-import be.ugent.mmlab.rml.model.reference.ReferenceIdentifier;
+import be.ugent.mmlab.rml.model.termMap.ReferenceMap;
 import be.ugent.mmlab.rml.vocabulary.QLVocabulary;
 import be.ugent.mmlab.rml.vocabulary.R2RMLVocabulary.R2RMLTerm;
 import be.ugent.mmlab.rml.vocabulary.RMLVocabulary.*;
@@ -21,14 +20,20 @@ import org.openrdf.model.ValueFactory;
 import org.openrdf.model.impl.ValueFactoryImpl;
 
 /**
- * RML Validator : RMLValidator
+ * *************************************************************************
+ *
+ * RML - Mapping Document Handler : RMLValidator
+ *
  *
  * @author andimou
+ *
+ ***************************************************************************
  */
 public class RMLValidator implements RMLMappingValidator {
     
     // Log
-    private static final Logger log = LoggerFactory.getLogger(RMLValidatedMappingExtractor.class);
+    static final Logger log = LoggerFactory.getLogger(RMLValidator.class);
+    
     private RMLValidatorResult validres = new RMLValidatorResult();
     
     /*private static void launchPreChecks(RMLSesameDataSet rmlMappingGraph){
@@ -285,7 +290,7 @@ public class RMLValidator implements RMLMappingValidator {
     @Override
     public void checkTermMap(
             Value constantValue, String stringTemplate, 
-            ReferenceIdentifier referenceValue, Resource resource, Term term){
+            ReferenceMap referenceValue, Resource resource, Term term){
         ValueFactory vf  = new ValueFactoryImpl();
         Value object;
         String objectValue;

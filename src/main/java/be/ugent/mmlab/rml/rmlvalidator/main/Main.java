@@ -1,8 +1,8 @@
 package be.ugent.mmlab.rml.rmlvalidator.main;
 
 import be.ugent.mmlab.rml.extractor.RMLInputExtractor;
-import be.ugent.mmlab.rml.rml.RMLConfiguration;
 import be.ugent.mmlab.rml.rmlvalidator.RMLMappingFactory;
+import be.ugent.mmlab.rml.rmlvalidator.config.RMLValidatorConfiguration;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.ParseException;
 import org.apache.log4j.BasicConfigurator;
@@ -10,31 +10,40 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * *************************************************************************
+ *
+ * RML - Validator : Main
+ *
  *
  * @author andimou
+ *
+ ***************************************************************************
  */
 public class Main {
+    
+    // Log
+    static final Logger log = LoggerFactory.getLogger(Main.class);
 
     /**
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        // Log
-        Logger log = LogManager.getLogger(RMLInputExtractor.class);
-        String map_doc ;
-        BasicConfigurator.configure();
-        CommandLine commandLine;
-
         try {
-            commandLine = RMLConfiguration.parseArguments(args);
+            // Log
+            Logger log = LoggerFactory.getLogger(RMLInputExtractor.class);
+            String map_doc;
+            BasicConfigurator.configure();
+            CommandLine commandLine;
+
+            commandLine = RMLValidatorConfiguration.parseArguments(args);
             String outputFile = null;
 
             if (commandLine.hasOption("h")) {
-                RMLConfiguration.displayHelp();
+                RMLValidatorConfiguration.displayHelp();
             }
             if (commandLine.hasOption("o")) {
                 outputFile = commandLine.getOptionValue("o", null);
-            } 
+            }
             if (commandLine.hasOption("m")) {
                 map_doc = commandLine.getOptionValue("m", null);
                 RMLMappingFactory mappingFactory;
@@ -46,11 +55,10 @@ public class Main {
                     mappingFactory.extractRMLMapping(map_doc, outputFile);
                 }
                 /*if (commandLine.hasOption("V")) {
-                    log.info("call RDFUnit");
-                    //call RDFUnit and pass either the original file or the generated one
-                }*/
-            }
-            else{
+                 log.info("call RDFUnit");
+                 //call RDFUnit and pass either the original file or the generated one
+                 }*/
+            } else {
                 System.out.println("\n No input mapping document was provided. \n ");
                 System.out.println("--------------------------------------------------------------------------------");
                 System.out.println("RML Validator");
@@ -67,9 +75,9 @@ public class Main {
                 System.out.println("--------------------------------------------------------------------------------");
             }
         } catch (ParseException ex) {
-            log.error(ex);
-            RMLConfiguration.displayHelp();
+            log.error("ParseException " + ex);
         }
+
 
     }
 }

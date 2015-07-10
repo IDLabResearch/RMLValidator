@@ -13,14 +13,19 @@ import org.openrdf.rio.RDFFormat;
 import org.openrdf.rio.RDFParseException;
 
 /**
- * RML Validator : RMLInputExtractor
- * 
+ * *************************************************************************
+ *
+ * RML - Validator : RMLInputExtractor
+ *
+ *
  * @author andimou
+ *
+ ***************************************************************************
  */
 public class RMLInputExtractor {
     
     // Log
-    private static final Logger log = LoggerFactory.getLogger(RMLInputExtractor.class);
+    static final Logger log = LoggerFactory.getLogger(RMLInputExtractor.class);
     
     public RMLInputExtractor(){}
     

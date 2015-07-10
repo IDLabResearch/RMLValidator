@@ -2,7 +2,7 @@ package be.ugent.mmlab.rml.rmlvalidator;
 
 import be.ugent.mmlab.rml.model.RDFTerm.SubjectMap;
 import be.ugent.mmlab.rml.model.TriplesMap;
-import be.ugent.mmlab.rml.model.reference.ReferenceIdentifier;
+import be.ugent.mmlab.rml.model.termMap.ReferenceMap;
 import be.ugent.mmlab.rml.sesame.RMLSesameDataSet;
 import be.ugent.mmlab.rml.vocabulary.QLVocabulary;
 import be.ugent.mmlab.rml.vocabulary.Term;
@@ -14,9 +14,14 @@ import org.openrdf.model.URI;
 import org.openrdf.model.Value;
 
 /**
- * RML Validator : RMLMappingValidator
- * 
+ * *************************************************************************
+ *
+ * RML - Validator : RMLMappingValidator
+ *
+ *
  * @author andimou
+ *
+ ***************************************************************************
  */
 public interface RMLMappingValidator {
     RMLValidatorResult validationResult = new RMLValidatorResult();
@@ -36,7 +41,7 @@ public interface RMLMappingValidator {
     public void checkMultipleStatements(TriplesMap triplesMap, List<Statement> statements, URI p, String termType);
 
     public void checkTermMap(
-            Value constantValue, String stringTemplate, ReferenceIdentifier referenceValue, Resource stringValue, Term term);
+            Value constantValue, String stringTemplate, ReferenceMap referenceValue, Resource stringValue, Term term);
 
     public void checkStatements(Resource resource, List<Statement> statements, Term p);
 

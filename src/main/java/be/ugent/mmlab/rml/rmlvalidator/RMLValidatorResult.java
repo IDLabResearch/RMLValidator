@@ -15,12 +15,18 @@ import org.openrdf.model.ValueFactory;
 import org.openrdf.model.impl.ValueFactoryImpl;
 
 /**
+ * *************************************************************************
+ *
+ * RML - Validator : RMLValidatorResult
+ *
  *
  * @author andimou
+ *
+ ***************************************************************************
  */
 public class RMLValidatorResult {
     // Log
-    private static final Logger log = LoggerFactory.getLogger(RMLValidatorResult.class);
+    static final Logger log = LoggerFactory.getLogger(RMLValidatorResult.class);
     
     private RMLSesameDataSet resultGraph = new RMLSesameDataSet();
     private String time;

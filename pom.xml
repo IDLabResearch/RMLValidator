@@ -13,6 +13,8 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <sesame.version>2.7.14</sesame.version>
+        <rdfunit.version>0.7.4-SNAPSHOT</rdfunit.version>
+        <slf4j.version>1.7.12</slf4j.version>
     </properties>
   
     <build>
@@ -103,12 +105,22 @@
             <id>repository.jboss.org</id>
             <url>https://repository.jboss.org/nexus/content/repositories/thirdparty-releases</url>
         </repository>
+        <repository>
+            <id>maven.aksw.internal</id>
+            <name>University Leipzig, AKSW Maven2 Repository</name>
+            <url>http://maven.aksw.org/repository/internal</url>
+        </repository>
     </repositories>
 
     <dependencies>
         <dependency>
-            <groupId>be.ugent.mmlab</groupId>
+            <groupId>be.ugent.mmlab.rml</groupId>
             <artifactId>RML-Model</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>be.ugent.mmlab.rml</groupId>
+            <artifactId>RML-MapDocHandler</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -116,76 +128,6 @@
             <artifactId>junit</artifactId>
             <version>3.8.1</version>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>apache-logging</groupId>
-            <artifactId>commons-logging</artifactId>
-            <version>1.1.0.jboss</version>
-            <type>jar</type>
-        </dependency>
-        <dependency>
-            <groupId>org.openrdf.sesame</groupId>  
-            <artifactId>sesame-runtime</artifactId>  
-            <version>${sesame.version}</version> 
-        </dependency>
-        <dependency>
-            <groupId>org.openrdf.sesame</groupId>
-            <artifactId>sesame-rio-api</artifactId>
-            <version>${sesame.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.openrdf.sesame</groupId>  
-            <artifactId>sesame-model</artifactId>  
-            <version>${sesame.version}</version> 
-        </dependency>
-        <dependency>
-            <groupId>org.openrdf.sesame</groupId>  
-            <artifactId>sesame-rio-rdfxml</artifactId>  
-            <version>${sesame.version}</version> 
-        </dependency>
-        <dependency>
-            <groupId>org.openrdf.sesame</groupId>  
-            <artifactId>sesame-repository-api</artifactId>  
-            <version>${sesame.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.openrdf.sesame</groupId>  
-            <artifactId>sesame-repository-http</artifactId>  
-            <version>${sesame.version}</version> 
-        </dependency>
-        <dependency>
-            <groupId>org.openrdf.sesame</groupId>  
-            <artifactId>sesame-repository-sail</artifactId>  
-            <version>${sesame.version}</version> 
-        </dependency>
-        <dependency>
-            <groupId>org.openrdf.sesame</groupId>
-            <artifactId>sesame-sail-memory</artifactId>
-            <version>${sesame.version}</version>
-            <scope>compile</scope>        
-        </dependency>
-        <dependency>
-            <groupId>org.openrdf.sesame</groupId>
-            <artifactId>sesame-sail-nativerdf</artifactId>
-            <version>${sesame.version}</version>
-            <scope>compile</scope>        
-        </dependency>
-        <dependency>
-            <groupId>org.openrdf.sesame</groupId>
-            <artifactId>sesame-rio-turtle</artifactId>
-            <version>${sesame.version}</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.openrdf.sesame</groupId>
-            <artifactId>sesame-rio-nquads</artifactId>
-            <version>${sesame.version}</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
-            <version>1.1.2</version>
         </dependency>
         <dependency>
             <groupId>commons-cli</groupId>
@@ -200,7 +142,17 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-log4j12</artifactId>
-            <version>1.7.12</version>
+            <version>${slf4j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.aksw.rdfunit</groupId>
+            <artifactId>rdfunit-core</artifactId>
+            <version>${rdfunit.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.aksw.rdfunit</groupId>
+            <artifactId>rdfunit-resources</artifactId>
+            <version>${rdfunit.version}</version>
         </dependency>
     </dependencies>
 </project>
