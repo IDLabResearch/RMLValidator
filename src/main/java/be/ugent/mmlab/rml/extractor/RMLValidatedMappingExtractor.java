@@ -52,7 +52,6 @@ public class RMLValidatedMappingExtractor extends RMLUnValidatedMappingExtractor
         this.validator = validator;
     }
     
-    
     public static boolean isLocalFile(String source) {
         try {
             new URL(source);

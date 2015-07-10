@@ -1,6 +1,8 @@
 package be.ugent.mmlab.rml.rmlvalidator.main;
 
 import be.ugent.mmlab.rml.extractor.RMLInputExtractor;
+import be.ugent.mmlab.rml.rdfunit.RDFUnitValidator;
+
 import be.ugent.mmlab.rml.rmlvalidator.RMLMappingFactory;
 import be.ugent.mmlab.rml.rmlvalidator.config.RMLValidatorConfiguration;
 import org.apache.commons.cli.CommandLine;
@@ -45,9 +47,36 @@ public class Main {
                 outputFile = commandLine.getOptionValue("o", null);
             }
             if (commandLine.hasOption("m")) {
+                String baseURI = "http://example.com";
                 map_doc = commandLine.getOptionValue("m", null);
+                System.out.println("\n Map doc: " + map_doc);
                 RMLMappingFactory mappingFactory;
-                if (commandLine.hasOption("V")) {
+                
+                if (commandLine.hasOption("q")) {
+                    String outputFileRDFUnit = commandLine.getOptionValue("q", null);
+               log.error("outputFileRDFUnit " + outputFileRDFUnit);     
+                    //Mapping Document validation
+                    System.out.println("\n Started Mapping Document validation. \n ");
+                    mappingFactory = new RMLMappingFactory(true);
+                    mappingFactory.extractRMLMapping(map_doc, outputFile);
+                    
+                    //Schema validation
+                    System.out.println("\n Started RDFUnit. \n ");
+                    RDFUnitValidator rdfUnitValidator = new RDFUnitValidator(baseURI, outputFile);
+                    
+                    System.out.println("\n Started Mapping Document Schema validation with RDFUnit. \n ");
+                    String rdfunitStringResults = rdfUnitValidator.validate();                   
+                    //FileSesameDataset rdfunitresults = new FileSesameDataset(outputFileRDFUnit, "turtle");
+                    
+                    //rdfunitresults.printRDFtoFile(outputFileRDFUnit,RDFFormat.TURTLE);
+                    //rdfunitresults.addString(rdfunitStringResults, outputFileRDFUnit, RDFFormat.TURTLE);
+                    System.out.println("\n RDFUnit results processing.. \n ");
+                    //rdfunitresults.loadDataFromInputStream(
+                    //        rdfunitResults, baseURI, RDFFormat.TURTLE, (Resource) null);
+                    //rdfunitresults.printRDFtoFile(outputFileRDFUnit, RDFFormat.TURTLE);
+                    //log.error("rdfunitresults " + rdfunitresults);
+                    
+                }else if (commandLine.hasOption("V")) {
                     mappingFactory = new RMLMappingFactory(false);
                     mappingFactory.extractRMLMapping(map_doc, outputFile);
                 } else {
@@ -64,20 +93,18 @@ public class Main {
                 System.out.println("RML Validator");
                 System.out.println("--------------------------------------------------------------------------------");
                 System.out.println("");
-                System.out.println("Usage: mvn exec:java -Dexec.args=\"-m <mapping_file> -o <output_file> -V\"");
+                System.out.println("Usage: mvn exec:java -Dexec.args=\"-m <mapping_file> -o <output_file> -V -t\"");
                 System.out.println("");
                 System.out.println("With");
                 System.out.println("    <mapping_file> = The RML mapping document conform with the RML specification (http://semweb.mmlab.be/rml/spec.html)");
                 System.out.println("    <output_file> = The RML mapping document conform with skolemized and inferred statements.");
                 System.out.println("add -V not to validate the mapping document");
-                System.out.println("add -q to pass the quality tests");
+                System.out.println("add -t to pass the quality tests");
                 System.out.println("");
                 System.out.println("--------------------------------------------------------------------------------");
             }
         } catch (ParseException ex) {
             log.error("ParseException " + ex);
         }
-
-
     }
 }

@@ -5,8 +5,9 @@ import be.ugent.mmlab.rml.model.RDFTerm.SubjectMap;
 import be.ugent.mmlab.rml.model.TriplesMap;
 import be.ugent.mmlab.rml.model.termMap.ReferenceMap;
 import be.ugent.mmlab.rml.vocabulary.QLVocabulary;
+import be.ugent.mmlab.rml.vocabulary.R2RMLVocabulary;
 import be.ugent.mmlab.rml.vocabulary.R2RMLVocabulary.R2RMLTerm;
-import be.ugent.mmlab.rml.vocabulary.RMLVocabulary.*;
+import be.ugent.mmlab.rml.vocabulary.RMLVocabulary.RMLTerm;
 import be.ugent.mmlab.rml.vocabulary.Term;
 import java.util.List;
 import java.util.Map;
@@ -109,7 +110,7 @@ public class RMLValidator implements RMLMappingValidator {
                     objectValue,Thread.currentThread().getStackTrace()[1].getMethodName());
         } else if (statements.isEmpty()) {
             object = triplesMapSubject;
-            objectValue = triplesMapSubject.toString() + " has no reference formulation.";
+            objectValue = "There is no reference formulation.";
             validres.addViolation(
                     object, RMLTerm.REFERENCE_FORMULATION,
                     objectValue, Thread.currentThread().getStackTrace()[1].getMethodName());
@@ -134,9 +135,11 @@ public class RMLValidator implements RMLMappingValidator {
         String objectValue;
         
         if (statements.isEmpty()) {
-            object = vf.createURI(triplesMapSubject.toString());
-            objectValue = triplesMapSubject
-                    + " has no source for the Logical Source.";
+            if(triplesMapSubject == null)
+                object = null;
+            else
+                object = vf.createURI(triplesMapSubject.toString());
+            objectValue = "There is no source for the Logical Source.";
             validres.addViolation(object, RMLTerm.SOURCE, 
                     objectValue,Thread.currentThread().getStackTrace()[1].getMethodName());
         }
@@ -158,8 +161,7 @@ public class RMLValidator implements RMLMappingValidator {
         
         if (statements.isEmpty() && referenceFormulation != QLVocabulary.QLTerm.CSV_CLASS) {
             object = triplesMapSubject;
-            objectValue = triplesMapSubject.toString() 
-                    + " has no iterator.";
+            objectValue = "There is no iterator.";
             validres.addViolation(object, RMLTerm.ITERATOR, 
                     objectValue,Thread.currentThread().getStackTrace()[1].getMethodName());
         } else if (!statements.isEmpty() && referenceFormulation == QLVocabulary.QLTerm.CSV_CLASS) {
@@ -217,7 +219,7 @@ public class RMLValidator implements RMLMappingValidator {
             validres.addViolation(
                     object, term, 
                     objectValue,Thread.currentThread().getStackTrace()[1].getMethodName());
-        } else if (statements.size() > 1) {
+        } else if (statements.size() > 1 && term != R2RMLVocabulary.R2RMLTerm.PREDICATE_MAP) {
             object = vf.createURI(resource.toString());
             objectValue = resource.stringValue()
                     + " has many " + term  

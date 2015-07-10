@@ -16,7 +16,6 @@
         <rdfunit.version>0.7.4-SNAPSHOT</rdfunit.version>
         <slf4j.version>1.7.12</slf4j.version>
     </properties>
-  
     <build>
         <plugins>
             <plugin>
@@ -69,7 +68,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
-                <version>2.5</version>                
+                <version>2.5</version>
             </plugin>
         </plugins>
         <pluginManagement>
@@ -99,7 +98,7 @@
             </plugins>
         </pluginManagement>
     </build>
-  
+
     <repositories>
         <repository>
             <id>repository.jboss.org</id>
@@ -137,7 +136,7 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
-            <version>1.7.12</version>
+            <version>${slf4j.version}</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -153,6 +152,12 @@
             <groupId>org.aksw.rdfunit</groupId>
             <artifactId>rdfunit-resources</artifactId>
             <version>${rdfunit.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+            <version>2.3.3</version>
         </dependency>
     </dependencies>
 </project>
