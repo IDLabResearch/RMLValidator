@@ -3,7 +3,7 @@ RMLValidator
 
 Validator for[R2]RML mapping documents. 
 
-It is implemented in Java based on [RDFUnit](https://github.com/AKSW/RDFUnit) and [DB2Triples](https://github.com/antidot/db2triples/)
+It is implemented in Java based on [RDFUnit](https://github.com/AKSW/RDFUnit) and [RML](http://rml.io/)
 
 Installation
 ------------
