@@ -1,9 +1,10 @@
 package be.ugent.mmlab.rml.rmlvalidator.main;
 
 import be.ugent.mmlab.rml.extractor.RMLInputExtractor;
+import be.ugent.mmlab.rml.model.RMLMapping;
 import be.ugent.mmlab.rml.rdfunit.RDFUnitValidator;
 
-import be.ugent.mmlab.rml.rmlvalidator.RMLMappingFactory;
+import be.ugent.mmlab.rml.rmlvalidator.RMLValidatorMappingFactory;
 import be.ugent.mmlab.rml.rmlvalidator.config.RMLValidatorConfiguration;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.ParseException;
@@ -50,15 +51,15 @@ public class Main {
                 String baseURI = "http://example.com";
                 map_doc = commandLine.getOptionValue("m", null);
                 System.out.println("\n Map doc: " + map_doc);
-                RMLMappingFactory mappingFactory;
+                RMLValidatorMappingFactory mappingFactory;
                 
                 if (commandLine.hasOption("q")) {
                     String outputFileRDFUnit = commandLine.getOptionValue("q", null);
                log.error("outputFileRDFUnit " + outputFileRDFUnit);     
                     //Mapping Document validation
                     System.out.println("\n Started Mapping Document validation. \n ");
-                    mappingFactory = new RMLMappingFactory(true);
-                    mappingFactory.extractRMLMapping(map_doc, outputFile);
+                    mappingFactory = new RMLValidatorMappingFactory(true);
+                    mappingFactory.extractRMLMapping(map_doc);
                     
                     //Schema validation
                     System.out.println("\n Started RDFUnit. \n ");
@@ -77,11 +78,11 @@ public class Main {
                     //log.error("rdfunitresults " + rdfunitresults);
                     
                 }else if (commandLine.hasOption("V")) {
-                    mappingFactory = new RMLMappingFactory(false);
-                    mappingFactory.extractRMLMapping(map_doc, outputFile);
+                    mappingFactory = new RMLValidatorMappingFactory(false);
+                    RMLMapping finalDataset = mappingFactory.extractRMLMapping(map_doc);
                 } else {
-                    mappingFactory = new RMLMappingFactory(true);
-                    mappingFactory.extractRMLMapping(map_doc, outputFile);
+                    mappingFactory = new RMLValidatorMappingFactory(true);
+                    mappingFactory.extractRMLMapping(map_doc);
                 }
                 /*if (commandLine.hasOption("V")) {
                  log.info("call RDFUnit");

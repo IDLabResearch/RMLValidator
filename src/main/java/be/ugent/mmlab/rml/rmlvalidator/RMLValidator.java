@@ -1,6 +1,5 @@
 package be.ugent.mmlab.rml.rmlvalidator;
 
-import be.ugent.mmlab.rml.sesame.RMLSesameDataSet;
 import be.ugent.mmlab.rml.model.RDFTerm.SubjectMap;
 import be.ugent.mmlab.rml.model.TriplesMap;
 import be.ugent.mmlab.rml.model.termMap.ReferenceMap;
@@ -152,11 +151,10 @@ public class RMLValidator implements RMLMappingValidator {
      * @param referenceFormulation
      */
     @Override
-    public RMLSesameDataSet checkIterator(
+    public void checkIterator(
             Resource triplesMapSubject, List<Statement> statements,
             QLVocabulary.QLTerm referenceFormulation) {
         Value object;
-        ValueFactory vf  = new ValueFactoryImpl();
         String objectValue;
         
         if (statements.isEmpty() && referenceFormulation != QLVocabulary.QLTerm.CSV_CLASS) {
@@ -170,7 +168,6 @@ public class RMLValidator implements RMLMappingValidator {
             validres.addViolation(object, RMLTerm.ITERATOR, 
                     objectValue,Thread.currentThread().getStackTrace()[1].getMethodName());
         }
-        return null;
     }
     
     @Override

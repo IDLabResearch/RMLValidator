@@ -1,7 +1,6 @@
 package be.ugent.mmlab.rml.extractor;
 
 import be.ugent.mmlab.rml.sesame.RMLSesameDataSet;
-import static be.ugent.mmlab.rml.extractor.RMLValidatedMappingExtractor.isLocalFile;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;

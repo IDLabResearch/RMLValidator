@@ -1,7 +1,7 @@
 package be.ugent.mmlab.rml.rmlvalidator.main;
 
 import be.ugent.mmlab.rml.rmlvalidator.config.RMLValidatorConfiguration;
-import be.ugent.mmlab.rml.rmlvalidator.RMLMappingFactory;
+import be.ugent.mmlab.rml.rmlvalidator.RMLValidatorMappingFactory;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.ParseException;
 import org.apache.log4j.BasicConfigurator;
@@ -48,7 +48,7 @@ public class MainTest {
         System.out.println("");
         System.out.println("--------------------------------------------------------------------------------");
 
-        RMLMappingFactory mappingFactory = new RMLMappingFactory(true);
-        mappingFactory.extractRMLMapping(map_doc, outputFile);
+        RMLValidatorMappingFactory mappingFactory = new RMLValidatorMappingFactory(true);
+        mappingFactory.extractRMLMapping(map_doc);
     }
 }

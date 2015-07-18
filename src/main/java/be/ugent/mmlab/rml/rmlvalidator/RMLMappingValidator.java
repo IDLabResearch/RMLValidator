@@ -45,7 +45,7 @@ public interface RMLMappingValidator {
 
     public void checkStatements(Resource resource, List<Statement> statements, Term p);
 
-    public RMLSesameDataSet checkIterator(
+    public void checkIterator(
             Resource triplesMapSubject, List<Statement> iterators, QLVocabulary.QLTerm referenceFormulation);
 
     public void checkSource(Resource triplesMapSubject, List<Statement> sourceStatements);
