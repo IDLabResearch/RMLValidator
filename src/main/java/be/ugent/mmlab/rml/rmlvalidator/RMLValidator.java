@@ -3,11 +3,11 @@ package be.ugent.mmlab.rml.rmlvalidator;
 import be.ugent.mmlab.rml.model.RDFTerm.SubjectMap;
 import be.ugent.mmlab.rml.model.TriplesMap;
 import be.ugent.mmlab.rml.model.termMap.ReferenceMap;
-import be.ugent.mmlab.rml.vocabulary.QLVocabulary;
-import be.ugent.mmlab.rml.vocabulary.R2RMLVocabulary;
-import be.ugent.mmlab.rml.vocabulary.R2RMLVocabulary.R2RMLTerm;
-import be.ugent.mmlab.rml.vocabulary.RMLVocabulary.RMLTerm;
-import be.ugent.mmlab.rml.vocabulary.Term;
+import be.ugent.mmlab.rml.vocabularies.QLVocabulary;
+import be.ugent.mmlab.rml.vocabularies.R2RMLVocabulary;
+import be.ugent.mmlab.rml.vocabularies.R2RMLVocabulary.R2RMLTerm;
+import be.ugent.mmlab.rml.vocabularies.RMLVocabulary.RMLTerm;
+import be.ugent.mmlab.rml.vocabularies.Term;
 import java.util.List;
 import java.util.Map;
 import org.slf4j.Logger;
@@ -34,29 +34,7 @@ public class RMLValidator implements RMLMappingValidator {
     // Log
     static final Logger log = LoggerFactory.getLogger(RMLValidator.class);
     
-    private RMLValidatorResult validres = new RMLValidatorResult();
-    
-    /*private static void launchPreChecks(RMLSesameDataSet rmlMappingGraph){
-        // Pre-check 1 : test if a triplesMap with predicateObject map exists
-        // without subject map
-        URI p = rmlMappingGraph.URIref(RMLVocabulary.R2RML_NAMESPACE
-                + RMLVocabulary.R2RMLTerm.PREDICATE_OBJECT_MAP);
-        List<Statement> statements = rmlMappingGraph.tuplePattern(null, p,
-                null);
-        for (Statement s : statements) {
-            p = rmlMappingGraph.URIref(RMLVocabulary.R2RML_NAMESPACE
-                    + RMLVocabulary.R2RMLTerm.SUBJECT_MAP);
-            List<Statement> otherStatements = rmlMappingGraph.tuplePattern(
-                    s.getSubject(), p, null);
-            if (otherStatements.isEmpty()) {
-                log.error( 
-                    Thread.currentThread().getStackTrace()[1].getMethodName() + ": "
-                    + "Triples map without subject map : "
-                        + s.getSubject().stringValue() + ".");
-            }
-        }
-    }*/
-    
+    private RMLValidatorResult validres = new RMLValidatorResult();   
         
     /**
      *
@@ -72,7 +50,8 @@ public class RMLValidator implements RMLMappingValidator {
         ValueFactory vf  = new ValueFactoryImpl();
         
         if (statements.isEmpty()) {
-            String objectValue = triplesMapSubject.toString() + " has no logical source defined.";
+            String objectValue = triplesMapSubject.toString() 
+                    + " has no logical source defined.";
             object = vf.createURI(triplesMapSubject.toString());
             
             validres.addViolation(
@@ -95,7 +74,8 @@ public class RMLValidator implements RMLMappingValidator {
      * @param statements
      */
     @Override
-    public void checkReferenceFormulation(Resource triplesMapSubject, List<Statement> statements) { 
+    public void checkReferenceFormulation(
+            Resource triplesMapSubject, List<Statement> statements) { 
         Value object ;
         ValueFactory vf  = new ValueFactoryImpl();
         String objectValue;
@@ -128,7 +108,8 @@ public class RMLValidator implements RMLMappingValidator {
      * @param statements
      */
     @Override
-    public void checkSource(Resource triplesMapSubject, List<Statement> statements) {
+    public void checkSource(
+            Resource triplesMapSubject, List<Statement> statements) {
         Value object;
         ValueFactory vf  = new ValueFactoryImpl();
         String objectValue;
