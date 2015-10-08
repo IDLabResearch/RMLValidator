@@ -1,7 +1,7 @@
 package be.ugent.mmlab.rml.rmlvalidator;
 
-import be.ugent.mmlab.rml.dataset.RMLDataset;
-import be.ugent.mmlab.rml.dataset.StdRMLDataset;
+import be.ugent.mmlab.rml.model.dataset.RMLDataset;
+import be.ugent.mmlab.rml.model.dataset.StdRMLDataset;
 import be.ugent.mmlab.rml.vocabularies.R2RMLVocabulary;
 import be.ugent.mmlab.rml.vocabularies.R2RMLVocabulary.R2RMLTerm;
 import be.ugent.mmlab.rml.vocabularies.Term;
