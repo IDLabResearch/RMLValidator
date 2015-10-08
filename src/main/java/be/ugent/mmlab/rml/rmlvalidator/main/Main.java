@@ -2,13 +2,21 @@ package be.ugent.mmlab.rml.rmlvalidator.main;
 
 import be.ugent.mmlab.rml.mapdochandler.extraction.std.StdRMLMappingFactory;
 import be.ugent.mmlab.rml.mapdochandler.retrieval.RMLDocRetrieval;
-import be.ugent.mmlab.rml.model.RMLMapping;
+import be.ugent.mmlab.rml.model.dataset.FileDataset;
+import be.ugent.mmlab.rml.model.dataset.RMLDataset;
 import be.ugent.mmlab.rml.rdfunit.RDFUnitValidator;
-
 import be.ugent.mmlab.rml.rmlvalidator.RMLValidatorMappingFactory;
 import be.ugent.mmlab.rml.rmlvalidator.config.RMLValidatorConfiguration;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
 import org.apache.commons.cli.CommandLine;
+import org.openrdf.model.Statement;
 import org.openrdf.repository.Repository;
+import org.openrdf.repository.RepositoryConnection;
+import org.openrdf.repository.RepositoryException;
+import org.openrdf.repository.RepositoryResult;
 import org.openrdf.rio.RDFFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,30 +41,35 @@ public class Main {
      */
     public static void main(String[] args) {
         // Log
-        Logger log = LoggerFactory.getLogger(Main.class);
-
-        StdRMLMappingFactory mappingFactory = new StdRMLMappingFactory();
-        String map_doc, triplesMap;
+        
+        String triplesMap;
         String[] exeTriplesMap = null;
-        //BasicConfigurator.configure();
         CommandLine commandLine;
         Repository repository = null;
 
         commandLine = RMLValidatorConfiguration.parseArguments(args);
-        String outputFile = null;
-
+        
         if (commandLine.hasOption("h")) {
             RMLValidatorConfiguration.displayHelp();
         }
         /*if (commandLine.hasOption("o")) {
             outputFile = commandLine.getOptionValue("o", null);
         }*/
-        if (commandLine.hasOption("m")) {
+        if (commandLine.hasOption("mqa")) {
             String baseURI = "http://example.com";
-            map_doc = commandLine.getOptionValue("m", null);
-            System.out.println("\n Map doc: " + map_doc);
+            String mappingDocument = commandLine.getOptionValue("m", null);
+            
+            //Generate the file for the skolemized mapping
+            String skolemizedRMLFile =
+                    mappingDocument.replace("rml.ttl", "skolrml.ttl");
+            log.debug("skolemized mapping document " + skolemizedRMLFile);
 
-            if (commandLine.hasOption("q")) {
+            //Generate the file for the validation results
+            String outputFile =
+                    mappingDocument.replace("rml.ttl", "validationResult.ttl");
+            log.info("validation result " + outputFile);
+
+            //if (commandLine.hasOption("q")) {
                 String outputFileRDFUnit = commandLine.getOptionValue("q", null);
                 log.error("outputFileRDFUnit " + outputFileRDFUnit);
 
@@ -66,67 +79,50 @@ public class Main {
                 log.info("========================================");
                 RMLDocRetrieval mapDocRetrieval = new RMLDocRetrieval();
                 repository =
-                        mapDocRetrieval.getMappingDoc(map_doc, RDFFormat.TURTLE);
+                        mapDocRetrieval.getMappingDoc(
+                        mappingDocument, RDFFormat.TURTLE);
 
+                //Mapping Document extraction
                 log.info("========================================");
                 log.info("Extracting the RML Mapping Definitions..");
                 log.info("========================================");
-                //RMLMapping mapping =
-                //        mappingFactory.extractRMLMapping(repository);
+
+                StdRMLMappingFactory mappingFactory = 
+                        new StdRMLMappingFactory(true);
+                repository = mappingFactory.prepareExtractRMLMapping(repository);
+                exportSkolemizedMappingDefinitions(repository, skolemizedRMLFile);
 
                 if (commandLine.hasOption("tm")) {
                     triplesMap = commandLine.getOptionValue("tm", null);
                     if (triplesMap != null) {
                         exeTriplesMap =
                                 RMLValidatorConfiguration.
-                                processTriplesMap(triplesMap, map_doc);
+                                processTriplesMap(triplesMap, mappingDocument);
                     }
                 }
 
+                //Mapping Document validation
                 log.info("========================================");
                 log.info("Validating the RML Mapping Definitions..");
                 log.info("========================================");
-
-                //Mapping Document validation
-                mappingFactory = new RMLValidatorMappingFactory(
-                        repository, true);
-
-                log.info("========================================");
-                log.info("Instantiating RDFUnit Test Cases..");
-                log.info("========================================");
-
-                //Schema validation
-                System.out.println("\n Started RDFUnit. \n ");
                 RDFUnitValidator rdfUnitValidator =
-                        new RDFUnitValidator(baseURI, outputFile);
-
-                log.info("==================================================");
-                log.info("Validating the RML Mapping Document with RDFUnit..");
-                log.info("==================================================");
+                        new RDFUnitValidator(baseURI, skolemizedRMLFile);
                 String rdfunitStringResults = rdfUnitValidator.validate();
-                //FileSesameDataset rdfunitresults = new FileSesameDataset(outputFileRDFUnit, "turtle");
 
-                //rdfunitresults.printRDFtoFile(outputFileRDFUnit,RDFFormat.TURTLE);
-                //rdfunitresults.addString(rdfunitStringResults, outputFileRDFUnit, RDFFormat.TURTLE);
-                log.info("==================================================");
-                log.info("Processing the RDFUnit results..");
-                log.info("==================================================");
-                //rdfunitresults.loadDataFromInputStream(
-                //        rdfunitResults, baseURI, RDFFormat.TURTLE, (Resource) null);
-                //rdfunitresults.printRDFtoFile(outputFileRDFUnit, RDFFormat.TURTLE);
-                //log.error("rdfunitresults " + rdfunitresults);
+                try {
+                    File file = new File(outputFile);
+                    FileWriter fw = new FileWriter(file);
+                    fw.write(rdfunitStringResults);
+                    fw.close();
+                } catch (FileNotFoundException ex) {
+                    log.error("File Not found Excpetion " + ex);
+                } catch (IOException ex) {
+                    log.error("IO Exception " + ex);
+                }
 
-            } else if (commandLine.hasOption("V")) {
-                mappingFactory = new RMLValidatorMappingFactory(repository, false);
-                //RMLMapping finalDataset = mappingFactory.extractRMLMapping(map_doc);
-            } /*else {
-             mappingFactory = new RMLValidatorMappingFactory(true);
-             mappingFactory.extractRMLMapping(map_doc);
-             }*/
-            /*if (commandLine.hasOption("V")) {
-             log.info("call RDFUnit");
-             //call RDFUnit and pass either the original file or the generated one
-             }*/
+            //} else if (commandLine.hasOption("dqa")) {
+                
+            //} 
         } else {
             System.out.println("\n No input mapping document was provided. \n ");
             System.out.println("--------------------------------------------------------------------------------");
@@ -142,6 +138,35 @@ public class Main {
             System.out.println("add -t to pass the quality tests");
             System.out.println("");
             System.out.println("--------------------------------------------------------------------------------");
+        }
+
+    }
+    
+    private static void exportSkolemizedMappingDefinitions(
+            Repository repository, String skolemizedRMLFile) {
+        try {
+            RMLDataset skolRMLDataset =
+                    new FileDataset(skolemizedRMLFile, "turtle");
+
+            RepositoryConnection mapDocRepoCon = repository.getConnection();
+            log.debug("repo size " + mapDocRepoCon.size());
+            
+            RepositoryResult<Statement> asmth =
+                    mapDocRepoCon.getStatements(null, null, null, true);
+
+            while (asmth.hasNext()) {
+                Statement statement = asmth.next();
+                skolRMLDataset.add(
+                        statement.getSubject(),
+                        statement.getPredicate(),
+                        statement.getObject());
+            }
+            log.debug("skol rml dataset size " + skolRMLDataset.getSize());
+            
+            skolRMLDataset.closeRepository();
+
+        } catch (RepositoryException ex) {
+            log.error("Repository Exception " + ex);
         }
 
     }

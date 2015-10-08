@@ -38,6 +38,8 @@ public class RMLValidatorConfiguration {
         cliOptions.addOption(
                 "m", "mapping document", true, "the URI of the mapping file (required)");
         cliOptions.addOption(
+                "mqa", "Mapping Quality Assessment", false, "");
+        cliOptions.addOption(
                 "o", "output document", true, 
                 "the output file that contains the skolemized and inferred mappings");
         cliOptions.addOption(
