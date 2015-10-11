@@ -40,12 +40,9 @@ public class RMLValidatorConfiguration {
         cliOptions.addOption(
                 "mqa", "Mapping Quality Assessment", false, "");
         cliOptions.addOption(
-                "o", "output document", true, 
-                "the output file that contains the skolemized and inferred mappings");
+                "dqa", "Dataset Quality Assessment", false, "");
         cliOptions.addOption(
-                "V", "without validation", false, "no validation");
-        cliOptions.addOption(
-                "t", "tests are enabled", false, "the RDFUnit tests are called");
+                "mdqa", "Mapping and Dataset Quality Assessment", false, "");
         return cliOptions;
     }
     
