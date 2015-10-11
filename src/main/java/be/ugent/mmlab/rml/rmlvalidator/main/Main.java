@@ -66,20 +66,7 @@ public class Main {
             datasetQA(mappingDocument);
         }
         else {
-            System.out.println("\n No input mapping document was provided. \n ");
-            System.out.println("--------------------------------------------------------------------------------");
-            System.out.println("RML Validator");
-            System.out.println("--------------------------------------------------------------------------------");
-            System.out.println("");
-            System.out.println("Usage: mvn exec:java -Dexec.args=\"-m <mapping_file> -o <output_file> -V -t\"");
-            System.out.println("");
-            System.out.println("With");
-            System.out.println("    <mapping_file> = The RML mapping document conform with the RML specification (http://semweb.mmlab.be/rml/spec.html)");
-            System.out.println("    <output_file> = The RML mapping document conform with skolemized and inferred statements.");
-            System.out.println("add -V not to validate the mapping document");
-            System.out.println("add -t to pass the quality tests");
-            System.out.println("");
-            System.out.println("--------------------------------------------------------------------------------");
+            RMLValidatorConfiguration.displayHelp();
         }
 
     }
