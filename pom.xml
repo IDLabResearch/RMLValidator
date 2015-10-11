@@ -3,11 +3,11 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>be.ugent.mmlab.rml.rmlvalidator</groupId>
-    <artifactId>RML-Validator</artifactId>
+    <artifactId>RML-RDFUnit</artifactId>
     <version>1.0</version>
     <packaging>jar</packaging>
 
-    <name>RML - Validator</name>
+    <name>RML - RDFUnit</name>
     <url>http://github.org/rmlio/rml-validator</url>
 
     <properties>
