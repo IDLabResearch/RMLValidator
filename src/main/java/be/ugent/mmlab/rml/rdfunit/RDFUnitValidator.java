@@ -2,22 +2,26 @@ package be.ugent.mmlab.rml.rdfunit;
 
 import org.aksw.rdfunit.RDFUnit;
 import org.aksw.rdfunit.RDFUnitConfiguration;
-import org.aksw.rdfunit.Utils.RDFUnitUtils;
 import org.aksw.rdfunit.enums.TestCaseExecutionType;
-import org.aksw.rdfunit.io.reader.RDFReaderException;
-import org.aksw.rdfunit.io.writer.RDFStreamWriter;
-import org.aksw.rdfunit.io.writer.RDFWriterException;
+import org.aksw.rdfunit.io.reader.RdfReaderException;
+import org.aksw.rdfunit.io.writer.RdfStreamWriter;
+import org.aksw.rdfunit.io.writer.RdfWriterException;
+import org.aksw.rdfunit.model.interfaces.TestSuite;
+import org.aksw.rdfunit.model.interfaces.results.TestExecution;
+import org.aksw.rdfunit.model.writers.results.TestExecutionWriter;
 import org.aksw.rdfunit.sources.TestSource;
-import org.aksw.rdfunit.tests.TestSuite;
 import org.aksw.rdfunit.tests.executors.TestExecutor;
 import org.aksw.rdfunit.tests.executors.TestExecutorFactory;
 import org.aksw.rdfunit.tests.executors.monitors.SimpleTestExecutorMonitor;
 import org.aksw.rdfunit.tests.generators.TestGeneratorExecutor;
+import org.aksw.rdfunit.utils.RDFUnitUtils;
+import org.apache.jena.rdf.model.Model;
+import org.apache.jena.rdf.model.ModelFactory;
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
 
 /**
  * Description
@@ -63,7 +67,7 @@ public class RDFUnitValidator {
         RDFUnit rdfUnit = new RDFUnit();
         try {
             rdfUnit.init();
-        } catch (RDFReaderException e) {
+        } catch (RdfReaderException e) {
             throw new RuntimeException("Cannot initialize RDFUnit");
         }
         // Generate TestSuite for current dataset
@@ -90,13 +94,18 @@ public class RDFUnitValidator {
 
         testExecutor.execute(testSource, testSuite);
 
+        TestExecution testExecution = testExecutorMonitor.getTestExecution();
+
         //OutputStream to get the results as string
         final ByteArrayOutputStream os = new ByteArrayOutputStream();
 
         try {
-            new RDFStreamWriter(os, serializationFormat).write(testExecutorMonitor.getModel());
+            Model model = ModelFactory.createDefaultModel();
+            TestExecutionWriter.create(testExecution).write(model);
+
+            new RdfStreamWriter(os, serializationFormat).write(model);
             return os.toString();
-        } catch (RDFWriterException e) {
+        } catch (RdfWriterException e) {
             return null;
         }
 
