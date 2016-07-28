@@ -5,18 +5,12 @@ import be.ugent.mmlab.rml.rdfunit.RDFUnitValidator;
 import be.ugent.mmlab.rml.vocabulary.RMLConfiguration;
 import be.ugent.mmlab.rml.rmlvalidator.RMLMappingFactory;
 import be.ugent.mmlab.rml.sesame.RMLSesameDataSet;
-import be.ugent.mmlab.rml.sesame.FileSesameDataset;
-import java.io.IOException;
-import java.util.logging.Level;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.ParseException;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
-import org.openrdf.model.Resource;
-import org.openrdf.repository.RepositoryException;
 import org.openrdf.rio.RDFFormat;
-import org.openrdf.rio.RDFParseException;
 
 /**
  *
@@ -65,14 +59,14 @@ public class Main {
                     System.out.println("\n Started Mapping Document Schema validation with RDFUnit. \n ");
                     String rdfunitStringResults = rdfUnitValidator.validate();                   
                     //log.error("rdfunitResults " + rdfunitStringResults);
-                    FileSesameDataset rdfunitresults = new FileSesameDataset(outputFileRDFUnit, "turtle");
+                    RMLSesameDataSet rdfunitresults = new RMLSesameDataSet(outputFileRDFUnit, "turtle");
                     
                     //rdfunitresults.printRDFtoFile(outputFileRDFUnit,RDFFormat.TURTLE);
-                    rdfunitresults.addString(rdfunitStringResults, outputFileRDFUnit, RDFFormat.TURTLE);
+                    rdfunitresults.addString(rdfunitStringResults, RDFFormat.TURTLE);
                     System.out.println("\n RDFUnit results processing.. \n ");
                     //rdfunitresults.loadDataFromInputStream(
                     //        rdfunitResults, baseURI, RDFFormat.TURTLE, (Resource) null);
-                    //rdfunitresults.printRDFtoFile(outputFileRDFUnit, RDFFormat.TURTLE);
+                    rdfunitresults.printRDFtoFile(outputFileRDFUnit, RDFFormat.TURTLE);
                     //log.error("rdfunitresults " + rdfunitresults);
                     
                 }else if (commandLine.hasOption("V")) {
