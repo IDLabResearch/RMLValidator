@@ -13,7 +13,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <sesame.version>2.7.14</sesame.version>
-        <rdfunit.version>0.7.4-SNAPSHOT</rdfunit.version>
+        <rdfunit.version>0.8</rdfunit.version>
     </properties>
 
     <build>
@@ -227,12 +227,17 @@
         </dependency>
         <dependency>
             <groupId>org.aksw.rdfunit</groupId>
+            <artifactId>rdfunit-model</artifactId>
+            <version>${rdfunit.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.aksw.rdfunit</groupId>
             <artifactId>rdfunit-core</artifactId>
             <version>${rdfunit.version}</version>
         </dependency>
         <dependency>
             <groupId>org.aksw.rdfunit</groupId>
-            <artifactId>rdfunit-resources</artifactId>
+            <artifactId>rdfunit-manual-tests</artifactId>
             <version>${rdfunit.version}</version>
         </dependency>
 

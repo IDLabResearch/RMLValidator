@@ -5,8 +5,6 @@
 package be.ugent.mmlab.rml.skolemization;
 
 import be.ugent.mmlab.rml.sesame.RMLSesameDataSet;
-import com.hp.hpl.jena.vocabulary.RDF;
-import java.util.List;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.openrdf.model.Resource;
@@ -14,6 +12,8 @@ import org.openrdf.model.Statement;
 import org.openrdf.model.Value;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.model.impl.ValueFactoryImpl;
+
+import java.util.List;
 
 /**
  *
