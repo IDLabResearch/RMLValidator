@@ -12,8 +12,8 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <rdfunit.version>0.7.4-SNAPSHOT</rdfunit.version>
-        <slf4j.version>1.7.12</slf4j.version>
+        <rdfunit.version>0.7.6</rdfunit.version>
+        <slf4j.version>1.7.21</slf4j.version>
     </properties>
     <build>
         <plugins>
@@ -99,10 +99,10 @@
     </build>
 
     <repositories>
-        <repository>
+        <!-- <repository>
             <id>repository.jboss.org</id>
             <url>https://repository.jboss.org/nexus/content/repositories/thirdparty-releases</url>
-        </repository>
+        </repository> -->
         <repository>
             <id>maven.aksw.internal</id>
             <name>University Leipzig, AKSW Maven2 Repository</name>
@@ -120,17 +120,17 @@
         <dependency>
             <groupId>be.ugent.mmlab.rml</groupId>
             <artifactId>RML-Model</artifactId>
-            <version>${project.version}</version>
+            <version>1.1-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>be.ugent.mmlab.rml</groupId>
             <artifactId>RML-MapDocHandler</artifactId>
-            <version>${project.version}</version>
+            <version>1.1-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>be.ugent.mmlab.rml</groupId>
             <artifactId>RML-Processor</artifactId>
-            <version>0.2</version>
+            <version>0.3</version>
         </dependency>
         <dependency>
             <groupId>commons-cli</groupId>
