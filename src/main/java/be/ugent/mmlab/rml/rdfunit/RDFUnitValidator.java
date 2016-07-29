@@ -85,6 +85,7 @@ public class RDFUnitValidator {
     public String validate() {
         final boolean enableRDFUnitLogging = false;
         final SimpleTestExecutorMonitor testExecutorMonitor = new SimpleTestExecutorMonitor(enableRDFUnitLogging);
+        testExecutorMonitor.setExecutionType(configuration.getTestCaseExecutionType());
 
         final TestExecutor testExecutor = 
                 TestExecutorFactory.createTestExecutor(configuration.getTestCaseExecutionType());
