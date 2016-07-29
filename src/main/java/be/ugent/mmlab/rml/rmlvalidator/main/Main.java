@@ -4,13 +4,15 @@ import be.ugent.mmlab.rml.extractor.RMLInputExtractor;
 import be.ugent.mmlab.rml.rdfunit.RDFUnitValidator;
 import be.ugent.mmlab.rml.vocabulary.RMLConfiguration;
 import be.ugent.mmlab.rml.rmlvalidator.RMLMappingFactory;
-import be.ugent.mmlab.rml.sesame.RMLSesameDataSet;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.ParseException;
+import org.apache.commons.io.FileUtils;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
-import org.openrdf.rio.RDFFormat;
+
+import java.io.File;
+import java.io.IOException;
 
 /**
  *
@@ -58,17 +60,12 @@ public class Main {
                     
                     System.out.println("\n Started Mapping Document Schema validation with RDFUnit. \n ");
                     String rdfunitStringResults = rdfUnitValidator.validate();                   
-                    //log.error("rdfunitResults " + rdfunitStringResults);
-                    RMLSesameDataSet rdfunitresults = new RMLSesameDataSet(outputFileRDFUnit, "turtle");
-                    
-                    //rdfunitresults.printRDFtoFile(outputFileRDFUnit,RDFFormat.TURTLE);
-                    rdfunitresults.addString(rdfunitStringResults, RDFFormat.TURTLE);
+
+                    File file = new File(outputFileRDFUnit);
+                    FileUtils.writeStringToFile(file,rdfunitStringResults);
                     System.out.println("\n RDFUnit results processing.. \n ");
-                    //rdfunitresults.loadDataFromInputStream(
-                    //        rdfunitResults, baseURI, RDFFormat.TURTLE, (Resource) null);
-                    rdfunitresults.printRDFtoFile(outputFileRDFUnit, RDFFormat.TURTLE);
-                    //log.error("rdfunitresults " + rdfunitresults);
-                    
+                    log.debug("output RDF Unit file " + outputFileRDFUnit);
+
                 }else if (commandLine.hasOption("V")) {
                     mappingFactory = new RMLMappingFactory(false);
                     mappingFactory.extractRMLMapping(map_doc, outputFile);
@@ -96,20 +93,9 @@ public class Main {
             }
         } catch (ParseException ex) {
             log.error(ex);
-        } /*catch (RepositoryException ex) {
-            java.util.logging.Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (RDFParseException ex) {
-            java.util.logging.Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (IOException ex) {
-            java.util.logging.Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (RepositoryException ex) {
-            log.error(ex);
-        } catch (RDFParseException ex) {
-            log.error(ex);
-        } catch (IOException ex) {
-            //log.error(ex);
-            log.error("error with the output file.");
-        }*/
+        } catch (IOException e) {
+            log.error(e.getStackTrace());
+        }
 
     }
 }
