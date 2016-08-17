@@ -9,6 +9,7 @@ import org.aksw.rdfunit.io.writer.RdfWriterException;
 import org.aksw.rdfunit.model.interfaces.TestSuite;
 import org.aksw.rdfunit.model.interfaces.results.TestExecution;
 import org.aksw.rdfunit.model.writers.results.TestExecutionWriter;
+import org.aksw.rdfunit.sources.SchemaService;
 import org.aksw.rdfunit.sources.TestSource;
 import org.aksw.rdfunit.tests.executors.TestExecutor;
 import org.aksw.rdfunit.tests.executors.TestExecutorFactory;
@@ -44,6 +45,8 @@ public class RDFUnitValidator {
     public RDFUnitValidator(String datasetURI, String rdfDataFile) {
 
         RDFUnitUtils.fillSchemaServiceFromLOV();
+        SchemaService.addSchemaDecl("dbpedia-owl", "http://dbpedia.org/ontology/", "http://mappings.dbpedia.org/server/ontology/dbpedia.owl");
+
 
         configuration = new RDFUnitConfiguration(datasetURI, dataFolder);
 
